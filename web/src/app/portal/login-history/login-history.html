@@ -1,0 +1,98 @@
+<div class="portal-page-container">
+  <div class="page-header">
+    <h1 class="page-title">Lịch sử đăng nhập</h1>
+    <p class="page-subtitle">Theo dõi hoạt động đăng nhập để bảo vệ tài khoản của bạn.</p>
+  </div>
+
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th><mat-icon class="header-icon">info</mat-icon>Trạng thái</th>
+              <th><mat-icon class="header-icon">devices</mat-icon>Thiết bị</th>
+              <th><mat-icon class="header-icon">fingerprint</mat-icon>Device ID</th>
+              <th><mat-icon class="header-icon">public</mat-icon>IP & Địa điểm</th>
+              <th><mat-icon class="header-icon">business</mat-icon>Nhà cung cấp</th>
+              <th><mat-icon class="header-icon">access_time</mat-icon>Thời gian</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of activities(); track item.createdAt) {
+              @let deviceNameLower = (item.deviceName || '').toLowerCase();
+              <tr [class.failed-row]="isFailed(item)">
+                <td class="status-cell">
+                  @if (isFailed(item)) {
+                    <span class="badge error-badge">
+                      <mat-icon class="badge-icon">warning</mat-icon>
+                      {{ item.result }}
+                    </span>
+                  } @else {
+                    <span class="badge success-badge">
+                      <mat-icon class="badge-icon">check_circle</mat-icon>
+                      Thành công
+                    </span>
+                  }
+                </td>
+                <td class="device-cell">
+                  <div class="device-info">
+                    <mat-icon class="device-icon">
+                      {{ deviceNameLower.includes('iphone') || deviceNameLower.includes('ios') || deviceNameLower.includes('android') ? 'smartphone' : 
+                         deviceNameLower.includes('ipad') || deviceNameLower.includes('tablet') ? 'tablet_mac' :
+                         deviceNameLower.includes('mac') || deviceNameLower.includes('windows') || deviceNameLower.includes('linux') ? 'desktop_windows' :
+                         'devices' }}
+                    </mat-icon>
+                    <span class="device-name">{{ item.deviceName ?? 'Thiết bị không xác định' }}</span>
+                  </div>
+                </td>
+                <td class="device-id-cell">
+                  @if (item.deviceId) {
+                    <span class="device-id" [title]="item.deviceId">{{ item.deviceId | slice:0:8 }}…</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td class="ip-cell">{{ item.ipAddress }}</td>
+                <td class="provider-cell">
+                  <span class="provider-tag">{{ item.provider }}</span>
+                </td>
+                <td class="time-cell">{{ item.createdAt | date:'medium' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty-cell">
+                  <div class="empty-state">
+                    <mat-icon class="empty-icon">history</mat-icon>
+                    <p>Không có dữ liệu lịch sử đăng nhập.</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Trang {{ page() + 1 }} trên tổng số {{ totalPages() || 1 }}
+        </div>
+        <div class="pagination-actions">
+          <button mat-stroked-button class="nav-btn" (click)="previous()" [disabled]="page() === 0">
+            <mat-icon>chevron_left</mat-icon>
+            <span>Trang trước</span>
+          </button>
+          <button mat-stroked-button class="nav-btn" (click)="next()" [disabled]="page() >= totalPages() - 1">
+            <span>Trang sau</span>
+            <mat-icon iconPositionEnd>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,236 @@
+/* --- PAGE LAYOUT & VARIABLES --- */
+:root {
+  --primary-color: #22c55e;
+  --warn-color: #f59e0b; /* amber-500 */
+  --error-color: #ef4444; /* red-500 */
+  --text-dark: #0f172a;
+  --text-gray: #64748b;
+  --bg-light: #f8fafc;
+  --border-light: #e2e8f0;
+}
+
+.portal-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+/* --- TABLE CONTAINER --- */
+.table-container {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.activity-table th {
+  background-color: #f8fafc;
+  padding: 16px 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.header-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  color: var(--text-light-gray, #94a3b8);
+  /* The mat-icon global inline-flex handles the internal alignment now */
+}
+
+.activity-table td {
+  padding: 16px 24px;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.activity-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.activity-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Highlight failed row */
+.activity-table tbody tr.failed-row {
+  background-color: #fef2f2; /* red-50 */
+}
+
+.activity-table tbody tr.failed-row:hover {
+  background-color: #fee2e2; /* red-100 */
+}
+
+/* --- TABLE CELLS --- */
+.status-cell {
+  width: 15%;
+}
+
+.device-cell {
+  width: 25%;
+}
+
+.device-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.device-icon {
+  color: var(--text-gray);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.device-name {
+  font-weight: 500;
+}
+
+.ip-cell {
+  width: 25%;
+  color: var(--text-gray);
+  font-family: ui-monospace, monospace;
+}
+
+.provider-cell {
+  width: 15%;
+}
+
+.provider-tag {
+  background-color: #f1f5f9; /* slate-100 */
+  color: #475569; /* slate-600 */
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.time-cell {
+  width: 20%;
+  color: var(--text-gray);
+}
+
+/* --- BADGES --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.badge-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+}
+
+.success-badge {
+  background-color: #dcfce7; /* green-100 */
+  color: #15803d; /* green-700 */
+}
+
+.error-badge {
+  background-color: #fecaca; /* red-200 */
+  color: #b91c1c; /* red-700 */
+}
+
+/* --- EMPTY STATE --- */
+.empty-cell {
+  padding: 0 !important;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+  color: var(--text-gray);
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: var(--border-light);
+}
+
+/* --- PAGINATION --- */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  margin-top: 8px;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--text-gray);
+}
+
+.pagination-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-btn {
+  --mdc-outlined-button-container-shape: 8px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-dark);
+}
+
+.nav-btn .mat-icon {
+  color: var(--text-gray);
+}

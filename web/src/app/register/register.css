@@ -1,0 +1,136 @@
+/* --- PAGE LAYOUT & VARIABLES --- */
+:root {
+  --primary-color: #22c55e;
+  --primary-hover: #16a34a;
+  --text-dark: #0f172a;
+  --text-gray: #64748b;
+  --bg-light: #f8fafc;
+  --border-light: #e2e8f0;
+}
+
+.register-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-light);
+  padding: 2rem 1rem;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 12px;
+  padding: 16px 0 24px 0;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+}
+
+.register-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 12px 0 8px 0;
+}
+
+.register-subtitle {
+  font-size: 1rem;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.register-content {
+  padding: 0 32px;
+}
+
+/* --- FORM --- */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Ensure Mat Icon in Prefix displays correctly */
+.mat-mdc-form-field .mat-icon[matPrefix] {
+  color: var(--text-gray);
+  margin-right: 8px;
+  font-family: 'Material Symbols Outlined' !important;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Note: Button styles are now handled globally in styles.css */
+
+/* --- DIVIDER --- */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-gray);
+  font-size: 0.875rem;
+  margin: 24px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.divider:not(:empty)::before {
+  margin-right: 1em;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 1em;
+}
+
+/* Note: Google Button styles are now handled globally in styles.css */
+
+/* --- LOGIN LINK --- */
+.login-link {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-gray);
+}
+
+.login-link a {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* --- ERROR BANNER --- */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+.error-banner .mat-icon {
+  color: #dc2626;
+}

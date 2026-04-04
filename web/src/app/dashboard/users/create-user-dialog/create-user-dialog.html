@@ -1,0 +1,65 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Create New User</h1>
+  <p class="dialog-subtitle">Fill in the details to create a new user account.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="user-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" placeholder="e.g. user@example.com" cdkFocusInitial />
+      @if (form.controls.email.hasError('required')) {
+        <mat-error>Email is required.</mat-error>
+      }
+      @if (form.controls.email.hasError('email')) {
+        <mat-error>Invalid email format.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" placeholder="e.g. john.doe" />
+      @if (form.controls.username.hasError('required')) {
+        <mat-error>Username is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Full Name</mat-label>
+      <input matInput formControlName="fullName" placeholder="e.g. John Doe" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Roles</mat-label>
+      <mat-select formControlName="roleIds" multiple placeholder="Select roles">
+        @for (role of availableRoles(); track role.id) {
+          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.roleIds.hasError('required')) {
+        <mat-error>At least one role is required.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="submit-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Creating...</span>
+    } @else {
+      <span>Create User</span>
+    }
+  </button>
+</mat-dialog-actions>

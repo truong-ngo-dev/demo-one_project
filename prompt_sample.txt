@@ -1,0 +1,7 @@
+Đọc CLAUDE.md và services/admin/CLAUDE.md trước khi làm.
+
+Implement UC-R01 (Tạo role) trong services/admin, bao gồm đầy đủ các layer:
+domain → application → infrastructure → presentation.
+
+Chỉ implement UC-R01, không implement use case khác.
+Nếu cần quyết định ngoài những gì đã mô tả trong doc thì hỏi trước.

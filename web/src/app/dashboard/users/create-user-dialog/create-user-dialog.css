@@ -1,0 +1,26 @@
+@import '../../dashboard.css';
+@import '../../roles/create-role-dialog/create-role-dialog.css'; /* Re-use common dialog styles */
+
+/* --- DIALOG SPECIFIC STYLES --- */
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Spacing between form fields */
+}
+
+/* Adjust mat-select dropdown panel if needed */
+.mat-mdc-select-panel {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* FIX: Ensure button text is always visible */
+.submit-btn span {
+  display: inline !important;
+  visibility: visible !important;
+  color: white !important;
+}
+
+.submit-btn[disabled] span {
+  color: #86efac !important;
+}

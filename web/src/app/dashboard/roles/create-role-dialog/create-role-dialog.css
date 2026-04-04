@@ -1,0 +1,140 @@
+@import '../../dashboard.css';
+
+/* --- DIALOG STRUCTURE --- */
+.dialog-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.dialog-header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.dialog-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+}
+
+mat-dialog-content {
+  padding: 8px 24px 0 !important;
+  min-width: 460px;
+  max-width: 500px;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid var(--border-color);
+  margin-top: 16px;
+  background-color: #f8fafc;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* --- FORM --- */
+.role-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between fields */
+}
+
+.role-form .mat-mdc-form-field-outline {
+  border-radius: 8px;
+}
+
+.role-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* --- BUTTONS (UNIFIED STYLE - MDC VARIANTS) --- */
+
+/* Cancel Button */
+mat-dialog-actions button[mat-button] {
+  --mdc-text-button-label-text-color: var(--text-secondary) !important;
+  --mdc-text-button-hover-state-layer-color: rgba(100, 116, 139, 0.1) !important;
+  --mdc-text-button-pressed-state-layer-color: rgba(100, 116, 139, 0.15) !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+}
+
+mat-dialog-actions button[mat-button]:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Submit Button */
+.submit-btn {
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-disabled-container-color: #d1fae5 !important;
+  --mdc-filled-button-disabled-label-text-color: #86efac !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  min-width: 120px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* AGGRESSIVE FIX FOR BUTTON TEXT VISIBILITY */
+.submit-btn .mdc-button__label,
+.submit-btn span {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+.submit-btn[disabled] .mdc-button__label,
+.submit-btn[disabled] span {
+  color: #86efac !important;
+}
+
+.submit-btn[disabled] {
+  cursor: not-allowed !important;
+}
+
+.submit-btn .mat-spinner {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.submit-btn .mat-spinner circle {
+  stroke: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --- ERROR BANNER --- */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--status-error);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.error-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--status-error);
+}

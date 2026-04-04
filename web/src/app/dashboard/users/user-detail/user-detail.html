@@ -1,0 +1,94 @@
+<div class="page-container">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (user()) {
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to users">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="user-info">
+          <h1 class="page-title">{{ user()?.username }}</h1>
+          <span class="status-badge" [class.status-active]="user()?.status === 'ACTIVE'"
+                [class.status-locked]="user()?.status === 'LOCKED'">
+            {{ user()?.status }}
+          </span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-flat-button class="action-btn" (click)="toggleLock()"
+                [color]="user()?.status === 'ACTIVE' ? 'warn' : 'primary'">
+          <mat-icon>{{ user()?.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
+          <span>{{ user()?.status === 'ACTIVE' ? 'Lock User' : 'Unlock User' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Profile Card -->
+      <div class="detail-card">
+        <h2 class="card-title">Profile Information</h2>
+        <div class="field-grid">
+          <div class="field-row">
+            <span class="field-label">Email</span>
+            <span class="field-value">{{ user()?.email }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Username</span>
+            <span class="field-value">{{ user()?.username }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Full Name</span>
+            <span class="field-value">{{ user()?.fullName || '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Created At</span>
+            <span class="field-value">{{ user()?.createdAt | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles Card -->
+      <div class="detail-card">
+        <div class="card-header-row">
+          <h2 class="card-title">Assigned Roles</h2>
+          <button mat-flat-button class="action-btn" (click)="openAssignRoles()">
+            <mat-icon>add</mat-icon>
+            <span>Assign Roles</span>
+          </button>
+        </div>
+        <div class="role-list">
+          @for (role of user()?.roles; track role.id) {
+            <div class="role-item">
+              <span class="role-name-badge">{{ role.name }}</span>
+              <button mat-icon-button class="remove-role-btn" (click)="removeRole(role)" matTooltip="Remove role">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+          @if (user()?.roles?.length === 0) {
+            <p class="empty-text">No roles assigned to this user.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Social Connections Card -->
+      @if ((user()?.socialConnections?.length ?? 0) > 0) {
+        <div class="detail-card">
+          <h2 class="card-title">Social Connections</h2>
+          <div class="social-list">
+            @for (conn of user()?.socialConnections; track conn.provider) {
+              <div class="social-item">
+                <mat-icon class="social-icon">link</mat-icon>
+                <span class="social-provider">{{ conn.provider }}</span>
+                <span class="social-date">{{ conn.connectedAt | date:'mediumDate' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

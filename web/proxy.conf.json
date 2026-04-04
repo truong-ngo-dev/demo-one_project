@@ -1,0 +1,22 @@
+{
+  "/webgw": {
+    "target": "http://localhost:8090",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api": {
+    "target": "http://localhost:8090",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/oauth2": {
+    "target": "http://localhost:8090",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/login": {
+    "target": "http://localhost:8090",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -1,0 +1,260 @@
+@import '../users.css';
+
+/* --- PAGE LAYOUT --- */
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0; /* Reset default margin */
+}
+
+/* Specific styles for the action button in the header */
+.header-actions .action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  border: none !important; /* Ensure no borders */
+}
+
+/* Ensure icon and text are always visible */
+.header-actions .action-btn .mat-icon,
+.header-actions .action-btn span {
+  color: #ffffff !important;
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+}
+
+/* Primary color (Unlock User) */
+.header-actions .action-btn[color="primary"] {
+  background-color: var(--primary-green) !important;
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+}
+
+.header-actions .action-btn[color="primary"]:hover {
+  background-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-hover-state-layer-color: transparent !important; /* Rely on bg color change */
+}
+
+/* Warn color (Lock User) */
+.header-actions .action-btn[color="warn"] {
+  background-color: var(--status-warning) !important;
+  --mdc-filled-button-container-color: var(--status-warning) !important;
+}
+
+.header-actions .action-btn[color="warn"]:hover {
+  background-color: #d97706 !important; /* Darker amber */
+  --mdc-filled-button-hover-state-layer-color: transparent !important;
+}
+
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- DETAIL CARD --- */
+.detail-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 24px 0;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.card-header-row .card-title {
+  margin-bottom: 0;
+}
+
+.card-header-row .action-btn {
+  /* Re-use the create button style */
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+
+/* --- FIELD GRID --- */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.field-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* --- ROLE LIST --- */
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center; /* This ensures vertical alignment */
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding-left: 12px;
+  padding-right: 4px; /* Adjust right padding to accommodate the icon button */
+  height: 32px; /* Set a fixed height for consistency */
+}
+
+.role-name-badge {
+  color: #15803d;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+
+/* Fix for vertical alignment of the icon inside the button */
+.remove-role-btn {
+  color: #991b1b !important; /* red-800 */
+  opacity: 0.6;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  display: inline-flex !important; /* Ensures the flex is respected but aligns like text */
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 4px;
+}
+
+/* Remove touch target that messes up alignment */
+.remove-role-btn .mat-mdc-button-touch-target {
+  display: none !important;
+}
+
+/* We specifically target the wrapper that Angular Material puts around the icon */
+.remove-role-btn .mat-mdc-button-persistent-ripple,
+.remove-role-btn .mat-mdc-button-ripple {
+  display: none !important;
+}
+
+/* AGGRESSIVE FIX FOR THE ICON */
+.remove-role-btn .mat-icon {
+  font-size: 18px !important; /* Smaller icon */
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 1 !important; /* Reset line-height */
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.remove-role-btn:hover {
+  opacity: 1;
+}
+
+.empty-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* --- SOCIAL LIST --- */
+.social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.social-icon {
+  color: var(--text-secondary);
+}
+
+.social-provider {
+  font-weight: 500;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.social-date {
+  margin-left: auto;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}

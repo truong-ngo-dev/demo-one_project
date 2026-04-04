@@ -1,0 +1,44 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Create New Role</h1>
+  <p class="dialog-subtitle">A role defines a set of permissions for users.</p>
+</div>
+
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="role-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Role Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. CONTENT_MODERATOR" autocomplete="off" cdkFocusInitial />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name is required.</mat-error>
+      }
+      <mat-hint>Unique, UPPER_SNAKE_CASE. Cannot be changed after creation.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="A short summary of what this role can do."></textarea>
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="submit-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Creating...</span>
+    } @else {
+      <span>Create Role</span>
+    }
+  </button>
+</mat-dialog-actions>

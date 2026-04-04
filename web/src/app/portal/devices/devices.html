@@ -1,0 +1,86 @@
+<div class="flex flex-col gap-6 p-0 md:p-2">
+  <div class="mb-2">
+    <h1 class="text-3xl font-bold text-slate-900 tracking-tight mb-1">Thiết bị & Phiên đăng nhập</h1>
+    <p class="text-slate-500 text-lg">Quản lý các thiết bị đang đăng nhập vào tài khoản của bạn.</p>
+  </div>
+
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="flex flex-col justify-center items-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="mt-4 text-slate-400 font-medium">Đang tải danh sách thiết bị...</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (device of devices(); track device.deviceId) {
+          @let deviceNameLower = (device.deviceName || '').toLowerCase();
+          <div class="device-card" [class.is-current]="device.isCurrent">
+            <div class="flex items-center gap-4 p-5">
+              <div class="device-icon-wrapper">
+                <mat-icon>
+                  {{ deviceNameLower.includes('iphone') || deviceNameLower.includes('ios') || deviceNameLower.includes('android') ? 'smartphone' : 
+                     deviceNameLower.includes('ipad') || deviceNameLower.includes('tablet') ? 'tablet_mac' :
+                     deviceNameLower.includes('mac') || deviceNameLower.includes('windows') || deviceNameLower.includes('linux') ? 'desktop_windows' :
+                     'devices' }}
+                </mat-icon>
+              </div>
+              <div class="flex flex-col flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-lg font-semibold text-slate-900 truncate m-0">{{ device.deviceName || 'Thiết bị không xác định' }}</h3>
+                  @if (device.isCurrent) {
+                    <span class="current-badge">Đây là thiết bị này</span>
+                  }
+                </div>
+                <div class="flex items-center gap-2">
+                  @if (device.sessionStatus === 'ACTIVE') {
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span> 
+                    <span class="text-sm font-medium text-green-600">Đang hoạt động</span>
+                  } @else {
+                    <span class="w-2 h-2 rounded-full bg-slate-300"></span> 
+                    <span class="text-sm font-medium text-slate-500">Đã đăng xuất</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="flex flex-col gap-3 p-5">
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <mat-icon class="text-slate-400 !text-lg">fingerprint</mat-icon>
+                <span class="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded" [title]="device.deviceId">ID: {{ device.deviceId | slice:0:8 }}…</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <mat-icon class="text-slate-400 !text-lg">location_on</mat-icon>
+                <span>IP: {{ device.ipAddress || 'Không xác định' }}</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-slate-600">
+                <mat-icon class="text-slate-400 !text-lg">schedule</mat-icon>
+                <span>Hoạt động: {{ device.lastSeenAt | date:'medium' }}</span>
+              </div>
+            </div>
+
+            <div class="device-card-actions">
+              @if (device.isCurrent) {
+                <div class="flex items-center gap-2 text-slate-500 text-sm italic font-medium">
+                  <mat-icon class="!text-lg">verified_user</mat-icon>
+                  <span>Bạn đang sử dụng thiết bị này</span>
+                </div>
+              } @else if (device.sessionStatus === 'ACTIVE') {
+                <button mat-flat-button class="btn-revoke" (click)="revokeDevice(device)">
+                  <mat-icon>logout</mat-icon>
+                  <span>Đăng xuất từ xa</span>
+                </button>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="col-span-full flex flex-col justify-center items-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
+            <mat-icon class="!text-5xl !w-12 !h-12 mb-4 text-slate-200">devices_other</mat-icon>
+            <p class="text-slate-500 font-medium">Không tìm thấy thiết bị nào khác đang hoạt động.</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

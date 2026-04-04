@@ -1,0 +1,27 @@
+<button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-btn">
+  <div class="avatar-circle">{{ initials }}</div>
+</button>
+
+<mat-menu #userMenu="matMenu" class="custom-user-menu">
+  <div class="menu-header">
+    <div class="menu-username">{{ username }}</div>
+  </div>
+  <mat-divider></mat-divider>
+
+  @if (showProfileOptions) {
+    <button mat-menu-item (click)="goToProfile()" class="custom-menu-item">
+      <mat-icon>person</mat-icon>
+      <span>Thông tin cá nhân</span>
+    </button>
+    <button mat-menu-item (click)="goToChangePassword()" class="custom-menu-item">
+      <mat-icon>lock</mat-icon>
+      <span>Đổi mật khẩu</span>
+    </button>
+    <mat-divider></mat-divider>
+  }
+
+  <button mat-menu-item (click)="logout()" class="custom-menu-item logout-item">
+    <mat-icon>logout</mat-icon>
+    <span>Đăng xuất</span>
+  </button>
+</mat-menu>

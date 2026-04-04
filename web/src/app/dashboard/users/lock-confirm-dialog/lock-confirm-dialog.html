@@ -1,0 +1,30 @@
+<div class="dialog-header" [class.warning]="data.action === 'lock'">
+  <h1 mat-dialog-title>
+    <mat-icon class="dialog-title-icon">{{ data.action === 'lock' ? 'lock' : 'lock_open' }}</mat-icon>
+    {{ data.action === 'lock' ? 'Lock User' : 'Unlock User' }}
+  </h1>
+</div>
+
+<mat-dialog-content>
+  <p>
+    Are you sure you want to
+    <strong class="action-highlight">{{ data.action }}</strong> user
+    <strong class="username-highlight">{{ data.user.username }}</strong>?
+  </p>
+  @if (data.action === 'lock') {
+    <p class="warning-note">
+      <mat-icon class="warning-icon">info</mat-icon>
+      This will immediately revoke all active sessions for this user.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Cancel</button>
+  <button mat-flat-button class="action-btn"
+          [color]="data.action === 'lock' ? 'warn' : 'primary'"
+          (click)="dialogRef.close(true)"
+          cdkFocusInitial>
+    <span>{{ data.action === 'lock' ? 'Lock' : 'Unlock' }}</span>
+  </button>
+</mat-dialog-actions>

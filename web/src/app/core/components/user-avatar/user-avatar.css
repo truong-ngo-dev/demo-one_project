@@ -1,0 +1,98 @@
+/* Inherit global variables if needed, though mostly encapsulated */
+.avatar-btn {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3); /* Subtle green glow matching primary */
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #22c55e; /* Use primary green */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/*
+   Note: .custom-user-menu styles need to be global or ::ng-deep
+   because mat-menu content is rendered in an overlay outside the component.
+   We use ::ng-deep here for encapsulation if possible, otherwise it might
+   need to move to global styles. Assuming ViewEncapsulation allows this or
+   using a global panelClass on mat-menu is preferred.
+   For now, trying to style the inner elements directly.
+*/
+
+::ng-deep .custom-user-menu .menu-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .custom-user-menu .menu-username {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a; /* text-dark */
+}
+
+/* Styling menu items directly */
+::ng-deep .custom-user-menu .custom-menu-item {
+  color: #475569 !important; /* slate-600 */
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* The wrapper added by Angular Material around the text/icon */
+::ng-deep .custom-user-menu .custom-menu-item .mat-mdc-menu-item-text {
+  display: flex !important;
+  align-items: center !important;
+  width: 100%;
+}
+
+::ng-deep .custom-user-menu .custom-menu-item .mat-icon {
+  margin-right: 12px;
+  color: #64748b !important; /* slate-500 */
+  transition: color 0.2s ease;
+
+  /* Ensure proper icon styling within the dropdown */
+  font-family: 'Material Symbols Outlined' !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: 20px !important; /* Adjusted slightly to match text height */
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 1 !important;
+}
+
+::ng-deep .custom-user-menu .custom-menu-item:hover {
+  background-color: #f8fafc !important; /* bg-light */
+  color: #0f172a !important; /* text-dark */
+}
+
+::ng-deep .custom-user-menu .custom-menu-item:hover .mat-icon {
+  color: #22c55e !important; /* primary green on hover */
+}
+
+::ng-deep .custom-user-menu .logout-item:hover {
+  color: #ef4444 !important; /* status-error on hover */
+}
+
+::ng-deep .custom-user-menu .logout-item:hover .mat-icon {
+  color: #ef4444 !important; /* status-error on hover */
+}

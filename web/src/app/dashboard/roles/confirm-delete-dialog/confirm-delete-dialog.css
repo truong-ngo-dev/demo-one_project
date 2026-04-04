@@ -1,0 +1,45 @@
+@import '../../dashboard.css';
+@import '../create-role-dialog/create-role-dialog.css';
+
+/* --- DELETE DIALOG SPECIFICS --- */
+.dialog-header.warning {
+  border-bottom: none;
+  padding-bottom: 8px;
+}
+
+.dialog-header.warning h1 {
+  color: var(--status-error);
+}
+
+mat-dialog-content {
+  padding-top: 0 !important;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.role-name-highlight {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: var(--app-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.warning-text {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+mat-dialog-actions .mat-mdc-button[color="warn"] {
+  background-color: var(--status-error) !important;
+  color: white !important;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+mat-dialog-actions .mat-mdc-button[color="warn"]:hover {
+  background-color: #dc2626 !important; /* Slightly darker red */
+}

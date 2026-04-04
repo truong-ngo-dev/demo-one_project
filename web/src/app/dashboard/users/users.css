@@ -1,0 +1,229 @@
+/* Inherit variables from dashboard.css */
+@import '../dashboard.css';
+
+/* --- PAGE LAYOUT --- */
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.page-toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+}
+
+/* --- CREATE USER BUTTON --- */
+button.create-user-btn {
+  /* Override MDC variables for filled button */
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+
+  /* Core Visibility & Layout */
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 100 !important;
+
+  /* Sizing & Spacing */
+  height: 40px !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+
+  /* Appearance */
+  border-radius: 8px !important;
+
+  /* Behavior */
+  cursor: pointer !important;
+
+  /* Flexbox Alignment */
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Explicitly style the icon and text inside */
+button.create-user-btn .mat-icon,
+button.create-user-btn span {
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+/* --- SEARCH & FILTER FIELDS --- */
+.search-field {
+  width: 100%;
+  max-width: 320px;
+}
+
+.status-filter {
+  width: 100%;
+  max-width: 160px;
+}
+
+.search-field .mat-mdc-form-field-flex,
+.status-filter .mat-mdc-form-field-flex {
+  height: 48px;
+  border-radius: 8px;
+}
+
+.search-field .mat-mdc-form-field-infix,
+.status-filter .mat-mdc-form-field-infix {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.search-field .mat-icon,
+.status-filter .mat-icon {
+  color: var(--text-secondary);
+}
+
+/* --- LOADING --- */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+.loading-container .mat-spinner circle {
+  stroke: var(--primary-green);
+}
+
+/* --- TABLE --- */
+.table-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+.mat-mdc-header-row {
+  background-color: #f8fafc;
+}
+
+.mat-mdc-header-cell {
+  padding: 12px 24px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.mat-mdc-row {
+  transition: background-color 0.2s;
+  cursor: pointer; /* Indicate clickable rows */
+}
+
+.mat-mdc-row:hover {
+  background-color: #f8fafc;
+}
+
+.mat-mdc-cell {
+  padding: 16px 24px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none;
+}
+
+.muted-cell {
+  color: var(--text-secondary);
+}
+
+/* --- STATUS BADGES --- */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.status-active {
+  background-color: #dcfce7; /* green-100 */
+  color: #15803d; /* green-700 */
+}
+
+.status-locked {
+  background-color: #fffbeb; /* amber-100 */
+  color: #b45309; /* amber-700 */
+}
+
+/* --- ACTIONS --- */
+.actions-cell {
+  text-align: right;
+  width: 120px; /* Adjust width to fit two buttons comfortably */
+}
+
+.actions-cell .mat-icon-button {
+  color: var(--text-secondary);
+}
+
+.actions-cell .mat-icon-button:hover {
+  color: var(--text-primary);
+}
+
+/* --- EMPTY STATE --- */
+.no-data-cell {
+  padding: 64px 0;
+  text-align: center;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--border-color);
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.empty-state-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}

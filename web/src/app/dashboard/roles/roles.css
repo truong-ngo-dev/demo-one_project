@@ -1,0 +1,215 @@
+/* Inherit variables from dashboard.css */
+@import '../dashboard.css';
+
+/* --- PAGE LAYOUT --- */
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.page-toolbar {
+  margin-bottom: 24px;
+}
+
+/* --- CREATE ROLE BUTTON (AGGRESSIVE FIX WITH MDC VARS) --- */
+button.create-role-btn {
+  /* Override MDC variables for filled button */
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+
+  /* Core Visibility & Layout */
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 100 !important;
+
+  /* Sizing & Spacing */
+  height: 40px !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+
+  /* Appearance */
+  border-radius: 8px !important;
+
+  /* Behavior */
+  cursor: pointer !important;
+
+  /* Flexbox Alignment */
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Explicitly style the icon and text inside */
+button.create-role-btn .mat-icon,
+button.create-role-btn span {
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+
+/* --- SEARCH --- */
+.search-form-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-form-field .mat-mdc-form-field-flex {
+  height: 48px;
+  border-radius: 8px;
+}
+
+.search-form-field .mat-mdc-form-field-infix {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.search-form-field .mat-icon {
+  color: var(--text-secondary);
+}
+
+/* --- LOADING --- */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+.loading-container .mat-spinner circle {
+  stroke: var(--primary-green);
+}
+
+/* --- TABLE --- */
+.table-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.roles-table {
+  width: 100%;
+}
+
+.roles-table .mat-mdc-header-row {
+  background-color: #f8fafc;
+}
+
+.roles-table .mat-mdc-header-cell {
+  padding: 12px 24px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.roles-table .mat-mdc-row {
+  transition: background-color 0.2s;
+}
+
+.roles-table .mat-mdc-row:hover {
+  background-color: #f8fafc;
+}
+
+.roles-table .mat-mdc-cell {
+  padding: 16px 24px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.roles-table .mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none;
+}
+
+.role-name-badge {
+  display: inline-block;
+  background-color: #f0fdf4;
+  color: #15803d;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+
+.description-cell {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.actions-cell {
+  text-align: right;
+  width: 112px;
+}
+
+.actions-cell .mat-icon-button {
+  color: var(--text-secondary);
+}
+
+.actions-cell .mat-icon-button:hover {
+  color: var(--text-primary);
+}
+
+.actions-cell .mat-icon-button[color="warn"]:hover {
+  color: var(--status-error);
+}
+
+/* --- EMPTY STATE --- */
+.no-data-cell {
+  padding: 64px 0;
+  text-align: center;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--border-color);
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.empty-state-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}

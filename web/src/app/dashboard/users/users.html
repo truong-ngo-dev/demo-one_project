@@ -1,0 +1,104 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">User Management</h1>
+      <p class="page-subtitle">Manage user accounts and their roles.</p>
+    </div>
+    <button mat-flat-button class="create-user-btn" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      <span>New User</span>
+    </button>
+  </div>
+
+  <div class="page-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search users</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [ngModel]="keyword()" (ngModelChange)="onKeywordChange($event)"
+             placeholder="Search by email, username or name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Status</mat-label>
+      <mat-select [ngModel]="statusFilter()" (ngModelChange)="onStatusChange($event)">
+        @for (opt of statusOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="users()">
+
+          <!-- Username Column -->
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef>Username</th>
+            <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+          </ng-container>
+
+          <!-- Full Name Column -->
+          <ng-container matColumnDef="fullName">
+            <th mat-header-cell *matHeaderCellDef>Full Name</th>
+            <td mat-cell *matCellDef="let user" class="muted-cell">{{ user.fullName || '—' }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="status-badge" [class.status-active]="user.status === 'ACTIVE'"
+                    [class.status-locked]="user.status === 'LOCKED'">
+                {{ user.status }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let user" class="actions-cell flex flex-row">
+              <button mat-icon-button (click)="viewUser(user)" matTooltip="View details">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button (click)="toggleLock(user)"
+                      [matTooltip]="user.status === 'ACTIVE' ? 'Lock user' : 'Unlock user'">
+                <mat-icon>{{ user.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"
+              (click)="viewUser(row)"></tr>
+
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">group</mat-icon>
+                <p class="empty-state-title">No Users Found</p>
+                <p class="empty-state-subtitle">Get started by creating a new user.</p>
+                <button mat-flat-button class="create-user-btn" (click)="openCreateDialog()">
+                  <mat-icon>add</mat-icon>
+                  <span>New User</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    }
+  </div>
+</div>

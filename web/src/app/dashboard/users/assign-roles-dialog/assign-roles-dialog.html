@@ -1,0 +1,69 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Assign Roles to User</h1>
+  <p class="dialog-subtitle">Select roles to assign to user <strong class="username-highlight">{{ data.user.username }}</strong>.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="assign-roles-form">
+
+    <!-- Currently Assigned Roles -->
+    @if (data.assignedRoles.length > 0) {
+      <div class="assigned-roles-section">
+        <h3 class="section-title">Currently Assigned Roles</h3>
+        <div class="role-list">
+          @for (role of data.assignedRoles; track role.id) {
+            <span class="role-name-badge">{{ role.name }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Available Roles for Assignment -->
+    <div class="available-roles-section">
+      <h3 class="section-title">Available Roles to Assign</h3>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Select Roles</mat-label>
+        <mat-select formControlName="roleIds" multiple placeholder="Select roles to assign" cdkFocusInitial>
+          @for (role of availableRoles(); track role.id) {
+            <mat-option [value]="role.id">{{ role.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.roleIds.hasError('required')) {
+          <mat-error>Select at least one role to assign.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (noRolesInSystem()) {
+        <div class="no-roles-message error">
+          <mat-icon>error_outline</mat-icon>
+          <span>No roles are defined in the system. Please create roles first.</span>
+        </div>
+      } @else if (availableRoles().length === 0) {
+        <div class="no-roles-message info">
+          <mat-icon>info</mat-icon>
+          <span>All remaining roles have already been assigned to this user.</span>
+        </div>
+      }
+    </div>
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="submit-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting() || availableRoles().length === 0">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Assigning...</span>
+    } @else {
+      <span>Assign Roles</span>
+    }
+  </button>
+</mat-dialog-actions>

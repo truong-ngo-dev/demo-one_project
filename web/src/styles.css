@@ -1,0 +1,186 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "tailwindcss";
+@import "@angular/material/prebuilt-themes/azure-blue.css";
+
+/* Override Angular Material primary color to Slate #475569 */
+:root {
+  --mat-sys-primary: #475569;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #cbd5e1;
+  --mat-sys-on-primary-container: #1e293b;
+  --mat-sys-secondary: #64748b;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-toolbar-container-background-color: #475569;
+  --mat-toolbar-container-text-color: #ffffff;
+
+  /* Additional global variables for the Dashboard theme */
+  --primary-green: #22c55e;
+  --primary-green-hover: #16a34a;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/*
+  ========================================================================
+  GLOBAL BUTTON STYLES FOR THE DASHBOARD/PORTAL THEME
+  ========================================================================
+  This solves consistent styling issues with Angular Material buttons
+  being overridden or not taking colors correctly.
+*/
+
+/*
+  .btn-primary-green
+  Applies the design system's green to mat-flat-button and a tags
+*/
+.btn-primary-green {
+  /* Override MDC variables for reliable coloring */
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-disabled-container-color: #d1fae5 !important;
+  --mdc-filled-button-disabled-label-text-color: #86efac !important;
+
+  /* Structure and Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 48px !important; /* Default to taller height for main actions */
+  padding: 0 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+
+  /* Fallbacks for non-MDC context (like plain <a> tags) */
+  background-color: var(--primary-green) !important;
+  color: #ffffff !important;
+  border: none !important;
+  text-decoration: none !important;
+}
+
+/* Ensure text and icon inside the button are always visible */
+.btn-primary-green span,
+.btn-primary-green .mdc-button__label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure the icon itself behaves */
+.btn-primary-green .mat-icon {
+  margin: 0 !important;
+}
+
+/* Hover state */
+.btn-primary-green:not([disabled]):hover {
+  background-color: var(--primary-green-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
+}
+
+/* Disabled state */
+.btn-primary-green[disabled] {
+  background-color: #d1fae5 !important;
+  color: #86efac !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.btn-primary-green[disabled] span,
+.btn-primary-green[disabled] .mdc-button__label {
+  color: #86efac !important;
+}
+
+/* Spinner adjustment inside the button */
+.btn-primary-green .mat-spinner {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.btn-primary-green .mat-spinner circle {
+  stroke: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Smaller variant for dialogs or forms */
+.btn-primary-green.btn-sm {
+  height: 40px !important;
+  padding: 0 16px !important;
+}
+
+/*
+  ========================================================================
+  GLOBAL GOOGLE BUTTON STYLES
+  ========================================================================
+*/
+.google-btn {
+  height: 48px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-light) !important;
+  font-weight: 500 !important;
+  color: #0f172a !important; /* text-dark */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease !important;
+  padding: 0 16px !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+.google-btn:hover {
+  border-color: #9ca3af !important;
+  background-color: #f8fafc !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.google-icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0;
+  display: block !important;
+}
+
+/* Fix Angular Material overrides for Google Button */
+.google-btn .mat-mdc-button-touch-target,
+.google-btn .mat-mdc-focus-indicator,
+.google-btn .mat-mdc-button-ripple {
+    display: none !important;
+}
+
+.google-btn .mdc-button__label {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+}
+
+/* Ensure all mat-icon elements use the 'Material Symbols Outlined' font family and align perfectly */
+.mat-icon {
+  font-family: 'Material Symbols Outlined' !important;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  line-height: 1 !important;
+}
+
+/* Fix for Material Icons specifically within forms using matPrefix */
+.mat-mdc-form-field .mat-icon[matPrefix] {
+  color: var(--text-gray) !important;
+}

@@ -1,0 +1,271 @@
+openapi: 3.0.3
+info:
+  title: Admin Service — User Self API
+  description: Các endpoint cho user tự quản lý profile và password của mình.
+  version: 1.0.0
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: User Self
+    description: Profile và password management cho user hiện tại
+
+paths:
+
+  /users/me:
+    get:
+      tags: [User Self]
+      summary: Lấy profile của user hiện tại
+      operationId: getMyProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile của user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseMyProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [User Self]
+      summary: UC-016 — Cập nhật thông tin cá nhân
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile đã được cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseUpdateProfile"
+        "400":
+          description: Không có field nào được cung cấp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Username hoặc phone number đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                username_exists:
+                  summary: USERNAME_ALREADY_EXISTS
+                  value:
+                    code: "10010"
+                    message: Username already exists
+                phone_exists:
+                  summary: PHONE_ALREADY_EXISTS
+                  value:
+                    code: "10013"
+                    message: Phone number already exists
+        "422":
+          description: Username đã được đổi trước đó
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "10012"
+                message: Username has already been changed
+
+  /users/me/password:
+    post:
+      tags: [User Self]
+      summary: UC-017 — Đổi password
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Kết quả đổi password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseChangePassword"
+              examples:
+                changed:
+                  summary: Đổi thành công
+                  value:
+                    data:
+                      changed: true
+                unchanged:
+                  summary: Password không đổi (trùng với password hiện tại)
+                  value:
+                    data:
+                      changed: false
+                      message: New password is the same as current password
+        "401":
+          description: Unauthorized hoặc password hiện tại không đúng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "10005"
+                message: Invalid password
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          description: User có password nhưng không cung cấp currentPassword
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "10014"
+                message: Current password is required
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    UpdateProfileRequest:
+      type: object
+      description: Ít nhất một field phải có giá trị.
+      properties:
+        username:
+          type: string
+          description: Chỉ cho đổi nếu usernameChanged = false. Pattern [a-z0-9._-].
+          example: john.doe
+        fullName:
+          type: string
+          example: John Doe
+        phoneNumber:
+          type: string
+          example: "0901234567"
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          description: Bắt buộc nếu user đã có password (không phải social-only user).
+        newPassword:
+          type: string
+          description: Password mới.
+
+    MyProfileData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        fullName:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+        usernameChanged:
+          type: boolean
+          description: true = username đã được đổi và không thể đổi thêm.
+        hasPassword:
+          type: boolean
+          description: false = social-only user, không cần currentPassword khi đổi password.
+
+    UpdateProfileData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        fullName:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+
+    ChangePasswordData:
+      type: object
+      properties:
+        changed:
+          type: boolean
+        message:
+          type: string
+          nullable: true
+          description: Chỉ có giá trị khi changed = false.
+
+    ApiResponseMyProfile:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/MyProfileData"
+
+    ApiResponseUpdateProfile:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/UpdateProfileData"
+
+    ApiResponseChangePassword:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ChangePasswordData"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Chưa xác thực
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: User không tìm thấy
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: "10001"
+            message: User not found

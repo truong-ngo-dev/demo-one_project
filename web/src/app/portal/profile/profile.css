@@ -1,0 +1,203 @@
+/* --- PAGE LAYOUT & VARIABLES --- */
+:root {
+  --primary-color: #22c55e;
+  --primary-hover: #16a34a;
+  --text-dark: #0f172a;
+  --text-gray: #64748b;
+  --bg-light: #f8fafc;
+  --border-light: #e2e8f0;
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- NUDGE BANNER --- */
+.profile-nudge-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #eff6ff; /* blue-50 */
+  border: 1px solid #bfdbfe; /* blue-200 */
+  color: #1e3a8a; /* blue-800 */
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.profile-nudge-banner .mat-icon:first-child {
+  color: #2563eb; /* blue-600 */
+  margin-right: 12px;
+}
+
+.profile-nudge-banner span {
+  flex: 1;
+}
+
+.profile-nudge-banner button {
+  color: #64748b;
+}
+
+.profile-nudge-banner button:hover {
+  color: #0f172a;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+
+.page-header {
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+/* --- MATERIAL ICONS OVERRIDE (USE OUTLINED BY DEFAULT) --- */
+.mat-icon {
+  font-family: 'Material Symbols Outlined' !important;
+  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}
+
+/* --- PROFILE CARD --- */
+.profile-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  width: 100%;
+}
+
+.form-section {
+  padding: 32px 32px 24px;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Form field adjustments */
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-form-field-icon-prefix {
+  color: var(--text-gray);
+  margin-right: 8px;
+}
+
+.readonly-input {
+  color: var(--text-gray) !important;
+  cursor: not-allowed;
+  background-color: #f1f5f9;
+}
+
+/* Hints and warnings */
+.info-icon {
+  color: var(--text-light-gray, #94a3b8);
+  cursor: help;
+  font-size: 20px !important;
+}
+
+.form-divider {
+  margin: 0 !important;
+}
+
+.form-actions {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Button styling is now handled globally by .btn-primary-green in styles.css */
+
+
+/* --- MESSAGE BANNERS --- */
+.message-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.message-banner.error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.message-banner.error .mat-icon {
+  color: #dc2626;
+}
+
+.message-banner.success {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+}
+
+.message-banner.success .mat-icon {
+  color: #16a34a;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .profile-card {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .form-section, .form-actions {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

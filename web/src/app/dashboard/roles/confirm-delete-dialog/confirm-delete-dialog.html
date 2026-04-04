@@ -1,0 +1,18 @@
+<div class="dialog-header warning">
+  <h1 mat-dialog-title>Delete Role</h1>
+</div>
+
+<mat-dialog-content>
+  <p>
+    Are you sure you want to permanently delete the
+    <strong class="role-name-highlight">{{ data.roleName }}</strong> role?
+  </p>
+  <p class="warning-text">This action cannot be undone.</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Cancel</button>
+  <button mat-flat-button color="warn" (click)="dialogRef.close(true)" cdkFocusInitial>
+    Delete
+  </button>
+</mat-dialog-actions>

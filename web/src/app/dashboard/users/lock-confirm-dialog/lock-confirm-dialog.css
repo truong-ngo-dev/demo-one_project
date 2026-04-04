@@ -1,0 +1,134 @@
+@import '../../dashboard.css';
+@import '../../roles/create-role-dialog/create-role-dialog.css';
+
+/* --- LOCK CONFIRM DIALOG SPECIFICS --- */
+.dialog-header {
+  border-bottom: none;
+  padding-bottom: 8px;
+}
+
+.dialog-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialog-title-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.dialog-header.warning h1 {
+  color: var(--status-warning); /* Use warning color for lock action */
+}
+
+.dialog-header:not(.warning) h1 {
+  color: var(--primary-green); /* Use primary color for unlock action */
+}
+
+mat-dialog-content {
+  padding-top: 0 !important;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.username-highlight {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: var(--app-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.action-highlight {
+  text-transform: capitalize;
+}
+
+.warning-note {
+  margin-top: 16px;
+  color: var(--status-warning);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #fffbeb;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+
+.warning-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+/* Button overrides for this specific dialog context */
+mat-dialog-actions .mat-mdc-button[color="warn"],
+mat-dialog-actions .action-btn[color="warn"] {
+  --mdc-filled-button-container-color: var(--status-warning) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: #d97706 !important;
+  --mdc-filled-button-pressed-state-layer-color: #d97706 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  border: none !important;
+  background-color: var(--status-warning) !important;
+  color: white !important;
+}
+
+mat-dialog-actions .mat-mdc-button[color="warn"]:hover,
+mat-dialog-actions .action-btn[color="warn"]:hover {
+  background-color: #d97706 !important; /* Darker amber */
+}
+
+mat-dialog-actions .mat-mdc-button[color="primary"],
+mat-dialog-actions .action-btn[color="primary"] {
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  border: none !important;
+  background-color: var(--primary-green) !important;
+  color: white !important;
+}
+
+mat-dialog-actions .mat-mdc-button[color="primary"]:hover,
+mat-dialog-actions .action-btn[color="primary"]:hover {
+  background-color: var(--primary-green-hover) !important;
+}
+
+/* Ensure text is visible in these buttons too */
+mat-dialog-actions .mat-mdc-button[color="warn"] span,
+mat-dialog-actions .mat-mdc-button[color="primary"] span,
+mat-dialog-actions .action-btn[color="warn"] span,
+mat-dialog-actions .action-btn[color="primary"] span {
+  color: white !important;
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

@@ -1,0 +1,48 @@
+<mat-sidenav-container class="portal-layout">
+  <!-- Sidebar -->
+  <mat-sidenav mode="side" opened class="portal-sidebar">
+    <div class="sidebar-header">
+      <span class="portal-logo" routerLink="/app/dashboard">Apartcom Portal</span>
+    </div>
+
+    <div class="sidebar-menu">
+      <mat-nav-list class="sidebar-nav-list">
+        <mat-list-item routerLink="dashboard" routerLinkActive="active">
+          <mat-icon matListItemIcon>home</mat-icon>
+          <span matListItemTitle>Trang chủ</span>
+        </mat-list-item>
+        <mat-list-item routerLink="profile" routerLinkActive="active">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <span matListItemTitle>Hồ sơ</span>
+        </mat-list-item>
+        <mat-list-item routerLink="devices" routerLinkActive="active">
+          <mat-icon matListItemIcon>devices</mat-icon>
+          <span matListItemTitle>Thiết bị &amp; Phiên đăng nhập</span>
+        </mat-list-item>
+        <mat-list-item routerLink="login-history" routerLinkActive="active">
+          <mat-icon matListItemIcon>history</mat-icon>
+          <span matListItemTitle>Lịch sử đăng nhập</span>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main content -->
+  <mat-sidenav-content class="portal-main">
+    <mat-toolbar class="portal-header">
+      <span class="spacer"></span>
+
+      <button mat-icon-button matTooltip="Thông báo">
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <div class="avatar-container">
+        <app-user-avatar [username]="username()" [fullName]="fullName()"></app-user-avatar>
+      </div>
+    </mat-toolbar>
+
+    <div class="portal-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

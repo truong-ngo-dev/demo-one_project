@@ -1,0 +1,319 @@
+openapi: 3.0.3
+info:
+  title: OAuth2 Service — Sessions & Login History API
+  description: |
+    User self-service endpoints cho sessions và lịch sử đăng nhập.
+    Tất cả endpoints yêu cầu Bearer Access Token hợp lệ.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:9000
+    description: oauth2-service (direct)
+  - url: http://localhost:8090/api/oauth2
+    description: Qua Web Gateway (Angular dùng URL này)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/sessions/me:
+    get:
+      summary: UC-007 — Danh sách thiết bị & trạng thái session
+      description: |
+        Trả về danh sách tất cả thiết bị của user hiện tại cùng trạng thái session.
+        - Device có `isCurrent = true`: thiết bị đang gọi request này.
+        - Device có `sessionStatus = ACTIVE`: đang có session active (có thể revoke).
+        - Device có `sessionStatus = null`: đã đăng xuất, không có session active.
+      operationId: listMyDevices
+      tags:
+        - Sessions
+      responses:
+        "200":
+          description: Danh sách thiết bị thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceSessionView"
+              example:
+                - deviceId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  deviceName: "Chrome on macOS"
+                  ipAddress: "192.168.1.1"
+                  lastSeenAt: "2025-01-01T00:00:00Z"
+                  sessionId: "7cb6efb9-82f3-4a14-a3c0-1a2b3c4d5e6f"
+                  sessionStatus: "ACTIVE"
+                  isCurrent: true
+                - deviceId: "8ab5c63d-4618-5473-c4ed-3d074g77bgb7"
+                  deviceName: "Firefox on Windows"
+                  ipAddress: "10.0.0.5"
+                  lastSeenAt: "2024-12-30T10:00:00Z"
+                  sessionId: null
+                  sessionStatus: null
+                  isCurrent: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/sessions/me/{sessionId}:
+    delete:
+      summary: UC-008 — Đăng xuất từ xa một thiết bị/session
+      description: |
+        Revoke một session cụ thể của user hiện tại từ xa.
+        - Không thể dùng để đăng xuất session hiện tại — dùng logout chuẩn (`POST /webgw/auth/logout`).
+        - Session phải thuộc về user đang thực hiện request.
+        - Session phải ở trạng thái ACTIVE.
+        - Sau khi revoke, Web Gateway sẽ được notify để invalidate Redis session ngay lập tức.
+      operationId: revokeSession
+      tags:
+        - Sessions
+      parameters:
+        - name: sessionId
+          in: path
+          description: ID của session cần revoke
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Session đã được revoke thành công
+        "400":
+          description: |
+            Không thể revoke session hiện tại qua remote logout.
+            ErrorCode: 02006 (CANNOT_REVOKE_CURRENT_SESSION)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "02006"
+                message: "Cannot revoke your current session via remote logout. Use standard logout instead."
+        "403":
+          description: |
+            Session không thuộc về user hiện tại.
+            ErrorCode: 02005 (SESSION_NOT_BELONG_TO_USER)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "02005"
+                message: "Session does not belong to user"
+        "404":
+          description: |
+            Session không tồn tại.
+            ErrorCode: 02001 (SESSION_NOT_FOUND)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: "02001"
+                message: "Session not found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/login-activities/me:
+    get:
+      summary: UC-012 — Lịch sử đăng nhập của chính mình
+      description: |
+        Trả về lịch sử đăng nhập của user hiện tại, phân trang, sắp xếp mới nhất trước.
+        - Chỉ trả về activities của chính user — không bao gồm activities của user khác.
+        - FAILED activities với IP/userAgent lạ → frontend nên highlight để user chú ý.
+        - `deviceId` và `deviceName` có thể null cho các lần đăng nhập thất bại.
+      operationId: listMyLoginActivities
+      tags:
+        - Login Activities
+      parameters:
+        - name: page
+          in: query
+          description: Số trang (0-based)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Số item mỗi trang (max 50)
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 50
+      responses:
+        "200":
+          description: Lịch sử đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginActivityPage"
+              example:
+                content:
+                  - result: "SUCCESS"
+                    ipAddress: "192.168.1.1"
+                    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)..."
+                    provider: "LOCAL"
+                    createdAt: "2025-01-01T00:00:00Z"
+                    deviceId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    deviceName: "Chrome on macOS"
+                  - result: "FAILED_WRONG_PASSWORD"
+                    ipAddress: "10.0.0.1"
+                    userAgent: "Unknown"
+                    provider: "LOCAL"
+                    createdAt: "2024-12-31T23:59:00Z"
+                    deviceId: null      # null khi login thất bại — device chưa được tạo
+                    deviceName: null
+                page: 0
+                size: 20
+                totalElements: 50
+                totalPages: 3
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DeviceSessionView:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+          description: Định danh duy nhất của device
+        deviceName:
+          type: string
+          description: Tên thiết bị — system detect từ User-Agent
+          example: "Chrome on macOS"
+        ipAddress:
+          type: string
+          description: IP address lần đăng nhập gần nhất
+          example: "192.168.1.1"
+        lastSeenAt:
+          type: string
+          format: date-time
+          description: Thời điểm hoạt động gần nhất (ISO 8601)
+        sessionId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID của session active. null nếu không có session active.
+        sessionStatus:
+          type: string
+          nullable: true
+          enum: [ACTIVE, null]
+          description: Trạng thái session. null nếu không có session active.
+        isCurrent:
+          type: boolean
+          description: true nếu đây là thiết bị đang thực hiện request này
+      required:
+        - deviceId
+        - deviceName
+        - ipAddress
+        - lastSeenAt
+        - isCurrent
+
+    LoginActivityView:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - SUCCESS
+            - FAILED_WRONG_PASSWORD
+            - FAILED_ACCOUNT_LOCKED
+            - FAILED_SOCIAL
+          description: Kết quả đăng nhập
+        ipAddress:
+          type: string
+          description: IP address của request
+          example: "192.168.1.1"
+        userAgent:
+          type: string
+          description: User-Agent của browser
+        provider:
+          type: string
+          enum: [LOCAL, GOOGLE]
+          description: Phương thức đăng nhập
+        createdAt:
+          type: string
+          format: date-time
+          description: Thời điểm đăng nhập (ISO 8601)
+        deviceId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID thiết bị. null nếu login thất bại (device chưa được tạo).
+        deviceName:
+          type: string
+          nullable: true
+          description: Tên thiết bị. null nếu deviceId null.
+      required:
+        - result
+        - ipAddress
+        - userAgent
+        - createdAt
+
+    LoginActivityPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginActivityView"
+        page:
+          type: integer
+          description: Trang hiện tại (0-based)
+          example: 0
+        size:
+          type: integer
+          description: Số item mỗi trang
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          description: Tổng số item
+          example: 50
+        totalPages:
+          type: integer
+          description: Tổng số trang
+          example: 3
+      required:
+        - content
+        - page
+        - size
+        - totalElements
+        - totalPages
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "02001"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Session not found"
+      required:
+        - code
+        - message
+
+  responses:
+    Unauthorized:
+      description: Token không hợp lệ hoặc hết hạn
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "invalid_token"

@@ -1,0 +1,396 @@
+openapi: 3.0.3
+info:
+  title: Admin Service — User API
+  version: v1
+  description: User management endpoints. All routes require authentication.
+
+servers:
+  - url: /api/v1
+    description: Internal (direct to service)
+  - url: /api/admin/v1
+    description: External via Web Gateway
+
+paths:
+  /users:
+    post:
+      summary: UC-001 — Admin tạo user mới
+      operationId: createUser
+      tags: [User]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User đã được tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '409':
+          description: Email hoặc username đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emailExists:
+                  value:
+                    error: { code: EMAIL_ALREADY_EXISTS, message: Email already exists }
+                usernameExists:
+                  value:
+                    error: { code: USERNAME_ALREADY_EXISTS, message: Username already exists }
+        '404':
+          description: Một trong các roleIds không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: ROLE_NOT_FOUND, message: Role not found }
+
+    get:
+      summary: UC-006 — Tìm kiếm và filter danh sách user
+      operationId: searchUsers
+      tags: [User]
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          description: Tìm theo email, username, fullName (contains, case-insensitive)
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/UserStatus'
+        - name: roleId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            default: createdAt,desc
+      responses:
+        '200':
+          description: Danh sách users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummaryPage'
+
+  /users/{id}:
+    get:
+      summary: UC-004 — Tìm user theo ID
+      operationId: getUserById
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Thông tin chi tiết user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponse'
+        '404':
+          description: User không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: USER_NOT_FOUND, message: User not found }
+
+  /users/{id}/lock:
+    post:
+      summary: UC-007 — Khoá tài khoản user
+      operationId: lockUser
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Khoá thành công
+        '404':
+          description: User không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: USER_NOT_FOUND, message: User not found }
+        '422':
+          description: Thao tác không hợp lệ với status hiện tại (đã bị khoá)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: INVALID_STATUS, message: Invalid status for this operation }
+
+  /users/{id}/unlock:
+    post:
+      summary: UC-007 — Mở khoá tài khoản user
+      operationId: unlockUser
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Mở khoá thành công
+        '404':
+          description: User không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: USER_NOT_FOUND, message: User not found }
+        '422':
+          description: Thao tác không hợp lệ với status hiện tại (không phải LOCKED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: { code: INVALID_STATUS, message: Invalid status for this operation }
+
+  /users/{id}/roles:
+    post:
+      summary: UC-013 — Gán role cho user (merge, không replace)
+      operationId: assignRoles
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignRolesRequest'
+      responses:
+        '204':
+          description: Gán thành công
+        '404':
+          description: User hoặc role không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                userNotFound:
+                  value:
+                    error: { code: USER_NOT_FOUND, message: User not found }
+                roleNotFound:
+                  value:
+                    error: { code: ROLE_NOT_FOUND, message: Role not found }
+
+  /users/{id}/roles/{roleId}:
+    delete:
+      summary: UC-014 — Gỡ role khỏi user
+      operationId: removeRole
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Gỡ thành công
+        '404':
+          description: User không tồn tại hoặc user không có role này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                userNotFound:
+                  value:
+                    error: { code: USER_NOT_FOUND, message: User not found }
+                roleNotFound:
+                  value:
+                    error: { code: ROLE_NOT_FOUND, message: Role not found }
+
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: UUID của user
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    UserStatus:
+      type: string
+      enum: [ACTIVE, LOCKED]
+
+    CreateUserRequest:
+      type: object
+      required: [email, username, roleIds]
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          description: Unique, immutable sau khi tạo
+        fullName:
+          type: string
+          nullable: true
+        roleIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+
+    CreateUserResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            username:
+              type: string
+
+    AssignRolesRequest:
+      type: object
+      required: [roleIds]
+      properties:
+        roleIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+
+    UserDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserDetail'
+
+    UserDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        username:
+          type: string
+        fullName:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleRef'
+        socialConnections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialConnectionRef'
+        createdAt:
+          type: string
+          format: date-time
+
+    RoleRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    SocialConnectionRef:
+      type: object
+      properties:
+        provider:
+          type: string
+          example: GOOGLE
+        connectedAt:
+          type: integer
+          format: int64
+
+    UserSummaryPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSummary'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        username:
+          type: string
+        fullName:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UserStatus'
+
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string

@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: Admin Service — Role API
+  version: v1
+  description: Role management endpoints. All routes require authentication.
+
+servers:
+  - url: /api/v1
+    description: Internal (direct to service)
+  - url: /api/admin/v1
+    description: External via Web Gateway
+
+paths:
+  /roles:
+    post:
+      summary: UC-008 — Tạo role mới
+      operationId: createRole
+      tags: [Role]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '201':
+          description: Role đã được tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRoleResponse'
+        '409':
+          description: Role name đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_ALREADY_EXISTS
+                  message: Role name already exists
+
+    get:
+      summary: UC-010 — Danh sách roles
+      operationId: listRoles
+      tags: [Role]
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          description: Tìm theo name hoặc description (contains, case-insensitive)
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: sort
+          in: query
+          required: false
+          description: "Format: field,direction. Ví dụ: name,asc"
+          schema:
+            type: string
+            default: name,asc
+      responses:
+        '200':
+          description: Danh sách roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleSummaryPage'
+
+  /roles/{id}:
+    get:
+      summary: UC-009 — Tìm role theo ID
+      operationId: getRoleById
+      tags: [Role]
+      parameters:
+        - $ref: '#/components/parameters/RoleId'
+      responses:
+        '200':
+          description: Thông tin chi tiết role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetailResponse'
+        '404':
+          description: Role không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_NOT_FOUND
+                  message: Role not found
+
+    patch:
+      summary: UC-011 — Cập nhật description của role
+      operationId: updateRole
+      tags: [Role]
+      parameters:
+        - $ref: '#/components/parameters/RoleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+      responses:
+        '200':
+          description: Role sau khi cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetailResponse'
+        '404':
+          description: Role không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_NOT_FOUND
+                  message: Role not found
+        '422':
+          description: Request chứa field name (immutable)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_NAME_IMMUTABLE
+                  message: Role name cannot be changed
+
+    delete:
+      summary: UC-012 — Xóa role
+      operationId: deleteRole
+      tags: [Role]
+      parameters:
+        - $ref: '#/components/parameters/RoleId'
+      responses:
+        '204':
+          description: Xóa thành công
+        '404':
+          description: Role không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_NOT_FOUND
+                  message: Role not found
+        '409':
+          description: Role đang được gán cho user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ROLE_IN_USE
+                  message: Role is assigned to one or more users
+
+components:
+  parameters:
+    RoleId:
+      name: id
+      in: path
+      required: true
+      description: UUID của role
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    CreateRoleRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: Unique, UPPER_SNAKE_CASE, immutable sau khi tạo
+          example: MANAGER
+        description:
+          type: string
+          nullable: true
+          example: Can manage team members
+
+    CreateRoleResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+
+    UpdateRoleRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          nullable: true
+          example: Updated description
+      description: "Chỉ được chứa description. Nếu có field name → 422 ROLE_NAME_IMMUTABLE."
+
+    RoleDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RoleDetail'
+
+    RoleDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: MANAGER
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    RoleSummaryPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleSummary'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+
+    RoleSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: MANAGER
+        description:
+          type: string
+          nullable: true
+
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items: {}

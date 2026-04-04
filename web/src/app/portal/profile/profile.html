@@ -1,0 +1,100 @@
+<div class="profile-container">
+  @if (showProfileNudge()) {
+    <div class="profile-nudge-banner">
+      <mat-icon>info</mat-icon>
+      <span>Bạn đang dùng tên đăng nhập tự động. Hãy cập nhật username theo ý muốn của bạn.</span>
+      <button mat-icon-button (click)="showProfileNudge.set(false)" aria-label="Đóng">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <div class="page-header">
+    <h1 class="page-title">Thông tin cá nhân</h1>
+    <p class="page-subtitle">Quản lý thông tin tài khoản và cách liên hệ của bạn.</p>
+  </div>
+
+  <div class="profile-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="profile-card">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="profile-form">
+
+          <div class="form-section">
+            <h3 class="section-title">Thông tin cơ bản</h3>
+
+            <div class="form-grid">
+              <!-- Email — disabled -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Email</mat-label>
+                <mat-icon matPrefix>mail</mat-icon>
+                <input matInput [value]="user()?.email ?? ''" [disabled]="true" class="readonly-input" />
+                <mat-icon matSuffix class="info-icon" matTooltip="Email dùng để đăng nhập, không thể thay đổi.">info</mat-icon>
+              </mat-form-field>
+
+              <!-- Username — readonly nếu usernameChanged = true -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Tên đăng nhập (Username)</mat-label>
+                <mat-icon matPrefix>alternate_email</mat-icon>
+                <input matInput formControlName="username" [readonly]="user()?.usernameChanged" [class.readonly-input]="user()?.usernameChanged" />
+                @if (user()?.usernameChanged) {
+                  <mat-icon matSuffix class="info-icon" matTooltip="Username đã được đổi và không thể thay đổi thêm.">lock</mat-icon>
+                } @else {
+                  <mat-icon matSuffix class="info-icon" matTooltip="Lưu ý: Chỉ có thể đổi username một lần duy nhất.">warning</mat-icon>
+                }
+              </mat-form-field>
+
+              <!-- Full name -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Họ và tên</mat-label>
+                <mat-icon matPrefix>person</mat-icon>
+                <input matInput formControlName="fullName" placeholder="VD: Nguyễn Văn A" />
+              </mat-form-field>
+
+              <!-- Phone number -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Số điện thoại</mat-label>
+                <mat-icon matPrefix>phone</mat-icon>
+                <input matInput formControlName="phoneNumber" placeholder="VD: 0912345678" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <mat-divider class="form-divider"></mat-divider>
+
+          <div class="form-actions">
+            @if (errorMessage()) {
+              <div class="message-banner error">
+                <mat-icon>error</mat-icon>
+                <span>{{ errorMessage() }}</span>
+              </div>
+            }
+
+            @if (successMessage()) {
+              <div class="message-banner success">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ successMessage() }}</span>
+              </div>
+            }
+
+            <div class="action-buttons">
+              <!-- Replaced custom class with global .btn-primary-green -->
+              <button mat-flat-button type="submit" [disabled]="isSaving() || form.pristine" class="btn-primary-green btn-sm">
+                @if (isSaving()) {
+                  <mat-spinner></mat-spinner>
+                  <span>Đang lưu...</span>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                  <span>Lưu thay đổi</span>
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>
