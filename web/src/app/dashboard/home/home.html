@@ -1,6 +1,45 @@
 <div class="home-content">
-  <div class="content-header">
-    <h1 class="content-title">System Overview</h1>
-    <p class="content-subtitle">Here's what's happening with your platform today.</p>
-  </div>
+
+  <header class="content-header mb-8">
+    <h1 class="content-title text-2xl font-bold text-slate-900">System Overview</h1>
+    <p class="content-subtitle text-slate-500">Here's what's happening with your platform today.</p>
+  </header>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-16">
+      <mat-spinner diameter="40" />
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (!isLoading() && error()) {
+    <div class="flex items-center gap-3 p-4 rounded-lg bg-red-50 text-red-700 border border-red-100 mb-6">
+      <mat-icon>error_outline</mat-icon>
+      <span class="font-medium">{{ error() }}</span>
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  @if (!isLoading() && !error()) {
+    <div class="kpi-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (card of kpiCards(); track card.label) {
+        <mat-card class="kpi-card group hover:shadow-lg transition-all duration-300 border-none" 
+                  [class.kpi-card-warn]="card.icon === 'gpp_bad'">
+          <mat-card-content class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <span class="kpi-label text-sm font-medium text-slate-500">{{ card.label }}</span>
+              <div class="kpi-icon-container p-2 rounded-lg bg-slate-50 group-hover:bg-green-50 transition-colors duration-300">
+                <mat-icon class="kpi-icon text-slate-400 group-hover:text-green-600 transition-colors duration-300">
+                  {{ card.icon }}
+                </mat-icon>
+              </div>
+            </div>
+            <div class="kpi-value text-3xl font-bold text-slate-900">{{ card.value }}</div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
 </div>

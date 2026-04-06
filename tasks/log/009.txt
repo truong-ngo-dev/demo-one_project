@@ -1,0 +1,230 @@
+Prompt Đợt 1: Backend Development & API Contract (Phần 1 & 2)
+
+  Mục tiêu: Xây dựng các endpoint truy vấn dữ liệu toàn hệ thống và logic Revoke dành cho Admin.
+
+  > Subject: Thực hiện Task 009 (Phần 1) — Monitoring Backend & API
+  >
+  > Vai trò: Bạn là Senior Backend Engineer thực hiện các tính năng giám sát an ninh cho oauth2-service.
+  >
+  > Tài liệu căn cứ:
+  > 1. Quy trình Task: @tasks/009_admin_global_monitoring.md (Thực hiện Task 1 và Task 2).
+  > 2. Phân tích nghiệp vụ: @docs/business_analysis/admin_security_management.md.
+  > 3. Use Case chi tiết: @services/oauth2/docs/use-cases/UC-012_global_login_history.md và
+  UC-013_global_active_sessions.md.
+  >
+  > Nhiệm vụ cụ thể:
+  >
+  > 1. Triển khai UC-012 (Global Login Log):
+  >    - Tạo slice: application.login_activity.admin_query.
+  >    - Viết Handler hỗ trợ filter: ip, result, username và Pageable.
+  >    - Lưu ý: Bỏ qua việc lọc theo userId của caller (check ROLE_ADMIN thay thế). Trả về đầy đủ định
+  danh người dùng.
+  >
+  > 2. Triển khai UC-013 (Active Sessions & Admin Revoke):
+  >    - Query: Slice application.session.admin_query. Lấy các bản ghi ACTIVE (Join Device để lấy tên
+  thiết bị).
+  >    - Action Revoke: Slice application.session.admin_revoke.
+  >        - Handler gọi SessionTerminationService để hủy token.
+  >        - Audit: Phải lưu vết adminId thực hiện (ghi log hệ thống hoặc DB log tùy thiết kế hiện tại).
+  >        - Phát SessionRevokedEvent.
+  >
+  > 3. Presentation Layer:
+  >    - Bổ sung các endpoint admin tương ứng vào LoginActivityController và SessionController.
+  >    - Sử dụng @PreAuthorize("hasAuthority('ROLE_ADMIN')").
+  >
+  > 4. API Contract: Cập nhật @docs/api/oauth2-sessions-history.yaml khớp với logic vừa viết.
+  >
+  > Yêu cầu Handoff (Bắt buộc):
+  > Sau khi xong code, hãy cung cấp một "FRONTEND CONTEXT BLOCK" chứa:
+  > - Các Endpoint URLs mới.
+  > - Typescript Interfaces cho: GlobalActivityLog và ActiveSession.
+  > - Danh sách các Query Parameters và Enums liên quan.
+  >
+  > Hãy thực hiện và liệt kê các file đã thay đổi.
+
+  ---
+
+  Prompt Đợt 2: Angular Logic Implementation (Phần 3)
+
+  Mục tiêu: Xây dựng logic gọi API, quản lý trạng thái bảng và điều hướng.
+
+  > Subject: Thực hiện Task 009 (Phần 2) — Monitoring Angular Logic
+  >
+  > Vai trò: Bạn là Senior Frontend Engineer chuyên về Angular Material Tables.
+  >
+  > Tài liệu căn cứ:
+  > 1. Quy trình Task: @tasks/009_admin_global_monitoring.md (Thực hiện Task 3).
+  > 2. Dữ liệu bàn giao: FRONTEND CONTEXT BLOCK
+      Endpoints
+      ┌────────┬───────────────────────────────────────────┬─────────────────────────────┐
+      │ Method │                    URL                    │            Mô tả            │
+      ├────────┼───────────────────────────────────────────┼─────────────────────────────┤
+      │ GET    │ /api/oauth2/v1/login-activities/admin     │ UC-012 global activity log  │
+      ├────────┼───────────────────────────────────────────┼─────────────────────────────┤
+      │ GET    │ /api/oauth2/v1/sessions/admin/active      │ UC-013 active sessions list │
+      ├────────┼───────────────────────────────────────────┼─────────────────────────────┤
+      │ DELETE │ /api/oauth2/v1/sessions/admin/{sessionId} │ UC-013 force terminate      │
+      └────────┴───────────────────────────────────────────┴─────────────────────────────┘
+
+      TypeScript Interfaces
+
+      // UC-012 — Global Login Activity
+      export type LoginResult = 'SUCCESS' | 'FAILED_WRONG_PASSWORD' | 'FAILED_ACCOUNT_LOCKED' |
+      'FAILED_SOCIAL';
+      export type LoginProvider = 'LOCAL' | 'GOOGLE';
+
+      export interface AdminLoginActivityView {
+        id: string;
+        userId: string | null;
+        username: string;
+        result: LoginResult;
+        ipAddress: string;
+        userAgent: string;
+        deviceId: string | null;
+        deviceName: string | null;
+        provider: LoginProvider;
+        createdAt: string; // ISO 8601
+      }
+
+      export interface AdminLoginActivityPage {
+        data: AdminLoginActivityView[];
+        meta: { page: number; size: number; total: number };
+      }
+
+      export interface AdminLoginActivityFilter {
+        ip?: string;
+        result?: LoginResult;
+        username?: string;
+        page?: number;   // default 0
+        size?: number;   // default 20, max 100
+      }
+
+      // UC-013 — Active Sessions
+      export interface ActiveSessionView {
+        sessionId: string;
+        userId: string;
+        username: string | null; // lấy từ login_activities, có thể null
+        deviceName: string | null;
+        ipAddress: string;
+        createdAt: string; // ISO 8601
+      }
+
+      export interface ActiveSessionsResponse {
+        data: ActiveSessionView[];
+      }
+
+      Error Codes cần bắt (Force Terminate)
+
+      ┌───────┬──────┬───────────────────────────────────────────────┐
+      │ Code  │ HTTP │                  Trường hợp                   │
+      ├───────┼──────┼───────────────────────────────────────────────┤
+      │ 02001 │ 404  │ Session không tồn tại                         │
+      ├───────┼──────┼───────────────────────────────────────────────┤
+      │ 02002 │ 409  │ Session đã REVOKED/EXPIRED — không còn ACTIVE │
+      ├───────┼──────┼───────────────────────────────────────────────┤
+      │ —     │ 401  │ Token hết hạn → redirect login                │
+      ├───────┼──────┼───────────────────────────────────────────────┤
+      │ —     │ 403  │ Không có ROLE_ADMIN                           │
+      └───────┴──────┴───────────────────────────────────────────────┘
+
+  >
+  > Nhiệm vụ cụ thể:
+  >
+  > 1. Angular Services:
+  >    - AdminActivityService: Method getGlobalActivities(filters) hỗ trợ phân trang.
+  >    - AdminSessionService: getActiveSessions() và forceTerminate(sessionId).
+  >
+  > 2. Triển khai 2 Components mới (Standalone):
+  >    - Global Login Activity:
+  >        - Quản lý state bằng Signals: list, total, filters, loading.
+  >        - Xử lý chuyển trang và thay đổi filter (search debounce).
+  >    - Global Active Sessions:
+  >        - Hiển thị danh sách người dùng online.
+  >        - Xử lý hành động forceTerminate kèm theo Confirm Dialog (sử dụng MatDialog).
+  >
+  > 3. Routing: Cấu hình route /admin/login-activities và /admin/active-sessions vào Sidebar.
+  >
+  > Yêu cầu kỹ thuật:
+  > - Chỉ viết Functional HTML (cấu trúc <table>, <input> cơ bản).
+  > - KHÔNG viết CSS màu mè (dành cho Gemini).
+  >
+  > Trả về danh sách file và mã nguồn đã thực hiện.
+
+  ---
+
+  Prompt Đợt 3: Styling với Gemini (Phần 4)
+
+  Mục tiêu: Làm đẹp giao diện theo Design System dashboard.md.
+
+  > Subject: Thiết kế Giao diện Security Monitoring (Gemini UI/UX)
+  >
+  > Vai trò: Bạn là Senior UI/UX Engineer.
+  >
+  > Files to Restyle:
+  Files tạo/sửa
+
+    Tạo mới:
+
+    ┌──────────────────────────────────────────────────────────────────────────────┬───────────────────┐
+    │                                     File                                     │       Mô tả       │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ core/services/admin-activity.service.ts                                      │ Service UC-012 +  │
+    │                                                                              │ types             │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ core/services/admin-session.service.ts                                       │ Service UC-013    │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │                                                                              │ Component —       │
+    │ dashboard/active-sessions/active-sessions.ts                                 │ active sessions   │
+    │                                                                              │ table             │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │                                                                              │ Template —        │
+    │ dashboard/active-sessions/active-sessions.html                               │ mat-table + force │
+    │                                                                              │  terminate button │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ dashboard/active-sessions/active-sessions.css                                │ Placeholder       │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ dashboard/active-sessions/force-terminate-dialog/force-terminate-dialog.ts   │ Confirm dialog    │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ dashboard/active-sessions/force-terminate-dialog/force-terminate-dialog.html │ Dialog template   │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ dashboard/active-sessions/force-terminate-dialog/force-terminate-dialog.css  │ Minimal style     │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │                                                                              │ Component —       │
+    │ dashboard/login-activities/login-activities.ts                               │ paginated table + │
+    │                                                                              │  debounced filter │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │                                                                              │ Template —        │
+    │ dashboard/login-activities/login-activities.html                             │ mat-table +       │
+    │                                                                              │ filter bar +      │
+    │                                                                              │ paginator         │
+    ├──────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+    │ dashboard/login-activities/login-activities.css                              │ Placeholder       │
+    └──────────────────────────────────────────────────────────────────────────────┴───────────────────┘
+
+    Sửa:
+
+    ┌──────────────────────────┬──────────────────────────────────────────────────┐
+    │           File           │                     Thay đổi                     │
+    ├──────────────────────────┼──────────────────────────────────────────────────┤
+    │ app.routes.ts            │ Thêm 2 routes: active-sessions, login-activities │
+    ├──────────────────────────┼──────────────────────────────────────────────────┤
+    │ dashboard/dashboard.html │ Gắn routerLink cho 2 sidebar items Monitoring    │
+    └──────────────────────────┴──────────────────────────────────────────────────┘
+
+    Sẵn sàng cho Gemini (Task 4):
+    - active-sessions.html + active-sessions.css — classes cần style: .page-container, .page-header,
+    .table-container, .result-badge, .result-success/.result-failed, .user-identifier
+    - login-activities.html + login-activities.css — classes tương tự + .filter-field, .filter-result,
+    mat-paginator
+
+  > Yêu cầu thiết kế:
+  > 1. Tables (MatTable):
+  >    - Thiết kế hiện đại, sticky header.
+  >    - Cột IP và Device cần trình bày chuyên nghiệp.
+  >    - Activity Log: Highlight row có kết quả FAILED (màu nền đỏ nhạt).
+  >    - Sessions: Badge ACTIVE màu xanh lá. Nút Terminate màu warn.
+  > 2. Filter Bar: Sử dụng mat-form-field outline, sắp xếp các input filter trên cùng một hàng
+  (Flexbox).
+  > 3. Pagination: Tích hợp mat-paginator ở phía dưới bảng.
+  >
+  > Ràng buộc: Tailwind cho layout, CSS Variables cho Material, không sửa logic .ts.

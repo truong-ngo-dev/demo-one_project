@@ -59,6 +59,19 @@
 - **login_activity** — Queries:
     - `list_my_activities/`: Trả danh sách lịch sử đăng nhập có phân trang. Dùng `LoginActivityQueryPort` (define tại slice này) — read side bypass domain, LEFT JOIN với `devices`. — **Query**
 
+- **device** — Admin Queries:
+    - `admin_query/`: UC-014 — Admin xem danh sách gộp thiết bị + session ACTIVE của một User. Dùng `DeviceRepository` + `SessionRepository`. — **Query**
+
+- **login_activity** — Admin Queries:
+    - `admin_query/`: UC-012 Global — toàn bộ hệ thống với filter động. UC-015 User-centric — lịch sử của một userId. Dùng `AdminLoginActivityQueryPort`. — **Query**
+
+- **session** — Admin:
+    - `admin_query/`: Admin xem tất cả phiên ACTIVE, join devices + username từ login_activities. Dùng `AdminSessionQueryPort`. — **Query**
+    - `admin_revoke/`: Admin force terminate bất kỳ session nào. Không check ownership. Audit log via SLF4J. — **Command**
+
+- **iam_dashboard** — Queries:
+    - `overview/`: Admin xem KPI tổng quan IAM (totalUsers, totalDevices, activeSessions, failedLoginsToday). Dùng `IamOverviewQueryPort` — 4 COUNT queries thẳng vào DB, bypass domain. Yêu cầu `ROLE_ADMIN`. — **Query**
+
 - **auth** — Commands:
     - `complete_login/`: Phase 2 hoàn tất login — liên kết `OAuth2Authorization` với device và session sau khi access token được phát. — **Command**
 
@@ -85,6 +98,11 @@
     - `UserIdentityServiceAdapter`: implement `UserIdentityService` — map `UserIdentityResponse` → `User.fromIdentity()`, `SocialRegisterResponse` → `User.fromSocialRegistration()`; dùng `AdminServiceClient` từ `api/http/internal/admin/`
 - `adapter/query/activity/`
     - `LoginActivityQueryService`: implement `LoginActivityQueryPort` — JdbcTemplate, LEFT JOIN `login_activities` với `devices` để enrich tên thiết bị
+    - `AdminLoginActivityQueryService`: implement `AdminLoginActivityQueryPort` — JdbcTemplate, dynamic WHERE clause, LEFT JOIN `devices`
+- `adapter/query/session/`
+    - `AdminSessionQueryService`: implement `AdminSessionQueryPort` — JdbcTemplate, WHERE status='ACTIVE', LEFT JOIN `devices` + correlated subquery username từ `login_activities`
+- `adapter/query/iam_dashboard/`
+    - `IamOverviewQueryService`: implement `IamOverviewQueryPort` — JdbcTemplate, 4 COUNT queries trên `devices`, `oauth_sessions`, `login_activities`
 - `adapter/service/device/`
     - `YauaaDeviceAdapter`: implement `DeviceNameDetector` — parse User-Agent bằng thư viện YAUAA
 - `adapter/service/authorization/`
@@ -152,6 +170,18 @@
 - `session/SessionController` (`/api/v1/sessions`):
     - `GET /api/v1/sessions/me` — Danh sách thiết bị + session của user hiện tại (Bearer JWT required)
     - `DELETE /api/v1/sessions/me/{sessionId}` — Đăng xuất từ xa một session cụ thể; 204 No Content (Bearer JWT required)
+
+- `admin/AdminUserSupportController` (`/api/v1/admin/users`):
+    - `GET /api/v1/admin/users/{userId}/sessions` — UC-014 thiết bị + session ACTIVE — yêu cầu `ROLE_ADMIN`
+    - `GET /api/v1/admin/users/{userId}/login-activities` — UC-015 lịch sử đăng nhập — yêu cầu `ROLE_ADMIN`
+
+- `session/SessionController` — admin endpoints:
+    - `GET /api/v1/sessions/admin/active` — tất cả phiên ACTIVE — yêu cầu `ROLE_ADMIN`
+    - `DELETE /api/v1/sessions/admin/{sessionId}` — force terminate — yêu cầu `ROLE_ADMIN`
+- `activity/LoginActivityController` — admin endpoint:
+    - `GET /api/v1/login-activities/admin` — global log với filter — yêu cầu `ROLE_ADMIN`
+- `iam_dashboard/IamDashboardController` (`/api/v1/admin/iam`):
+    - `GET /api/v1/admin/iam/overview` — KPI tổng quan IAM — yêu cầu `ROLE_ADMIN`
 
 - `activity/LoginActivityController` (`/api/v1/login-activities`):
     - `GET /api/v1/login-activities/me` — Lịch sử đăng nhập có phân trang (`page`, `size`) (Bearer JWT required)

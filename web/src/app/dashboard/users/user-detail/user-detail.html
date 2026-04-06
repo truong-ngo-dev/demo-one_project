@@ -1,24 +1,26 @@
 <div class="page-container">
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="loading-container flex justify-center items-center py-16">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
   } @else if (user()) {
-    <div class="page-header">
-      <div class="header-left">
-        <button mat-icon-button (click)="goBack()" matTooltip="Back to users">
-          <mat-icon>arrow_back</mat-icon>
+    <div class="page-header flex justify-between items-center mb-8">
+      <div class="header-left flex items-center gap-4">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to users" class="bg-white border border-slate-200">
+          <mat-icon class="text-slate-600">arrow_back</mat-icon>
         </button>
-        <div class="user-info">
-          <h1 class="page-title">{{ user()?.username }}</h1>
-          <span class="status-badge" [class.status-active]="user()?.status === 'ACTIVE'"
+        <div class="user-info flex items-center gap-3">
+          <h1 class="page-title text-2xl font-bold text-slate-900">{{ user()?.username }}</h1>
+          <span class="status-badge px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider" 
+                [class.status-active]="user()?.status === 'ACTIVE'"
                 [class.status-locked]="user()?.status === 'LOCKED'">
             {{ user()?.status }}
           </span>
         </div>
       </div>
       <div class="header-actions">
-        <button mat-flat-button class="action-btn" (click)="toggleLock()"
+        <button mat-flat-button class="action-btn px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors" 
+                (click)="toggleLock()"
                 [color]="user()?.status === 'ACTIVE' ? 'warn' : 'primary'">
           <mat-icon>{{ user()?.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
           <span>{{ user()?.status === 'ACTIVE' ? 'Lock User' : 'Unlock User' }}</span>
@@ -26,69 +28,252 @@
       </div>
     </div>
 
-    <div class="page-content">
-      <!-- Profile Card -->
-      <div class="detail-card">
-        <h2 class="card-title">Profile Information</h2>
-        <div class="field-grid">
-          <div class="field-row">
-            <span class="field-label">Email</span>
-            <span class="field-value">{{ user()?.email }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Username</span>
-            <span class="field-value">{{ user()?.username }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Full Name</span>
-            <span class="field-value">{{ user()?.fullName || '—' }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Created At</span>
-            <span class="field-value">{{ user()?.createdAt | date:'medium' }}</span>
-          </div>
-        </div>
-      </div>
+    <mat-tab-group (selectedTabChange)="onTabChange($event.index)" class="page-tabs bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
 
-      <!-- Roles Card -->
-      <div class="detail-card">
-        <div class="card-header-row">
-          <h2 class="card-title">Assigned Roles</h2>
-          <button mat-flat-button class="action-btn" (click)="openAssignRoles()">
-            <mat-icon>add</mat-icon>
-            <span>Assign Roles</span>
-          </button>
-        </div>
-        <div class="role-list">
-          @for (role of user()?.roles; track role.id) {
-            <div class="role-item">
-              <span class="role-name-badge">{{ role.name }}</span>
-              <button mat-icon-button class="remove-role-btn" (click)="removeRole(role)" matTooltip="Remove role">
-                <mat-icon>close</mat-icon>
+      <!-- ── Tab 1: Profile ── -->
+      <mat-tab label="Profile">
+        <div class="tab-content p-6 flex flex-col gap-8">
+          
+          <!-- Profile Card -->
+          <section class="detail-section">
+            <h2 class="section-title text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
+              <mat-icon class="text-slate-400">person_outline</mat-icon>
+              Profile Information
+            </h2>
+            <div class="field-grid grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+              <div class="field-row flex flex-col gap-1">
+                <span class="field-label text-xs font-medium text-slate-500 uppercase tracking-wider">Email</span>
+                <span class="field-value text-slate-900 font-medium">{{ user()?.email }}</span>
+              </div>
+              <div class="field-row flex flex-col gap-1">
+                <span class="field-label text-xs font-medium text-slate-500 uppercase tracking-wider">Username</span>
+                <span class="field-value text-slate-900 font-medium">{{ user()?.username }}</span>
+              </div>
+              <div class="field-row flex flex-col gap-1">
+                <span class="field-label text-xs font-medium text-slate-500 uppercase tracking-wider">Full Name</span>
+                <span class="field-value text-slate-900 font-medium">{{ user()?.fullName || '—' }}</span>
+              </div>
+              <div class="field-row flex flex-col gap-1">
+                <span class="field-label text-xs font-medium text-slate-500 uppercase tracking-wider">Created At</span>
+                <span class="field-value text-slate-900 font-medium">{{ user()?.createdAt | date:'medium' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- Roles Card -->
+          <section class="detail-section">
+            <div class="section-header-row flex justify-between items-center mb-6">
+              <h2 class="section-title text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <mat-icon class="text-slate-400">security</mat-icon>
+                Assigned Roles
+              </h2>
+              <button mat-stroked-button class="action-btn-outline rounded-lg flex items-center gap-2" (click)="openAssignRoles()">
+                <mat-icon>add</mat-icon>
+                <span>Assign Roles</span>
               </button>
             </div>
-          }
-          @if (user()?.roles?.length === 0) {
-            <p class="empty-text">No roles assigned to this user.</p>
-          }
-        </div>
-      </div>
+            <div class="role-list flex flex-wrap gap-3">
+              @for (role of user()?.roles; track role.id) {
+                <div class="role-item flex items-center gap-2 bg-green-50 text-green-700 border border-green-100 rounded-xl px-4 py-2">
+                  <span class="role-name-badge text-xs font-bold uppercase tracking-wider">{{ role.name }}</span>
+                  <button mat-icon-button class="remove-role-btn w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors" (click)="removeRole(role)" matTooltip="Remove role">
+                    <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+                  </button>
+                </div>
+              }
+              @if (user()?.roles?.length === 0) {
+                <p class="empty-text text-slate-400 italic">No roles assigned to this user.</p>
+              }
+            </div>
+          </section>
 
-      <!-- Social Connections Card -->
-      @if ((user()?.socialConnections?.length ?? 0) > 0) {
-        <div class="detail-card">
-          <h2 class="card-title">Social Connections</h2>
-          <div class="social-list">
-            @for (conn of user()?.socialConnections; track conn.provider) {
-              <div class="social-item">
-                <mat-icon class="social-icon">link</mat-icon>
-                <span class="social-provider">{{ conn.provider }}</span>
-                <span class="social-date">{{ conn.connectedAt | date:'mediumDate' }}</span>
+          <!-- Social Connections Card -->
+          @if ((user()?.socialConnections?.length ?? 0) > 0) {
+            <mat-divider></mat-divider>
+            <section class="detail-section">
+              <h2 class="section-title text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
+                <mat-icon class="text-slate-400">share</mat-icon>
+                Social Connections
+              </h2>
+              <div class="social-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                @for (conn of user()?.socialConnections; track conn.provider) {
+                  <div class="social-item flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="social-icon-wrapper w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                      <mat-icon class="text-slate-400">link</mat-icon>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="social-provider font-semibold text-slate-900 capitalize">{{ conn.provider }}</span>
+                      <span class="social-date text-xs text-slate-500">Connected on {{ conn.connectedAt | date:'mediumDate' }}</span>
+                    </div>
+                  </div>
+                }
               </div>
-            }
-          </div>
+            </section>
+          }
         </div>
-      }
-    </div>
+      </mat-tab>
+
+      <!-- ── Tab 2: Security & Devices ── -->
+      <mat-tab label="Security & Devices">
+        <div class="tab-content p-6 flex flex-col gap-10">
+          @if (securityLoading()) {
+            <div class="loading-container flex justify-center items-center py-16">
+              <mat-spinner diameter="36"></mat-spinner>
+            </div>
+          } @else {
+
+            <!-- Device Sessions Card -->
+            <section class="detail-section">
+              <header class="section-header mb-6">
+                <h2 class="section-title text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <mat-icon class="text-slate-400">devices</mat-icon>
+                  Devices & Sessions
+                </h2>
+                <p class="section-subtitle text-sm text-slate-500">Thiết bị đã đăng nhập và trạng thái phiên hiện tại.</p>
+              </header>
+
+              @if (deviceSessions().length === 0) {
+                <div class="empty-state p-8 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                  <mat-icon class="text-slate-300 text-4xl mb-2">devices_off</mat-icon>
+                  <p class="text-slate-400 font-medium">No devices found for this user.</p>
+                </div>
+              } @else {
+                <div class="table-container border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                  <table mat-table [dataSource]="deviceSessions()" class="full-width-table">
+
+                    <ng-container matColumnDef="deviceName">
+                      <th mat-header-cell *matHeaderCellDef>Device</th>
+                      <td mat-cell *matCellDef="let row">
+                        <div class="font-semibold text-slate-900">{{ row.deviceName || 'Unknown Device' }}</div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ipAddress">
+                      <th mat-header-cell *matHeaderCellDef>IP Address</th>
+                      <td mat-cell *matCellDef="let row" class="font-mono text-xs text-slate-600">{{ row.ipAddress || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="lastSeenAt">
+                      <th mat-header-cell *matHeaderCellDef>Last Seen</th>
+                      <td mat-cell *matCellDef="let row" class="text-slate-500">{{ row.lastSeenAt | date:'medium' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="sessionStatus">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let row">
+                        @if (row.sessionStatus === 'ACTIVE') {
+                          <span class="status-badge-mini flex items-center gap-1.5 text-green-600 font-bold text-[10px] uppercase">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            ACTIVE
+                          </span>
+                        } @else {
+                          <span class="text-slate-400 text-xs font-medium uppercase tracking-tight">Logged Out</span>
+                        }
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef></th>
+                      <td mat-cell *matCellDef="let row" class="text-right">
+                        @if (row.sessionId) {
+                          <button mat-icon-button color="warn"
+                                  class="hover:bg-red-50 transition-colors"
+                                  [disabled]="isTerminating(row.sessionId)"
+                                  (click)="openRevokeDialog(row)"
+                                  matTooltip="Force Terminate Session">
+                            @if (isTerminating(row.sessionId)) {
+                              <mat-spinner diameter="18"></mat-spinner>
+                            } @else {
+                              <mat-icon>power_settings_new</mat-icon>
+                            }
+                          </button>
+                        }
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="deviceColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: deviceColumns;" class="hover:bg-slate-50 transition-colors"></tr>
+                  </table>
+                </div>
+              }
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <!-- Login Activity Card -->
+            <section class="detail-section">
+              <header class="section-header mb-6">
+                <h2 class="section-title text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <mat-icon class="text-slate-400">history</mat-icon>
+                  Login History
+                </h2>
+                <p class="section-subtitle text-sm text-slate-500">10 bản ghi đăng nhập gần nhất.</p>
+              </header>
+
+              @if (loginActivities().length === 0) {
+                <div class="empty-state p-8 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                  <p class="text-slate-400 font-medium">No login activity found for this user.</p>
+                </div>
+              } @else {
+                <div class="table-container border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                  <table mat-table [dataSource]="loginActivities()" class="full-width-table">
+
+                    <ng-container matColumnDef="createdAt">
+                      <th mat-header-cell *matHeaderCellDef>Time</th>
+                      <td mat-cell *matCellDef="let row" class="text-slate-500">{{ row.createdAt | date:'medium' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="result">
+                      <th mat-header-cell *matHeaderCellDef>Result</th>
+                      <td mat-cell *matCellDef="let row">
+                        <span class="result-badge-mini"
+                              [class.result-success]="row.result === 'SUCCESS'"
+                              [class.result-failed]="row.result !== 'SUCCESS'">
+                          {{ row.result === 'SUCCESS' ? 'Success' : 'Failed' }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ipAddress">
+                      <th mat-header-cell *matHeaderCellDef>IP Address</th>
+                      <td mat-cell *matCellDef="let row" class="font-mono text-xs text-slate-600">{{ row.ipAddress }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="deviceName">
+                      <th mat-header-cell *matHeaderCellDef>Device</th>
+                      <td mat-cell *matCellDef="let row" class="text-slate-600">{{ row.deviceName || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="provider">
+                      <th mat-header-cell *matHeaderCellDef>Provider</th>
+                      <td mat-cell *matCellDef="let row">
+                        <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">{{ row.provider }}</span>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="activityColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: activityColumns;" 
+                        class="hover:bg-slate-50 transition-colors"
+                        [class.bg-red-50]="row.result !== 'SUCCESS'"></tr>
+                  </table>
+                  <mat-paginator
+                    class="bg-slate-50 border-t border-slate-200"
+                    [length]="activityTotal()"
+                    [pageIndex]="activityPage()"
+                    [pageSize]="activityPageSize()"
+                    [pageSizeOptions]="[10, 20, 50]"
+                    (page)="onActivityPage($event)">
+                  </mat-paginator>
+                </div>
+              }
+            </section>
+
+          }
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
   }
 </div>

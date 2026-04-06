@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>
+  <mat-icon>warning</mat-icon>
+  Force Terminate Session
+</h2>
+
+<mat-dialog-content>
+  <p>Bạn có chắc muốn kết thúc phiên này?</p>
+  <ul class="session-info">
+    <li><strong>User:</strong> {{ data.session.username ?? data.session.userId }}</li>
+    <li><strong>Thiết bị:</strong> {{ data.session.deviceName ?? '—' }}</li>
+    <li><strong>IP:</strong> {{ data.session.ipAddress }}</li>
+  </ul>
+  <p class="warning-note">Hành động này sẽ đăng xuất người dùng ngay lập tức và không thể hoàn tác.</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Hủy</button>
+  <button mat-flat-button color="warn" (click)="dialogRef.close(true)">Force Terminate</button>
+</mat-dialog-actions>

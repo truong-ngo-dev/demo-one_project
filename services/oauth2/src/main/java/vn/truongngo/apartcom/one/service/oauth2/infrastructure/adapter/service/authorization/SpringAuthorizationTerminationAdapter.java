@@ -18,7 +18,7 @@ import vn.truongngo.apartcom.one.service.oauth2.domain.session.SessionTerminatio
 public class SpringAuthorizationTerminationAdapter implements SessionTerminationService {
 
     private final OAuth2AuthorizationService oauth2AuthorizationService;
-    private final vn.truongngo.apartcom.one.service.oauth2.domain.session.SessionRepository sessionRepository;
+    private final SessionRepository sessionRepository;
     private final JdbcIndexedSessionRepository springSessionRepository;
 
     @Override

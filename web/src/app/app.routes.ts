@@ -33,6 +33,14 @@ export const routes: Routes = [
         path: 'users/:id',
         loadComponent: () => import('./dashboard/users/user-detail/user-detail').then(m => m.UserDetailComponent),
       },
+      {
+        path: 'active-sessions',
+        loadComponent: () => import('./dashboard/active-sessions/active-sessions').then(m => m.ActiveSessionsComponent),
+      },
+      {
+        path: 'login-activities',
+        loadComponent: () => import('./dashboard/login-activities/login-activities').then(m => m.LoginActivitiesComponent),
+      },
     ],
   },
   {

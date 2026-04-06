@@ -10,6 +10,7 @@ import vn.truongngo.apartcom.one.service.admin.application.user.find_by_identity
 import vn.truongngo.apartcom.one.service.admin.application.user.find_by_identity.GetUserByIdentityQuery;
 import vn.truongngo.apartcom.one.service.admin.application.user.find_by_identity.UserView;
 import vn.truongngo.apartcom.one.service.admin.application.user.social_register.SocialRegisterUser;
+import vn.truongngo.apartcom.one.service.admin.presentation.internal.model.SocialRegisterRequest;
 
 import java.util.Set;
 import java.util.stream.Collectors;

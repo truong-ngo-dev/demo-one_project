@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100%;
+}
+
+.kpi-card {
+  border-radius: 12px;
+  background: #ffffff;
+  /* Override Material Card Default properties using modern custom properties */
+  --mdc-elevated-card-container-shape: 12px;
+  --mdc-elevated-card-container-elevation: 0px;
+  border: 1px solid #e2e8f0;
+}
+
+.kpi-card-warn {
+  border-left: 4px solid #ef4444;
+}
+
+.kpi-card-warn .kpi-icon-container {
+  background-color: #fef2f2;
+}
+
+.kpi-card-warn .kpi-icon {
+  color: #ef4444 !important;
+}
+
+/* Hover effects for regular cards handled via Tailwind 'group' but specialized overrides here */
+.kpi-card:not(.kpi-card-warn):hover {
+  border-color: #22c55e;
+}
+
+.kpi-icon-container {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}

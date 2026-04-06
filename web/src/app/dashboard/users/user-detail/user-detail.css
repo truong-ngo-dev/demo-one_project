@@ -1,15 +1,21 @@
-@import '../users.css';
-
-/* --- PAGE LAYOUT --- */
-.page-container {
+:host {
+  display: block;
   padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100%;
 }
 
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- HEADER --- */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .header-left {
@@ -24,135 +30,90 @@
   gap: 12px;
 }
 
-.page-title {
-  font-size: 1.75rem;
+.status-badge {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0; /* Reset default margin */
+  font-size: 10px;
+  padding: 4px 12px;
+  border-radius: 9999px;
 }
 
-/* Specific styles for the action button in the header */
-.header-actions .action-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  height: 40px !important;
-  padding: 0 16px !important;
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s ease !important;
-  border: none !important; /* Ensure no borders */
+.status-active {
+  background-color: #dcfce7;
+  color: #166534;
 }
 
-/* Ensure icon and text are always visible */
-.header-actions .action-btn .mat-icon,
-.header-actions .action-btn span {
-  color: #ffffff !important;
-  display: inline !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  margin: 0 !important;
+.status-locked {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
-/* Primary color (Unlock User) */
-.header-actions .action-btn[color="primary"] {
-  background-color: var(--primary-green) !important;
-  --mdc-filled-button-container-color: var(--primary-green) !important;
-}
-
-.header-actions .action-btn[color="primary"]:hover {
-  background-color: var(--primary-green-hover) !important;
-  --mdc-filled-button-hover-state-layer-color: transparent !important; /* Rely on bg color change */
-}
-
-/* Warn color (Lock User) */
-.header-actions .action-btn[color="warn"] {
-  background-color: var(--status-warning) !important;
-  --mdc-filled-button-container-color: var(--status-warning) !important;
-}
-
-.header-actions .action-btn[color="warn"]:hover {
-  background-color: #d97706 !important; /* Darker amber */
-  --mdc-filled-button-hover-state-layer-color: transparent !important;
-}
-
-
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* --- DETAIL CARD --- */
-.detail-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
+/* --- TABS --- */
+.page-tabs {
+  background: white;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.card-title {
-  font-size: 1.25rem;
+/* Tab Header Customization */
+::ng-deep .mat-mdc-tab-group.page-tabs .mat-mdc-tab-header {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+::ng-deep .mat-mdc-tab-group.page-tabs .mat-mdc-tab .mdc-tab__text-label {
+  color: #64748b;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 24px 0;
 }
 
-.card-header-row {
+::ng-deep .mat-mdc-tab-group.page-tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #22c55e; /* Green accent */
+}
+
+::ng-deep .mat-mdc-tab-group.page-tabs .mat-mdc-tab-ink-bar {
+  height: 3px;
+  background-color: #22c55e !important;
+}
+
+/* --- SECTIONS --- */
+.detail-section {
+  padding: 0;
+}
+
+.section-title {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  gap: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
 }
 
-.card-header-row .card-title {
-  margin-bottom: 0;
+.section-subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
 }
-
-.card-header-row .action-btn {
-  /* Re-use the create button style */
-  --mdc-filled-button-container-color: var(--primary-green) !important;
-  --mdc-filled-button-label-text-color: #ffffff !important;
-  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
-  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  height: 40px !important;
-  padding: 0 16px !important;
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s ease !important;
-}
-
 
 /* --- FIELD GRID --- */
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.field-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 24px;
 }
 
 .field-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
 }
 
 .field-value {
   font-size: 1rem;
-  color: var(--text-primary);
+  color: #0f172a;
   font-weight: 500;
 }
 
@@ -165,96 +126,178 @@
 
 .role-item {
   display: flex;
-  align-items: center; /* This ensures vertical alignment */
+  align-items: center;
   background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 6px;
-  padding-left: 12px;
-  padding-right: 4px; /* Adjust right padding to accommodate the icon button */
-  height: 32px; /* Set a fixed height for consistency */
+  border: 1px solid #dcfce7;
+  border-radius: 12px;
+  padding: 8px 12px 8px 16px;
+  height: auto;
+  transition: all 0.2s ease;
+}
+
+.role-item:hover {
+  background-color: #dcfce7;
+  border-color: #bbf7d0;
 }
 
 .role-name-badge {
-  color: #15803d;
-  font-size: 0.875rem;
-  font-weight: 500;
-  font-family: ui-monospace, monospace;
+  color: #166534; /* green-800 */
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-/* Fix for vertical alignment of the icon inside the button */
 .remove-role-btn {
-  color: #991b1b !important; /* red-800 */
-  opacity: 0.6;
+  color: #94a3b8 !important; /* slate-400 */
   width: 24px !important;
   height: 24px !important;
   padding: 0 !important;
-  display: inline-flex !important; /* Ensures the flex is respected but aligns like text */
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   margin-left: 4px;
+  border-radius: 50% !important;
 }
 
-/* Remove touch target that messes up alignment */
+.remove-role-btn:hover {
+  color: #ef4444 !important; /* red-500 */
+  background-color: #fef2f2 !important;
+}
+
+/* Remove Material default ripple container that might affect centering */
 .remove-role-btn .mat-mdc-button-touch-target {
   display: none !important;
 }
 
-/* We specifically target the wrapper that Angular Material puts around the icon */
-.remove-role-btn .mat-mdc-button-persistent-ripple,
-.remove-role-btn .mat-mdc-button-ripple {
-  display: none !important;
-}
-
-/* AGGRESSIVE FIX FOR THE ICON */
-.remove-role-btn .mat-icon {
-  font-size: 18px !important; /* Smaller icon */
-  width: 18px !important;
-  height: 18px !important;
-  line-height: 1 !important; /* Reset line-height */
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.remove-role-btn:hover {
-  opacity: 1;
-}
-
-.empty-text {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
 /* --- SOCIAL LIST --- */
-.social-list {
-  display: flex;
-  flex-direction: column;
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
 
 .social-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
   background-color: #f8fafc;
-  border-radius: 8px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
 }
 
-.social-icon {
-  color: var(--text-secondary);
+.social-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .social-provider {
-  font-weight: 500;
-  color: var(--text-primary);
-  text-transform: capitalize;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .social-date {
-  margin-left: auto;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* --- TABLES --- */
+.table-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 16px !important;
+}
+
+.mat-mdc-cell {
+  padding: 16px !important;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Mini Badges */
+.status-badge-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 10px;
+  color: #166534;
+}
+
+.result-badge-mini {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.result-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.result-failed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* --- BUTTONS --- */
+.action-btn-outline {
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  background: white;
+}
+
+.action-btn-outline:hover {
+  background-color: #f8fafc;
+}
+
+/* --- LOADING & EMPTY --- */
+.loading-container {
+  padding: 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: #94a3b8;
+}
+
+/* --- MISC --- */
+mat-divider {
+  margin: 8px 0;
+  border-top-color: #f1f5f9;
+}
+
+.bg-red-50 {
+  background-color: #fff1f2 !important;
 }

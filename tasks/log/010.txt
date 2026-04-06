@@ -1,0 +1,148 @@
+Prompt Đợt 1: Backend Support API & Contract (Phần 1 & 2)
+
+  Mục tiêu: Xây dựng các API truy vấn thông tin an ninh dành riêng cho một userId cụ thể.
+
+  > Subject: Thực hiện Task 010 (Phần 1) — User Support Backend & API
+  >
+  > Vai trò: Bạn là Senior Backend Engineer thực hiện các tính năng hỗ trợ người dùng cho
+  oauth2-service.
+  >
+  > Tài liệu căn cứ:
+  > 1. Quy trình Task: @tasks/010_admin_user_support.md (Thực hiện Task 1 và Task 2).
+  > 2. Use Case chi tiết: UC-014_admin_list_user_sessions.md và UC-015_admin_list_user_login_history.md.
+  >
+  > Nhiệm vụ cụ thể:
+  >
+  > 1. Triển khai UC-014 (Merged View Query):
+  >    - Package: application.device.admin_query.
+  >    - Logic: Viết Query/Handler thực hiện Left Join bảng devices với bảng oauth_sessions (chỉ lấy
+  session ACTIVE).
+  >    - Filter: Phải lọc theo targetUserId nhận từ path parameter.
+  >    - Output: Danh sách thiết bị, dòng nào có session thì kèm theo sessionId và status ACTIVE.
+  >
+  > 2. Triển khai UC-015 (Individual Login History):
+  >    - Package: application.login_activity.admin_query.
+  >    - Logic: Truy vấn bảng login_activities lọc theo targetUserId. Hỗ trợ phân trang.
+  >
+  > 3. Presentation Layer:
+  >    - Thêm các endpoint vào SessionController và LoginActivityController với path pattern:
+  /api/v1/admin/users/{userId}/....
+  >    - Bảo vệ bằng @PreAuthorize("hasAuthority('ROLE_ADMIN')").
+  >
+  > 4. API Contract: Cập nhật @docs/api/oauth2-sessions-history.yaml.
+  >
+  > Yêu cầu Handoff (Bắt buộc):
+  > Cung cấp một "FRONTEND CONTEXT BLOCK" chứa:
+  > - URL của 2 endpoint mới.
+  > - Cấu trúc Typescript Interface cho UserDeviceSessionView và UserLoginActivityPage.
+  >
+  > Trả về danh sách file và mã nguồn.
+
+  ---
+
+  Prompt Đợt 2: Angular Support Tab Logic (Phần 3)
+
+  Mục tiêu: Tích hợp dữ liệu an ninh vào trang Chi tiết User trong Admin Dashboard.
+
+  > Subject: Thực hiện Task 010 (Phần 2) — Angular Support Logic
+  >
+  > Vai trò: Bạn là Senior Frontend Engineer.
+  >
+  > Tài liệu căn cứ:
+  > 1. Quy trình Task: @tasks/010_admin_user_support.md (Thực hiện Task 3).
+  > 2. Dữ liệu bàn giao:
+  FRONTEND CONTEXT BLOCK
+
+    Endpoints
+
+    ┌────────┬─────────────────────────────────────────────────────────────────────┬────────┐
+    │ Method │                                 URL                                 │   UC   │
+    ├────────┼─────────────────────────────────────────────────────────────────────┼────────┤
+    │ GET    │ /api/oauth2/v1/admin/users/{userId}/sessions                        │ UC-014 │
+    ├────────┼─────────────────────────────────────────────────────────────────────┼────────┤
+    │ GET    │ /api/oauth2/v1/admin/users/{userId}/login-activities?page=0&size=20 │ UC-015 │
+    └────────┴─────────────────────────────────────────────────────────────────────┴────────┘
+
+    TypeScript Interfaces
+
+    // UC-014 — User Device Sessions (Merged View)
+    export interface AdminDeviceSessionView {
+      deviceId: string;
+      deviceName: string;
+      ipAddress: string | null;
+      lastSeenAt: string;          // ISO 8601
+      sessionId: string | null;    // null = thiết bị không có session ACTIVE
+      sessionStatus: 'ACTIVE' | null;
+    }
+    // Response: AdminDeviceSessionView[]  (array trực tiếp, không wrap)
+
+    // UC-015 — User Login History
+    export interface UserLoginActivityView {
+      result: LoginResult;         // dùng type từ task 009
+      ipAddress: string;
+      deviceName: string | null;   // null khi login thất bại
+      provider: LoginProvider;     // dùng type từ task 009
+      createdAt: string;           // ISO 8601
+    }
+
+    export interface UserLoginActivityPage {
+      data: UserLoginActivityView[];
+      meta: { page: number; size: number; total: number };
+    }
+
+    Ghi chú cho UI (User Profile Tab)
+
+    - UC-014: Dòng có sessionId != null → show nút "Revoke" → gọi DELETE
+    /api/oauth2/v1/sessions/admin/{sessionId} (endpoint đã có từ task 009)
+    - UC-015: size max 50 (backend enforce)
+
+  > Nhiệm vụ cụ thể:
+  >
+  > 1. Angular Services: Cập nhật các service admin để hỗ trợ gọi 2 endpoint mới theo userId.
+  > 2. Admin User Detail Component:
+  >    - Tìm component hiển thị chi tiết User (thường trong dashboard/users/detail).
+  >    - Sử dụng MatTabs để thêm một tab mới mang tên "Security & Devices".
+  >    - Trong tab này, triển khai 2 vùng dữ liệu:
+  >        - Danh sách Thiết bị & Phiên (Merged View): Hiển thị bảng gộp. Cho phép gọi hành động Revoke
+  (tái sử dụng logic Revoke đã có ở Task 009).
+  >        - Lịch sử đăng nhập cá nhân: Hiển thị bảng log rút gọn của riêng User đó.
+  >
+  > Yêu cầu kỹ thuật:
+  > - Lấy userId từ Route snapshot/param để gọi API.
+  > - Sử dụng Signals để quản lý trạng thái tab.
+  > - Chỉ viết Functional HTML.
+  >
+  > Trả về danh sách file và mã nguồn.
+
+  ---
+
+  Prompt Đợt 3: Styling Tab Security (Gemini UI/UX — Phần 4)
+
+  Mục tiêu: Làm cho Tab Security trông chuyên nghiệp và nhất quán với phần còn lại của Profile.
+
+  > Subject: Thiết kế Giao diện Security Support Tab (Gemini UI/UX)
+  >
+  > Vai trò: Bạn là Senior UI/UX Engineer.
+  >
+  > Files to Restyle:
+  The user-detail component now has two tabs:
+
+  - Profile tab — original content (profile info, roles, social connections) unchanged
+  - Security & Devices tab — lazy-loaded on first visit:                                                    - Devices & Sessions table: deviceName | ipAddress | lastSeenAt | sessionStatus | actions — revoke
+  button (with spinner while in-flight) for rows with an active session
+    - Login History table: createdAt | result | ipAddress | deviceName | provider — result badge
+  (green/red), paginated via mat-paginator
+
+  CSS additions: .page-tabs padding, .full-width-table, .result-badge / .result-success /
+  .result-failed.
+
+  >
+  > Yêu cầu thiết kế:
+  > 1. Layout: Sử dụng mat-tab-group. Nội dung bên trong tab chia làm 2 Section (Devices và History).
+  > 2. Device List: Có thể dùng dạng mat-list với mat-divider hoặc Table nhỏ.
+  >    - Thiết bị ACTIVE: Có badge xanh lá và nút Logout (màu đỏ).
+  >    - Thiết bị Inactive: Text màu xám, không có nút.
+  > 3. Login History: Bảng đơn giản, hiển thị khoảng 10 bản ghi gần nhất.
+  > 4. Consistency: Đảm bảo spacing và màu sắc khớp với dashboard.md.
+  >
+  > Ràng buộc: Không sửa logic .ts.

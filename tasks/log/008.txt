@@ -1,0 +1,154 @@
+Prompt: Thực hiện Task 008 (Phần 1) — IAM Dashboard Backend
+  Vai trò: Bạn là Senior Backend Engineer thực hiện triển khai tính năng giám sát cho oauth2-service.
+  Tài liệu căn cứ:
+   1. Quy trình Task: @tasks/008_admin_iam_dashboard.md (Thực hiện Task 1 và Task 2).
+   2. Nghiệp vụ chi tiết: @services/oauth2/docs/use-cases/UC-011_iam_overview.md.
+   3. Quy ước cấu trúc: @docs/conventions/ddd-structure.md (Tuân thủ phần Feature Slice).
+  Nhiệm vụ cụ thể:
+   1. Triển khai Application Layer (Feature Slice):
+       - Tạo package: vn.truongngo.apartcom.one.service.oauth2.application.iam_dashboard.overview.
+       - Triển khai IamOverviewQuery (Input) và IamOverviewHandler.
+       - Logic Query: Sử dụng Native SQL (JdbcTemplate hoặc Repository query) để đếm:
+           - totalUsers: Đếm từ bảng identity projection.
+           - totalDevices: Đếm từ bảng devices.
+           - activeSessions: Đếm từ bảng oauth_sessions nơi status = 'ACTIVE'.
+           - failedLoginsToday: Đếm từ bảng login_activities nơi result != 'SUCCESS' và createdAt từ
+             00:00 ngày hôm nay.
+   2. Triển khai Presentation Layer:
+       - Tạo IamDashboardController tại package presentation.iam_dashboard.
+       - Expose endpoint: GET /api/v1/admin/iam/overview.
+       - Bảo vệ bằng: @PreAuthorize("hasAuthority('ROLE_ADMIN')").
+   3. Cập nhật API Contract:
+       - Cập nhật file @docs/api/oauth2-sessions-history.yaml để định nghĩa endpoint và schema response
+         mới.
+  Yêu cầu Handoff (Bắt buộc):
+  Sau khi xong code Java và YAML, hãy cung cấp một đoạn "FRONTEND CONTEXT BLOCK" chứa:
+   - Endpoint URL.
+   - Typescript Interface cho Response.
+   - Các hằng số (nếu có).
+  Hãy thực hiện Task 1 và 2, sau đó liệt kê các file đã tạo/sửa và cung cấp Context Block.
+
+----------------------------------------------------------------------------------------------------------
+
+Prompt: Thực hiện Task 008 (Phần 2) — IAM Dashboard Frontend
+
+  Vai trò: Bạn là Senior Frontend Engineer chuyên về Angular (v17+) và kiến trúc Dashboard.
+
+  Tài liệu căn cứ:
+   1. Quy trình Task: @tasks/008_admin_iam_dashboard.md (Thực hiện Task 3).
+   2. Quy ước dự án: @web/CLAUDE.md.
+   3. Thiết kế UI sơ bộ: @web/docs/layout/dashboard.md.
+
+  Dữ liệu từ Backend (Bàn giao từ đợt 1):
+  FRONTEND CONTEXT BLOCK
+
+  Endpoint
+
+  GET /api/v1/admin/iam/overview
+  (qua Web Gateway: GET /api/oauth2/api/v1/admin/iam/overview)
+
+  TypeScript Interfaces
+
+  export interface IamOverviewData {
+    totalUsers: number;        // users có ít nhất 1 device đăng ký
+    totalDevices: number;      // tổng số thiết bị
+    activeSessions: number;    // phiên đang ACTIVE
+    failedLoginsToday: number; // login thất bại trong ngày hôm nay
+  }
+
+  export interface IamOverviewResponse {
+    data: IamOverviewData;
+  }
+
+  Không có query params — GET thuần túy.
+
+  Error Codes
+
+  ┌─────────────┬──────────────────────────────┬────────────────────────────────────┐
+  │ HTTP Status │          Trường hợp          │             Xử lý ở UI             │
+  ├─────────────┼──────────────────────────────┼────────────────────────────────────┤
+  │ 401         │ Token hết hạn / không hợp lệ │ Redirect về login                  │
+  ├─────────────┼──────────────────────────────┼────────────────────────────────────┤
+  │ 403         │ User không có ROLE_ADMIN     │ Hiển thị "Không có quyền truy cập" │
+  └─────────────┴──────────────────────────────┴────────────────────────────────────┘
+
+  Ghi chú cho UI
+
+  totalUsers là proxy — đếm distinct users có device, không phải tổng user trong hệ thống. Nếu cần label
+   chính xác hơn, dùng "Người dùng đã đăng nhập" thay vì "Tổng người dùng".
+
+  Nhiệm vụ cụ thể:
+
+   1. Triển khai Angular Service:
+       - Tạo/Cập nhật IamDashboardService (hoặc tên tương đương phù hợp với cấu trúc /core/services/).
+       - Viết method getOverview() sử dụng HttpClient để gọi API Backend đã triển khai.
+       - Đảm bảo typing chính xác dựa trên interface được cung cấp ở trên.
+
+   2. Triển khai Dashboard Component:
+       - Sử dụng Signals để quản lý trạng thái dữ liệu (overviewData, isLoading, error).
+       - Thực hiện gọi API ngay khi component khởi tạo.
+       - Chuẩn bị cấu trúc HTML chức năng (Functional HTML) để hiển thị 4 thẻ KPI:
+           - Total Users
+           - Total Devices
+           - Online Sessions
+           - Failed Logins (Today)
+
+   3. Routing:
+       - Đảm bảo Dashboard Component được mount đúng vào route trang chủ dành cho Admin.
+
+  Yêu cầu kỹ thuật:
+   - Standalone Components: Tuân thủ chuẩn Angular mới nhất.
+   - Signals: Sử dụng signal(), computed() thay vì BehaviorSubject nếu có thể.
+   - No Styling: Chỉ viết class Tailwind cơ bản để phân khung layout. KHÔNG viết CSS phức tạp hay căn
+     chỉnh chi tiết (Phần này dành cho Gemini ở đợt cuối).
+   - Placeholder: Sử dụng các icon từ Angular Material (nếu đã dùng) hoặc ký tự tạm cho các chỉ số.
+
+  Output: Liệt kê các file đã tạo/sửa và mã nguồn logic.
+
+------------------------------------------------------------------------------------------------------
+
+Prompt: Thiết kế Giao diện IAM Dashboard (Gemini UI/UX)
+  Vai trò: Bạn là Senior UI/UX-focused Frontend Engineer. Nhiệm vụ của bạn là biến cấu trúc HTML thô
+  thành một Dashboard quản trị hiện đại, chuyên nghiệp và có tác động thị giác mạnh.
+  Tài liệu căn cứ:
+   1. Quy ước thiết kế: @web/docs/layout/dashboard.md (Hãy tuân thủ spacing, font và bảng màu tại đây).
+   2. Công nghệ: Angular Material (MDC Components) và Tailwind CSS.
+  FILES TO RESTYLE (Mã nguồn từ Đợt 2):
+   Files tạo/sửa
+  ┌────────────────────────────────────────┬─────────────────────────────────────────────────────────┐
+  │                  File                  │                        Thay đổi                         │
+  ├────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ core/services/iam-dashboard.service.ts │ Tạo mới — getOverview() gọi API, type IamOverviewData   │
+  ├────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ dashboard/home/home.ts                 │ Sửa — thêm signals, inject service, kpiCards computed,  │
+  │                                        │ ngOnInit                                                │
+  ├────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ dashboard/home/home.html               │ Sửa — loading/error state + 4 KPI cards với @for        │
+  └────────────────────────────────────────┴─────────────────────────────────────────────────────────┘
+  Routing: Không thay đổi — /admin/dashboard → HomeComponent đã tồn tại đúng.
+  401 handling: Đã có sẵn trong authInterceptor — redirect về / tự động, component không cần xử lý thêm.
+  Sẵn sàng cho Gemini (Task 4): home.html và home.css là 2 file cần style. Các class chờ style:
+  .home-content, .content-header, .content-title, .content-subtitle, .kpi-grid, .kpi-card,
+  .kpi-card-header, .kpi-label, .kpi-icon, .kpi-value.
+  Yêu cầu thiết kế chi tiết:
+   1. KPI Cards (4 thẻ số liệu):
+       - Sử dụng mat-card làm nền tảng.
+       - Bố cục: Sử dụng Grid (Tailwind) để hiển thị 4 thẻ đều nhau trên desktop và stack trên mobile.
+       - Visuals:
+           - Mỗi thẻ cần có một Icon (mat-icon) đại diện cho dữ liệu (ví dụ: people, devices, VpnKey,
+             report_problem).
+           - Màu sắc: Sử dụng màu sắc mang tính cảnh báo an ninh. Thẻ Failed Logins Today nên có màu
+             nhấn hoặc viền màu warn của Material.
+           - Hiệu ứng: Thêm hiệu ứng hover nhẹ (box-shadow) để tăng cảm giác tương tác.
+   2. Typography & Spacing:
+       - Số liệu lớn (Value) cần được làm nổi bật với font-weight đậm.
+       - Nhãn (Label) sử dụng font nhỏ hơn, màu sắc nhẹ hơn (text-secondary).
+       - Đảm bảo padding/margin chuẩn theo spacing system trong dashboard.md.
+   3. Responsive:
+       - Đảm bảo dashboard trông đẹp trên mọi kích thước màn hình.
+  Ràng buộc kỹ thuật:
+   - KHÔNG sửa logic trong file .ts (trừ khi cần thêm class binding).
+   - CSS: Ưu tiên ghi đè CSS Custom Properties (biến --mat-sys-...) thay vì viết CSS thô trực tiếp vào
+     component để tránh xung đột với Material MDC.
+   - Tailwind: Sử dụng Tailwind cho layout, spacing và flexbox.
+  OUTPUT: Trả về nội dung hoàn chỉnh cho file .html và .css sau khi đã được "lột xác".

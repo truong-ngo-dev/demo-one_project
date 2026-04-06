@@ -30,10 +30,10 @@
 
 *User xem và quản lý thiết bị / session của chính mình.*
 
-| ID     | Tên                        | Mô tả ngắn                                                  | Trạng thái  | File                                                   |
-|--------|----------------------------|-------------------------------------------------------------|-------------|--------------------------------------------------------|
-| UC-007 | List My Devices & Sessions | Xem danh sách thiết bị và trạng thái session của chính mình | Implemented | [UC-007_list_devices.md](UC-007_list_devices.md)       |
-| UC-008 | Remote Logout              | Đăng xuất một thiết bị cụ thể từ xa                         | Partial     | [UC-008_remote_logout.md](UC-008_remote_logout.md)     |
+| ID     | Tên                        | Mô tả ngắn                                                  | Trạng thái  | File                                               |
+|--------|----------------------------|-------------------------------------------------------------|-------------|----------------------------------------------------|
+| UC-007 | List My Devices & Sessions | Xem danh sách thiết bị và trạng thái session của chính mình | Implemented | [UC-007_list_devices.md](UC-007_list_devices.md)   |
+| UC-008 | Remote Logout              | Đăng xuất một thiết bị cụ thể từ xa                         | Implemented | [UC-008_remote_logout.md](UC-008_remote_logout.md) |
 
 > **UC-008 Partial**: Application logic (`RevokeSession` handler) đã implement. Endpoint `DELETE /api/v1/sessions/me/{sessionId}` chưa expose.
 
@@ -44,6 +44,20 @@
 | ID     | Tên              | Mô tả ngắn                          | Trạng thái  | File                                                     |
 |--------|------------------|-------------------------------------|-------------|----------------------------------------------------------|
 | UC-009 | My Login History | Xem lịch sử đăng nhập có phân trang | Implemented | [UC-009_my_login_history.md](UC-009_my_login_history.md) |
+
+---
+
+## Admin Management
+
+*Quản trị viên (ROLE_ADMIN) giám sát và quản lý an ninh hệ thống.*
+
+| ID     | Tên                                | Mô tả ngắn                                                              | Trạng thái | File                                                                               |
+|--------|------------------------------------|-------------------------------------------------------------------------|------------|------------------------------------------------------------------------------------|
+| UC-011 | IAM Overview Dashboard             | Xem các chỉ số KPI an ninh và vận hành (Users, Devices, Sessions, v.v.) | Planned    | [UC-011_iam_overview.md](UC-011_iam_overview.md)                                   |
+| UC-012 | Global Login Activity Log          | Tra cứu lịch sử đăng nhập toàn hệ thống có phân trang và filter         | Planned    | [UC-012_global_login_history.md](UC-012_global_login_history.md)                   |
+| UC-013 | Global Active Sessions Management  | Quản lý và ngắt kết nối các phiên đang online toàn hệ thống             | Planned    | [UC-013_global_active_sessions.md](UC-013_global_active_sessions.md)               |
+| UC-014 | Admin List User Devices & Sessions | Xem danh sách thiết bị gộp với trạng thái session của một user cụ thể   | Planned    | [UC-014_admin_list_user_sessions.md](UC-014_admin_list_user_sessions.md)           |
+| UC-015 | Admin List User Login History      | Xem lịch sử đăng nhập chi tiết của một user cụ thể                      | Planned    | [UC-015_admin_list_user_login_history.md](UC-015_admin_list_user_login_history.md) |
 
 ---
 

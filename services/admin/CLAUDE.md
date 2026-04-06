@@ -13,6 +13,7 @@
 
 | Muốn làm gì                        | Đọc file này trước                                                       |
 |------------------------------------|--------------------------------------------------------------------------|
+| **Hiểu cấu trúc code/package**     | [**SERVICE_MAP.md**](SERVICE_MAP.md)                                     |
 | Implement bất kỳ use case nào      | [Use Case Index](docs/use-cases/UC-000_index.md)                         |
 | Làm việc với User domain           | [Domain: User](docs/domains/user.md)                                     |
 | Làm việc với Role domain           | [Domain: Role](docs/domains/role.md)                                     |
@@ -33,6 +34,6 @@
 
 ## 4. Agent Guardrails
 
-1. **[PLANNED] = Không implement** — Verify email, Complete profile, Change password, Delete user, Policy management, MFA.
+1. **[PLANNED] = Không implement** — Verify email, Complete profile, Delete user, Policy management (ABAC), MFA.
 2. **Internal endpoints** — không expose ra public, cần auth riêng hoặc network policy.
 3. **Out of scope** — không xác thực credentials, không quản lý session.

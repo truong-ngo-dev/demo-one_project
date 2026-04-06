@@ -1,0 +1,77 @@
+<div class="page-container">
+
+  <div class="page-header flex justify-between items-center mb-8">
+    <div class="header-left">
+      <h1 class="page-title text-2xl font-bold text-slate-900">Active Sessions</h1>
+      <p class="page-subtitle text-slate-500">Người dùng đang trực tuyến trên toàn hệ thống.</p>
+    </div>
+    <button mat-flat-button class="flex items-center gap-2" (click)="load()">
+      <mat-icon class="text-lg">refresh</mat-icon>
+      <span>Refresh</span>
+    </button>
+  </div>
+
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="sessions()">
+
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef>User</th>
+            <td mat-cell *matCellDef="let s">
+              <span class="user-identifier">{{ s.username ?? s.userId }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="deviceName">
+            <th mat-header-cell *matHeaderCellDef>Thiết bị</th>
+            <td mat-cell *matCellDef="let s" class="muted-cell">{{ s.deviceName ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="ipAddress">
+            <th mat-header-cell *matHeaderCellDef>IP Address</th>
+            <td mat-cell *matCellDef="let s">{{ s.ipAddress }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Bắt đầu lúc</th>
+            <td mat-cell *matCellDef="let s" class="muted-cell">{{ s.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let s" class="actions-cell">
+              <button mat-icon-button color="warn"
+                      [disabled]="isTerminating(s.sessionId)"
+                      (click)="openTerminateDialog(s)"
+                      matTooltip="Force Terminate">
+                @if (isTerminating(s.sessionId)) {
+                  <mat-spinner diameter="18" />
+                } @else {
+                  <mat-icon>power_settings_new</mat-icon>
+                }
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"></tr>
+
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">wifi_off</mat-icon>
+                <p class="empty-state-title">Không có phiên nào đang hoạt động</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    }
+  </div>
+
+</div>

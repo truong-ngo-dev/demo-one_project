@@ -1,0 +1,113 @@
+:host {
+  display: block;
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100%;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 16px !important;
+}
+
+.mat-mdc-cell {
+  padding: 16px !important;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.user-identifier {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.muted-cell {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.actions-cell {
+  text-align: right;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: #94a3b8;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Custom properties for Material button inside header */
+[mat-flat-button] {
+  --mdc-filled-button-container-shape: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+[mat-flat-button]:hover {
+  background-color: #f8fafc;
+}

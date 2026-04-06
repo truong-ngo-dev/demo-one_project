@@ -214,6 +214,14 @@
 
 .header-action-btn {
   color: var(--text-secondary);
+  /* FIX: Ensure the mat-icon-button internally centers its content */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.header-action-btn .mat-icon {
+  margin: 0 !important; /* Remove any default margins */
 }
 
 .header-action-btn:hover {

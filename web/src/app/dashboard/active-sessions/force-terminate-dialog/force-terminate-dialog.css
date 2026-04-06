@@ -1,0 +1,41 @@
+.mat-mdc-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #991b1b; /* red-800 */
+}
+
+.mat-mdc-dialog-title mat-icon {
+  color: #ef4444; /* red-500 */
+}
+
+.session-info {
+  list-style: none;
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  margin: 16px 0;
+  border: 1px solid #e2e8f0;
+}
+
+.session-info li {
+  margin-bottom: 8px;
+  color: #334155;
+}
+
+.session-info li:last-child {
+  margin-bottom: 0;
+}
+
+.session-info strong {
+  color: #0f172a;
+  display: inline-block;
+  width: 80px;
+}
+
+.warning-note {
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 16px;
+}
