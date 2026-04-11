@@ -1,0 +1,43 @@
+package vn.truongngo.apartcom.one.service.admin.application.resource.command.delete_resource;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
+import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
+
+public class DeleteResourceDefinition {
+
+    public record Command(Long id) {
+        public Command {
+            Assert.notNull(id, "id is required");
+        }
+    }
+
+    @Component
+    @RequiredArgsConstructor
+    public static class Handler implements CommandHandler<Command, Void> {
+
+        private final ResourceDefinitionRepository repository;
+
+        @Override
+        @Transactional
+        public Void handle(Command command) {
+            ResourceId resourceId = ResourceId.of(command.id());
+            if (repository.findById(resourceId).isEmpty()) {
+                throw AbacException.resourceNotFound();
+            }
+            if (repository.existsByIdWithPolicyRef(resourceId)) {
+                throw AbacException.resourceInUse();
+            }
+            if (repository.existsByIdWithUIElementRef(resourceId)) {
+                throw AbacException.resourceInUse();
+            }
+            repository.delete(resourceId);
+            return null;
+        }
+    }
+}

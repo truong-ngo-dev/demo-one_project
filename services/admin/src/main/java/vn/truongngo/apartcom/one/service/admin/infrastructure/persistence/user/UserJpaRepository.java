@@ -34,6 +34,9 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, String> 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM UserJpaEntity u JOIN u.roles r WHERE r.id = :roleId")
     boolean existsUserWithRole(@Param("roleId") String roleId);
 
+    @Query("SELECT COUNT(u) FROM UserJpaEntity u JOIN u.roles r WHERE r.name = :roleName")
+    long countByRoleName(@Param("roleName") String roleName);
+
     @Query(
         value = """
             SELECT u FROM UserJpaEntity u

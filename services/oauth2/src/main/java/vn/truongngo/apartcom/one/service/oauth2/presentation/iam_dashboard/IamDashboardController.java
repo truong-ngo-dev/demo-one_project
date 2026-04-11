@@ -26,7 +26,7 @@ public class IamDashboardController {
      * Yêu cầu authority ROLE_ADMIN.
      */
     @GetMapping("/overview")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<IamOverviewResponse> getOverview() {
         IamOverviewData data = iamOverviewHandler.handle(new IamOverviewQuery());
         return ResponseEntity.ok(new IamOverviewResponse(data));

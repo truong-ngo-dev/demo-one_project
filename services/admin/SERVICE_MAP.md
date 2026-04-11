@@ -22,6 +22,36 @@
     - `Port`: `RoleRepository`
     - `ErrorCode`: `RoleErrorCode`
 
+- **abac/resource** *(UC-019)*: Resource & Action Catalogue — namespace định danh cho policy.
+    - `Root`: `ResourceDefinition` — immutable name; owns `List<ActionDefinition>`
+    - `Value Objects`: `ResourceId`, `ActionId`
+    - `Port`: `ResourceDefinitionRepository`
+    - `ErrorCode`: `AbacErrorCode` (30001–30006) + `AbacException`
+    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
+
+- **abac/policy** *(UC-020–022)*: PolicySet → Policy → Rule hierarchy.
+    - `Roots`: `PolicySetDefinition`, `PolicyDefinition` (owns rules)
+    - `Entity`: `RuleDefinition` — owned by Policy, ordered by `orderIndex`
+    - `Value Object`: `ExpressionVO` (LITERAL SpEL, FK to abac_expression)
+    - `Enums`: `Scope` (OPERATOR/TENANT), `Effect` (PERMIT/DENY)
+    - `Ports`: `PolicySetRepository`, `PolicyRepository`
+    - `Services`: `SpelValidator`, `AbacPolicyException`
+    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
+
+- **abac/uielement** *(UC-023)*: UIElement Registry — map frontend button/tab/menu item sang resource:action.
+    - `Root`: `UIElement` — immutable `elementId`; `actionId` phải thuộc `resourceId`
+    - `Enum`: `UIElementType` (BUTTON/TAB/MENU_ITEM)
+    - `Port`: `UIElementRepository` — CRUD + `findByElementIds` + `existsByElementId/ActionId/ResourceId`
+    - `ErrorCode`: `AbacErrorCode` 30012–30013 + `AbacException.uiElementNotFound/uiElementIdDuplicate`
+    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
+
+- **abac/audit** *(UC-035)*: Admin Change Audit Log — lưu vết mọi thay đổi policy/rule/UIElement.
+    - `Entity`: `AbacAuditLog` — JPA entity, bảng `abac_audit_log`
+    - `Event`: `AbacAuditLogEvent` — extends `AbstractDomainEvent` (NOT record), dispatched bởi command handlers
+    - `Enum`: `AuditActionType` (CREATED/UPDATED/DELETED), `AuditEntityType` (POLICY_SET/POLICY/RULE/UI_ELEMENT)
+    - `Port`: `AbacAuditLogRepository` — Spring Data JPA, filter by entityType/entityId/performedBy
+    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
+
 ---
 
 ## 🚀 2. Application Layer (`application/`)
@@ -61,6 +91,80 @@
 - `find_by_id/FindRoleById`: UC-009 — Tìm role theo ID. **Query**
 - `find_all/FindAllRoles`: UC-010 — Danh sách roles có phân trang + filter keyword. **Query**
 
+### abac/resource — Commands *(UC-019)*
+
+- `create_resource/CreateResourceDefinition`: Tạo resource mới, validate name unique. **Command**
+- `update_resource/UpdateResourceDefinition`: Cập nhật description + serviceName. **Command**
+- `delete_resource/DeleteResourceDefinition`: Xóa resource — guard: không xóa nếu có UIElement ref. **Command**
+- `add_action/AddActionToResource`: Thêm action vào resource, validate name unique trong resource. **Command**
+- `update_action/UpdateActionDefinition`: Cập nhật description của action. **Command**
+- `remove_action/RemoveActionFromResource`: Xóa action — guard: không xóa nếu có UIElement ref. **Command**
+
+### abac/resource — Queries *(UC-019)*
+
+- `get_resource/GetResourceDefinition`: Lấy resource theo ID kèm danh sách actions. **Query**
+- `list_resources/ListResourceDefinitions`: Tìm kiếm có phân trang + filter keyword. **Query**
+
+### abac/policy_set — Commands *(UC-020)*
+
+- `create_policy_set/CreatePolicySet`: Tạo PolicySet mới, validate name unique. Dispatch `AbacAuditLogEvent(POLICY_SET/CREATED)`. **Command**
+- `update_policy_set/UpdatePolicySet`: Cập nhật scope, combineAlgorithm, isRoot. Dispatch `AbacAuditLogEvent(POLICY_SET/UPDATED)`. **Command**
+- `delete_policy_set/DeletePolicySet`: Load entity trước khi xóa. Dispatch `AbacAuditLogEvent(POLICY_SET/DELETED)`. **Command**
+
+### abac/policy_set — Queries *(UC-020)*
+
+- `get_policy_set/GetPolicySet`: Lấy PolicySet theo ID kèm danh sách policy summary. **Query**
+- `list_policy_sets/ListPolicySets`: Phân trang + filter keyword. **Query**
+
+### abac/policy — Commands *(UC-021)*
+
+- `create_policy/CreatePolicy`: Tạo Policy trong PolicySet, validate target SpEL. Dispatch `AbacAuditLogEvent(POLICY/CREATED)`. **Command**
+- `update_policy/UpdatePolicy`: Cập nhật targetExpression + combineAlgorithm. Dispatch `AbacAuditLogEvent(POLICY/UPDATED)`. **Command**
+- `delete_policy/DeletePolicy`: Load entity trước khi xóa. Dispatch `AbacAuditLogEvent(POLICY/DELETED)`. **Command**
+
+### abac/policy — Queries *(UC-021)*
+
+- `get_policy/GetPolicy`: Lấy Policy theo ID kèm danh sách RuleView. **Query**
+- `list_policies/ListPolicies`: Danh sách policy theo policySetId. **Query**
+
+### abac/rule — Commands *(UC-022)*
+
+- `create_rule/CreateRule`: Thêm Rule vào Policy, validate SpEL expressions. Dispatch `AbacAuditLogEvent(RULE/CREATED)`. **Command**
+- `update_rule/UpdateRule`: Cập nhật name, description, expressions, effect. Dispatch `AbacAuditLogEvent(RULE/UPDATED)`. **Command**
+- `delete_rule/DeleteRule`: Load rule trước khi xóa (để lấy name). Dispatch `AbacAuditLogEvent(RULE/DELETED)`. **Command**
+- `reorder_rules/ReorderRules`: Đổi thứ tự rules theo ordered list of IDs. **Command**
+
+### abac/rule — Queries *(UC-022, UC-032)*
+
+- `get_rule_impact_preview/GetRuleImpactPreview`: UC-032 — Phân tích SpEL target + condition expression qua `SpelExpressionAnalyzer`. Trả `requiredRoles`, `requiredAttributes`, `specificActions`, `navigableWithoutData`, `hasInstanceCondition`. **Query**
+
+### abac/rule — Shared Application Services
+
+- `SpelExpressionAnalyzer`: Static helper — walk SpEL AST để phân tích expressions. Dùng bởi: impact preview, reverse lookup, UIElement coverage check. Trả `AnalysisResult(requiredRoles, requiredAttributes, specificActions, navigableWithoutData, hasInstanceCondition, parseWarning)`.
+
+### abac/ui_element — Commands *(UC-023)*
+
+- `create_ui_element/CreateUIElement`: Tạo UIElement, validate elementId unique + actionId thuộc resourceId. Dispatch `AbacAuditLogEvent(UI_ELEMENT/CREATED)`. **Command**
+- `update_ui_element/UpdateUIElement`: Cập nhật label, type, group, orderIndex, resourceId, actionId. elementId immutable. Dispatch `AbacAuditLogEvent(UI_ELEMENT/UPDATED)`. **Command**
+- `delete_ui_element/DeleteUIElement`: Load element trước khi xóa. Dispatch `AbacAuditLogEvent(UI_ELEMENT/DELETED)`. **Command**
+
+### abac/ui_element — Queries *(UC-023, UC-036)*
+
+- `get_ui_element/GetUIElement`: Lấy UIElement theo ID kèm resourceName + actionName + `hasPolicyCoverage`. **Query**
+- `list_ui_elements/ListUIElements`: Phân trang + filter resourceId/group; cache resource lookups tránh N+1. Thêm `hasPolicyCoverage` — tính `CoverageIndex` 1 lần/request. **Query**
+- `list_uncovered_ui_elements/ListUncoveredUIElements`: UC-036 — Trả danh sách UIElement không được cover bởi bất kỳ PERMIT rule nào. **Query**
+- `evaluate/EvaluateUIElements`: Batch evaluate — load elements theo elementIds → build Subject từ JWT → gọi PdpEngine 1 lần per element (policy load 1 lần) → trả `Map<elementId, "PERMIT"|"DENY">`. **Query**
+
+### simulate *(UC-024, UC-031, UC-033, UC-034)*
+
+- `simulate_policy/SimulatePolicy`: UC-024/UC-033 — Load PolicySet → build virtual Subject → `PdpEngine.authorizeWithTrace()` → trả `SimulateResult` kèm `List<RuleTraceEntry>` (per-rule trace). **Command**
+- `simulate_navigation/SimulateNavigation`: UC-031/UC-034 — Evaluate tất cả actions của resource cho virtual Subject. Mỗi `ActionDecision` kèm `matchedRuleName` (lấy từ trace entry `wasDeciding=true`). **Query**
+- `reverse_lookup/GetReverseLookup`: UC-034 — Tìm tất cả PERMIT/DENY rules cover resource+action. Dùng `SpelExpressionAnalyzer` + `UserRepository.countByRoleName()`. **Query**
+
+### audit *(UC-035)*
+
+- `list_audit_log/ListAuditLog`: Trả `Page<AuditLogEntry>` filter by entityType/entityId/performedBy. **Query**
+
 ---
 
 ## 🛠️ 3. Infrastructure Layer (`infrastructure/`)
@@ -73,23 +177,46 @@
     - `SocialConnection` ↔ `SocialConnectionJpaEntity` → bảng `social_connections` (FK: `user_id`)
     - `Role` ↔ `RoleJpaEntity` → bảng `roles`
     - `user_roles` → join table (FK: `user_id`, `role_id`)
+    - `ResourceDefinition` + `ActionDefinition` ↔ `ResourceDefinitionJpaEntity` + `ActionDefinitionJpaEntity` → bảng `resource_definition`, `action_definition`
+    - `PolicySetDefinition` ↔ `PolicySetJpaEntity` → bảng `policy_set`
+    - `PolicyDefinition` ↔ `PolicyJpaEntity` → bảng `policy`
+    - `RuleDefinition` ↔ `RuleJpaEntity` → bảng `rule`
+    - `ExpressionVO` ↔ `AbacExpressionJpaEntity` → bảng `abac_expression` (LITERAL only Phase 1)
+    - `UIElement` ↔ `UIElementJpaEntity` → bảng `ui_element`
 
 - **`persistence/user/`**: `UserJpaEntity`, `UserJpaRepository`, `UserMapper`, `SocialConnectionJpaEntity`
 - **`persistence/role/`**: `RoleJpaEntity`, `RoleJpaRepository`, `RoleMapper`
+- **`persistence/abac/resource/`**: `ResourceDefinitionJpaEntity`, `ActionDefinitionJpaEntity`, `ResourceDefinitionJpaRepository`, `ResourceDefinitionMapper`
+- **`persistence/abac/expression/`**: `AbacExpressionJpaEntity`, `AbacExpressionJpaRepository`
+- **`persistence/abac/policy_set/`**: `PolicySetJpaEntity`, `PolicySetJpaRepository`, `PolicySetMapper`
+- **`persistence/abac/policy/`**: `PolicyJpaEntity`, `PolicyJpaRepository`, `PolicyMapper`
+- **`persistence/abac/rule/`**: `RuleJpaEntity`, `RuleJpaRepository`
+- **`persistence/abac/uielement/`**: `UIElementJpaEntity`, `UIElementJpaRepository`, `UIElementMapper`
+- **`persistence/abac/audit/`**: `AbacAuditLog` (JPA entity trực tiếp, không cần mapper riêng)
 
 ### 🔌 Adapters (`adapter/`)
 
 - **`adapter/repository/user/UserPersistenceAdapter`**: implement `UserRepository` — CRUD + findBySocialConnection + existsBy* + searchUsers (delegate tới JPA `@Query`)
 - **`adapter/repository/role/RolePersistenceAdapter`**: implement `RoleRepository` — CRUD + findAllByIds + existsByName
+- **`adapter/repository/abac/ResourceDefinitionPersistenceAdapter`**: implement `ResourceDefinitionRepository` — CRUD + search + existsByName + existsByIdWith*Ref
+- **`adapter/repository/abac/PolicySetPersistenceAdapter`**: implement `PolicySetRepository` — CRUD + search + findAllRoot
+- **`adapter/repository/abac/PolicyPersistenceAdapter`**: implement `PolicyRepository` — CRUD + findByPolicySetId; handles expression upsert (abac_expression) + rule upsert
+- **`adapter/repository/abac/UIElementPersistenceAdapter`**: implement `UIElementRepository` — CRUD + batch findByElementIds + existsBy*
+- **`adapter/repository/abac/AbacAuditLogPersistenceAdapter`** *(hoặc direct Spring Data JPA)*: implement `AbacAuditLogRepository` — persist + query audit log entries
+- **`adapter/abac/AdminPolicyProvider`**: implement `PolicyProvider` (libs/abac) — tải root PolicySet từ DB → map sang libs/abac domain để PdpEngine evaluate
+- **`adapter/abac/AdminSubjectProvider`**: implement `SubjectProvider` (libs/abac) — build `Subject` từ `Principal.getName()` (userId) → load user + role names từ DB
 
 ### 🔐 Security (`security/`)
 
 - `SecurityConfiguration`: Stateless JWT resource server. Permit: `/api/v1/internal/**` (service-to-service), `POST /api/v1/users/register` (self-registration). Require auth: mọi endpoint còn lại. `PasswordEncoder` bean (BCrypt strength=10).
 
-### ⚙️ Cross-cutting (`cross-cutting/config/`)
+### ⚙️ Cross-cutting (`cross-cutting/`)
 
-- `EventDispatcherConfig`: Wire `EventDispatcher` bean với tất cả `EventHandler` — không chứa logic.
-- `DataInitializer`: Seed `ADMIN` role và user `admin@example.com` khi khởi động lần đầu (idempotent).
+- `config/EventDispatcherConfig`: Wire `EventDispatcher` bean với tất cả `EventHandler` — không chứa logic.
+- `config/DataInitializer`: Seed `ADMIN` role và user `admin@example.com` khi khởi động lần đầu (idempotent).
+- `config/AbacConfig`: Wire `PdpEngine` bean với `DecisionStrategy.DEFAULT_DENY`.
+- `audit/AuditLogEventHandler`: `EventHandler<AbacAuditLogEvent>` — lắng nghe event, persist `AbacAuditLog`. Auto-registered bởi `EventDispatcherConfig`.
+- `audit/AuditHelper`: Static helper — `currentPerformedBy()` lấy username từ `SecurityContextHolder`.
 
 ---
 
@@ -97,42 +224,114 @@
 
 ### `user/UserController` — `/api/v1/users`
 
-| Method | Path | Use Case | Auth |
-|---|---|---|---|
-| `POST` | `/register` | UC-002 RegisterUser | Public |
-| `POST` | `/` | UC-001 AdminCreateUser | JWT |
-| `GET` | `/{id}` | UC-004 FindUserById | JWT |
-| `GET` | `/` | UC-006 SearchUsers | JWT |
-| `POST` | `/{id}/lock` | UC-007a LockUser | JWT |
-| `POST` | `/{id}/unlock` | UC-007b UnlockUser | JWT |
-| `POST` | `/{id}/roles` | UC-013 AssignRoles | JWT |
-| `DELETE` | `/{id}/roles/{roleId}` | UC-014 RemoveRole | JWT |
-| `GET` | `/me` | GetMyProfile | JWT |
-| `PATCH` | `/me` | UC-016 UpdateProfile | JWT |
-| `POST` | `/me/password` | UC-017 ChangePassword | JWT |
+| Method   | Path                   | Use Case               | Auth   |
+|----------|------------------------|------------------------|--------|
+| `POST`   | `/register`            | UC-002 RegisterUser    | Public |
+| `POST`   | `/`                    | UC-001 AdminCreateUser | JWT    |
+| `GET`    | `/{id}`                | UC-004 FindUserById    | JWT    |
+| `GET`    | `/`                    | UC-006 SearchUsers     | JWT    |
+| `POST`   | `/{id}/lock`           | UC-007a LockUser       | JWT    |
+| `POST`   | `/{id}/unlock`         | UC-007b UnlockUser     | JWT    |
+| `POST`   | `/{id}/roles`          | UC-013 AssignRoles     | JWT    |
+| `DELETE` | `/{id}/roles/{roleId}` | UC-014 RemoveRole      | JWT    |
+| `GET`    | `/me`                  | GetMyProfile           | JWT    |
+| `PATCH`  | `/me`                  | UC-016 UpdateProfile   | JWT    |
+| `POST`   | `/me/password`         | UC-017 ChangePassword  | JWT    |
 
 DTOs: `user/model/` — `CreateUserRequest`, `RegisterUserRequest`, `AssignRolesRequest`, `UpdateProfileRequest`, `ChangePasswordRequest`
 
 ### `role/RoleController` — `/api/v1/roles`
 
-| Method | Path | Use Case | Auth |
-|---|---|---|---|
-| `POST` | `/` | UC-008 CreateRole | JWT |
-| `GET` | `/{id}` | UC-009 FindRoleById | JWT |
-| `GET` | `/` | UC-010 FindAllRoles | JWT |
-| `PATCH` | `/{id}` | UC-011 UpdateRole | JWT |
-| `DELETE` | `/{id}` | UC-012 DeleteRole | JWT |
+| Method   | Path    | Use Case            | Auth |
+|----------|---------|---------------------|------|
+| `POST`   | `/`     | UC-008 CreateRole   | JWT  |
+| `GET`    | `/{id}` | UC-009 FindRoleById | JWT  |
+| `GET`    | `/`     | UC-010 FindAllRoles | JWT  |
+| `PATCH`  | `/{id}` | UC-011 UpdateRole   | JWT  |
+| `DELETE` | `/{id}` | UC-012 DeleteRole   | JWT  |
 
 DTOs: `role/model/` — `CreateRoleRequest`, `UpdateRoleRequest`
 
 ### `internal/InternalUserController` — `/api/v1/internal/users`
 
-| Method | Path | Use Case | Auth |
-|---|---|---|---|
-| `GET` | `/identity?value=` | UC-U05 GetUserByIdentity | Permit (network-level) |
-| `POST` | `/social` | UC-003 SocialRegisterUser | Permit (network-level) |
+| Method | Path               | Use Case                  | Auth                   |
+|--------|--------------------|---------------------------|------------------------|
+| `GET`  | `/identity?value=` | UC-U05 GetUserByIdentity  | Permit (network-level) |
+| `POST` | `/social`          | UC-003 SocialRegisterUser | Permit (network-level) |
 
 DTOs: `internal/model/` — `SocialRegisterRequest`
+
+### `abac/ResourceDefinitionController` — `/api/v1/abac/resources` *(UC-019)*
+
+| Method   | Path                               | Use Case                  | Auth |
+|----------|------------------------------------|---------------------------|------|
+| `POST`   | `/`                                | CreateResourceDefinition  | JWT  |
+| `GET`    | `/{id}`                            | GetResourceDefinition     | JWT  |
+| `GET`    | `/`                                | ListResourceDefinitions   | JWT  |
+| `PUT`    | `/{id}`                            | UpdateResourceDefinition  | JWT  |
+| `DELETE` | `/{id}`                            | DeleteResourceDefinition  | JWT  |
+| `POST`   | `/{resourceId}/actions`            | AddActionToResource       | JWT  |
+| `PATCH`  | `/{resourceId}/actions/{actionId}` | UpdateActionDefinition    | JWT  |
+| `DELETE` | `/{resourceId}/actions/{actionId}` | RemoveActionFromResource  | JWT  |
+
+### `abac/PolicySetController` — `/api/v1/abac/policy-sets` *(UC-020)*
+
+| Method   | Path    | Use Case          | Auth |
+|----------|---------|-------------------|------|
+| `GET`    | `/`     | ListPolicySets    | JWT  |
+| `GET`    | `/{id}` | GetPolicySet      | JWT  |
+| `POST`   | `/`     | CreatePolicySet   | JWT  |
+| `PUT`    | `/{id}` | UpdatePolicySet   | JWT  |
+| `DELETE` | `/{id}` | DeletePolicySet   | JWT  |
+
+### `abac/PolicyController` — `/api/v1/abac/policies` *(UC-021)*
+
+| Method   | Path    | Use Case      | Auth |
+|----------|---------|---------------|------|
+| `GET`    | `/`     | ListPolicies  | JWT  |
+| `GET`    | `/{id}` | GetPolicy     | JWT  |
+| `POST`   | `/`     | CreatePolicy  | JWT  |
+| `PUT`    | `/{id}` | UpdatePolicy  | JWT  |
+| `DELETE` | `/{id}` | DeletePolicy  | JWT  |
+
+### `abac/RuleController` — `/api/v1/abac/policies/{policyId}/rules` *(UC-022)*
+
+| Method   | Path               | Use Case      | Auth |
+|----------|--------------------|---------------|------|
+| `POST`   | `/`                | CreateRule    | JWT  |
+| `PUT`    | `/{ruleId}`        | UpdateRule    | JWT  |
+| `DELETE` | `/{ruleId}`        | DeleteRule    | JWT  |
+| `PUT`    | `/reorder`         | ReorderRules  | JWT  |
+
+### `abac/UIElementController` — `/api/v1/abac/ui-elements` *(UC-023, UC-036)*
+
+| Method   | Path          | Use Case                  | Auth |
+|----------|---------------|---------------------------|------|
+| `POST`   | `/`           | CreateUIElement           | JWT  |
+| `GET`    | `/{id}`       | GetUIElement              | JWT  |
+| `GET`    | `/`           | ListUIElements            | JWT  |
+| `GET`    | `/uncovered`  | ListUncoveredUIElements   | JWT  |
+| `PUT`    | `/{id}`       | UpdateUIElement           | JWT  |
+| `DELETE` | `/{id}`       | DeleteUIElement           | JWT  |
+| `POST`   | `/evaluate`   | EvaluateUIElements        | JWT  |
+
+Params list: `resourceId`, `type`, `group`, `page`, `size`
+
+### `abac/AbacSimulateController` — `/api/v1/abac/simulate` *(UC-024, UC-031, UC-034)*
+
+| Method | Path         | Use Case              | Auth |
+|--------|--------------|-----------------------|------|
+| `POST` | `/`          | SimulatePolicy        | JWT  |
+| `POST` | `/navigation`| SimulateNavigation    | JWT  |
+| `GET`  | `/reverse`   | GetReverseLookup      | JWT  |
+
+### `abac/AuditLogController` — `/api/v1/abac/audit-log` *(UC-035)*
+
+| Method | Path | Use Case      | Auth |
+|--------|------|---------------|------|
+| `GET`  | `/`  | ListAuditLog  | JWT  |
+
+Params: `entityType`, `entityId`, `performedBy`, `page`, `size`
 
 ### `base/`
 
@@ -145,4 +344,8 @@ DTOs: `internal/model/` — `SocialRegisterRequest`
 ## 📄 5. Resources & Configs
 
 - `application.properties` / `application-dev.properties`: Server port, DB datasource, OAuth2 resource server JWT issuer URI.
-- `db/migration/`: Flyway migration — schema cho `users`, `roles`, `social_connections`, `user_roles`.
+- `db/migration/`:
+    - `V1__init_schema.sql` — bảng `users`, `roles`, `social_connections`, `user_roles`
+    - `V2__*.sql` — seed data (nếu có)
+    - `V3__abac_schema.sql` — bảng ABAC: `resource_definition`, `action_definition`, `abac_expression`, `policy_set`, `policy`, `rule`, `ui_element`
+    - `V4__create_abac_audit_log.sql` — bảng `abac_audit_log` + indexes

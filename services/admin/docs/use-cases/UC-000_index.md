@@ -31,10 +31,42 @@
 
 ---
 
+---
+
+## ABAC Policy Management
+
+| ID     | Tên                         | Mô tả ngắn                                                                   | Trạng thái  | File                                                                         |
+|--------|-----------------------------|------------------------------------------------------------------------------|-------------|------------------------------------------------------------------------------|
+| UC-019 | Resource & Action Catalogue | CRUD resource definitions + action catalogue                                 | Implemented | [UC-019_resource_action_catalogue.md](UC-019_resource_action_catalogue.md)   |
+| UC-020 | Policy Set Management       | CRUD policy sets (root container)                                            | Implemented | [UC-020_policy_set_management.md](UC-020_policy_set_management.md)           |
+| UC-021 | Policy Management           | CRUD policies trong policy set                                               | Implemented | [UC-021_policy_management.md](UC-021_policy_management.md)                   |
+| UC-022 | Rule Management             | CRUD rules với raw SpEL, reorder                                             | Implemented | [UC-022_rule_management.md](UC-022_rule_management.md)                       |
+| UC-023 | UIElement Registry          | CRUD UIElement + batch evaluate visibility                                   | Implemented | [UC-023_ui_element_registry.md](UC-023_ui_element_registry.md)               |
+| UC-024 | Policy Simulator            | Mock enforce API — test policy với virtual subject                           | Implemented | [UC-024_policy_simulate.md](UC-024_policy_simulate.md)                       |
+| UC-031 | Navigation Simulate         | Evaluate toàn bộ actions của resource cho virtual subject ở navigation level | Implemented | [UC-031_navigation_simulate.md](UC-031_navigation_simulate.md)               |
+| UC-032 | Rule Impact Preview         | Phân tích SpEL expression trích roles, attributes, actions bị ảnh hưởng      | Implemented | [UC-032_rule_impact_preview.md](UC-032_rule_impact_preview.md)               |
+| UC-033 | Evaluation Trace            | Per-rule trace khi simulate instance mode — hiển thị lý do PERMIT/DENY       | Implemented | [UC-033_evaluation_trace.md](UC-033_evaluation_trace.md)                     |
+| UC-034 | Reverse Lookup              | Tìm rules cover resource+action; matchedRuleName trong navigation mode       | Implemented | [UC-034_reverse_lookup.md](UC-034_reverse_lookup.md)                         |
+| UC-035 | Admin Change Audit Log      | Ghi thay đổi policy/rule/UIElement; query log theo entity/performer          | Implemented | [UC-035_admin_change_audit_log.md](UC-035_admin_change_audit_log.md)         |
+| UC-036 | UIElement Policy Coverage   | Đánh dấu UIElement có/không được cover bởi PERMIT rule; list uncovered       | Implemented | [UC-036_ui_element_policy_coverage.md](UC-036_ui_element_policy_coverage.md) |
+
+---
+
+## ABAC Phase 2 — Enforcement
+
+| ID     | Tên                          | Mô tả ngắn                                                              | Trạng thái | File                                                                 |
+|--------|------------------------------|-------------------------------------------------------------------------|------------|----------------------------------------------------------------------|
+| UC-025 | PEP — API Enforcement        | Wire PepEngine + @PreEnforce vào controllers; 403 khi DENY              | Planned    | [UC-025_pep_enforcement.md](UC-025_pep_enforcement.md)               |
+| UC-026 | Subject Attribute Enrichment | Load user profile attributes vào Subject.attributes cho SpEL conditions | Planned    | [UC-026_subject_enrichment.md](UC-026_subject_enrichment.md)         |
+| UC-027 | Expression Composition       | AND/OR kết hợp nhiều SpEL expressions trong 1 rule                      | Planned    | [UC-027_expression_composition.md](UC-027_expression_composition.md) |
+| UC-028 | Frontend Route Guard         | Angular guard check evaluate result — chặn URL-typing bypass            | Planned    | [UC-028_frontend_route_guard.md](UC-028_frontend_route_guard.md)     |
+| UC-029 | Policy Decision Audit Log    | Ghi PERMIT/DENY decisions + query API cho admin debug/compliance        | Planned    | [UC-029_policy_audit_log.md](UC-029_policy_audit_log.md)             |
+
+---
+
 ## [PLANNED]
 
 | ID     | Tên                      | Mô tả ngắn                     |
 |--------|--------------------------|--------------------------------|
 | UC-015 | Verify email             | Xác thực email sau khi đăng ký |
-| UC-019 | Policy management (ABAC) | Quản lý policy phân quyền      |
-| UC-020 | MFA config               | Cấu hình xác thực đa yếu tố    |
+| UC-030 | MFA config               | Cấu hình xác thực đa yếu tố    |

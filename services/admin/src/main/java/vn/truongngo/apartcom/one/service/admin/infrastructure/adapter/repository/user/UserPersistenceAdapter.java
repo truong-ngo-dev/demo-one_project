@@ -116,4 +116,9 @@ public class UserPersistenceAdapter implements UserRepository {
         return jpaRepository.searchUsers(keyword, status, roleIdValue, pageable)
                 .map(userMapper::toDomain);
     }
+
+    @Override
+    public long countByRoleName(String roleName) {
+        return jpaRepository.countByRoleName(roleName);
+    }
 }

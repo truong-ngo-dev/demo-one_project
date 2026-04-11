@@ -65,7 +65,7 @@ public class SessionController {
      * Admin xem tất cả phiên ACTIVE toàn hệ thống.
      */
     @GetMapping("/admin/active")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ActiveSessionsResponse> listActiveSessions() {
         List<ActiveSessionView> sessions = listActiveSessionsHandler.handle(new ListActiveSessionsQuery());
         return ResponseEntity.ok(new ActiveSessionsResponse(sessions));

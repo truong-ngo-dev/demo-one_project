@@ -1,0 +1,58 @@
+Thực hiện Task 011 — libs/abac Base Engine Migration
+
+Vai trò: Bạn là Senior Backend Engineer thực hiện migrate thư viện ABAC authorization vào monorepo.
+Đây là task infrastructure, không phải business feature — không cần use case hay plan doc.
+
+Tài liệu căn cứ:
+  1. Quy trình Task: @tasks/011_libs_abac_base.md (thực hiện toàn bộ Task 1–5 theo thứ tự)
+  2. Quy ước package: @docs/conventions/ddd-structure.md
+  3. Tham khảo libs/common: @libs/common/CLAUDE.md (để biết utils nào đã có sẵn)
+  4. Source gốc cần migrate: G:/Project/Demo/abac-authorization/ (đọc trực tiếp từ đây)
+
+Nhiệm vụ cụ thể — thực hiện tuần tự, hoàn thành từng bước trước khi sang bước tiếp:
+
+Task 1 — Tạo libs/abac Maven module:
+  - Tạo libs/abac/pom.xml standalone (groupId: vn.truongngo.apartcom.one.lib, artifactId: abac, version: 1.0.0, java 21)
+  - Dependencies: spring-boot-starter-web, spring-boot-starter-aop, libs/common (local), lombok
+  - Tạo cấu trúc thư mục src/main/java theo package gốc vn.truongngo.apartcom.one.lib.abac
+
+Task 2 — Migrate core engine:
+  - Nguồn: G:/Project/Demo/abac-authorization/core/src/main/java/com/nob/authorization/core/
+  - Migrate các package: domain/, algorithm/, evaluation/, context/, pdp/
+  - Đổi toàn bộ package header từ com.nob.authorization.core → vn.truongngo.apartcom.one.lib.abac
+  - KHÔNG copy core/utils/ — thay bằng equivalents từ libs/common
+    Trước khi migrate, đọc libs/common để xác định utils nào có sẵn (JsonUtils, StringUtils, ReflectionUtils...)
+    TypeUtils và HttpUtils: kiểm tra libs/common — nếu không có thì giữ lại trong libs/abac
+
+Task 3 — Migrate authz-client:
+  - Nguồn: G:/Project/Demo/abac-authorization/authz-client/src/main/java/com/nob/authorization/authzclient/
+  - Migrate các package: pip/, pep/, rap/, servlet/, exception/
+  - Đổi toàn bộ package header từ com.nob.authorization.authzclient → vn.truongngo.apartcom.one.lib.abac
+  - ResourceProvider.java: migrate nhưng giữ nguyên toàn bộ code trong comment, thêm header:
+    // Kept for future reference — pull-based resource fetching approach (not currently used)
+
+Task 4 — Áp dụng 3 targeted changes:
+  a) context/Action.java: thêm no-arg constructor và static factory method semantic(String actionName)
+     public Action() { this.attributes = new LinkedHashMap<>(); }
+     public static Action semantic(String actionName) { Action a = new Action(); a.addAttribute("name", actionName); return a; }
+
+  b) rap/ResourceMapping.java: tạo annotation mới (chưa có trong demo)
+     @Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME)
+     public @interface ResourceMapping { String resource(); String action(); }
+
+  c) pep/AuthorizationAspect.java: update prepareAuthzRequest() để đọc @ResourceMapping từ JoinPoint
+     - Lấy Method từ JoinPoint, đọc @ResourceMapping annotation
+     - Nếu có: set resource.name = annotation.resource(), action.addAttribute("name", annotation.action())
+     - Nếu không có: giữ nguyên behavior cũ (extract resource name từ URL path)
+
+Task 5 — Wire vào admin service:
+  - Chạy: cd libs/abac && mvn clean install -DskipTests
+  - Thêm dependency vào services/admin/pom.xml
+  - Verify: cd services/admin && mvn clean compile -DskipTests
+  - Không cần implement SubjectProvider/PolicyProvider — chỉ cần dependency resolve và compile thành công
+
+Quy tắc bắt buộc:
+  - Sau mỗi task, kiểm tra không còn import nào trỏ về com.nob.authorization
+  - Không sửa logic engine (algorithms, evaluators, PdpEngine) — chỉ đổi package và apply 3 changes
+  - Không thêm feature mới ngoài 3 changes đã liệt kê
+  - Nếu gặp conflict giữa demo utils và libs/common, ưu tiên dùng libs/common

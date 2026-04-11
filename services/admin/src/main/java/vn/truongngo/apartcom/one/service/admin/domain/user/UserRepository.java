@@ -21,4 +21,6 @@ public interface UserRepository extends Repository<User, UserId> {
 
     Page<User> findAll(String keyword, UserStatus status, RoleId roleId, Pageable pageable);
 
+    long countByRoleName(String roleName);
+
 }

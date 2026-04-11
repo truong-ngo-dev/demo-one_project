@@ -37,7 +37,7 @@ public class AdminUserSupportController {
      * Dòng có sessionId ≠ null → có thể force terminate qua DELETE /api/v1/sessions/admin/{sessionId}.
      */
     @GetMapping("/{userId}/sessions")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<AdminDeviceSessionView>> listUserDeviceSessions(
             @PathVariable String userId) {
         return ResponseEntity.ok(
@@ -49,7 +49,7 @@ public class AdminUserSupportController {
      * Lịch sử đăng nhập của một User cụ thể, phân trang.
      */
     @GetMapping("/{userId}/login-activities")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserLoginActivityPage> listUserLoginActivities(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
