@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleException;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;

@@ -72,7 +72,7 @@ public class AuthorizationAspect {
         Subject subject = pipEngine.getSubject(request.getUserPrincipal());
         Environment environment = pipEngine.getEnvironment(serviceName);
         Resource resource = new Resource();
-        Action action;
+        Action action = new Action(request);
 
         ResourceMapping resourceMapping = method.getAnnotation(ResourceMapping.class);
         if (resourceMapping == null) {
@@ -81,7 +81,7 @@ public class AuthorizationAspect {
                     ". All @PreEnforce/@PostEnforce methods must declare resource and action explicitly.");
         }
         resource.setName(resourceMapping.resource());
-        action = Action.semantic(resourceMapping.action());
+        action.addAttribute("name", resourceMapping.action());
 
         return new AuthzRequest(subject, resource, action, environment, policy);
     }

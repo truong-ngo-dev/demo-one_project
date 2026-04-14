@@ -3,15 +3,15 @@ package vn.truongngo.apartcom.one.service.admin.application.simulate.reverse_loo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
-import vn.truongngo.apartcom.one.service.admin.application.rule.SpelExpressionAnalyzer;
+import vn.truongngo.apartcom.one.service.admin.application.rule.service.SpelExpressionAnalyzer;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefinition;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetId;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserRepository;
@@ -59,11 +59,11 @@ public class GetReverseLookup {
         public Result handle(Query query) {
             // 1. Validate resource + action
             ResourceDefinition resource = resourceRepository.findByName(query.resourceName())
-                    .orElseThrow(AbacException::resourceNotFound);
+                    .orElseThrow(ResourceException::resourceNotFound);
             boolean actionExists = resource.getActions().stream()
                     .anyMatch(a -> a.getName().equalsIgnoreCase(query.actionName()));
             if (!actionExists) {
-                throw AbacException.actionNotFound();
+                throw ResourceException.actionNotFound();
             }
 
             // 2. Load policy set

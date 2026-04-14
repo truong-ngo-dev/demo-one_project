@@ -45,6 +45,9 @@ ActionDefinition (Entity — owned by ResourceDefinition)
 ├── name                (String — unique per resource, immutable)
 ├── description         (String)
 └── isStandard          (boolean)
+
+ResourceErrorCode   (per-aggregate error codes: 30001–30006)
+ResourceException   (DomainException factory: resourceNotFound, resourceNameDuplicate, resourceInUse, actionNotFound, actionNameDuplicate, actionInUse)
 ```
 
 **Invariants**:
@@ -55,7 +58,7 @@ ActionDefinition (Entity — owned by ResourceDefinition)
 
 ---
 
-### Package: `domain/abac/policy/`
+### Package: `domain/abac/policy_set/`
 
 ```
 PolicySetDefinition (Aggregate Root)
@@ -66,9 +69,21 @@ PolicySetDefinition (Aggregate Root)
 ├── isRoot              (boolean — system-wide active policy set)
 └── tenantId            (String — nullable, chỉ dùng khi scope=TENANT)
 
+Scope               ADMIN | OPERATOR | TENANT | RESIDENT
+PolicySetId         (Value Object — Long)
+PolicySetRepository (domain interface)
+PolicySetErrorCode  (per-aggregate error codes: 30007–30008)
+PolicySetException  (DomainException factory: policySetNotFound, policySetNameDuplicate)
+```
+
+---
+
+### Package: `domain/abac/policy/`
+
+```
 PolicyDefinition (Aggregate Root — owns RuleDefinition)
 ├── PolicyId            (Value Object — Long)
-├── policySetId         (PolicySetId — parent reference)
+├── policySetId         (PolicySetId — parent reference, from policy_set/)
 ├── name                (String — immutable)
 ├── targetExpression    (ExpressionVO — nullable, SpEL filter)
 ├── combineAlgorithm    (CombineAlgorithmName)
@@ -87,6 +102,9 @@ RuleDefinition (Entity — owned by PolicyDefinition)
 ExpressionVO (Value Object — Phase 1: LITERAL only)
 ├── id                  (Long — DB FK to abac_expression)
 └── spelExpression      (String — raw SpEL string)
+
+PolicyErrorCode     (per-aggregate error codes: 30009–30011)
+PolicyException     (DomainException factory: policyNotFound, ruleNotFound, invalidSpelExpression)
 ```
 
 **Invariants**:
@@ -100,7 +118,7 @@ ExpressionVO (Value Object — Phase 1: LITERAL only)
 
 ```
 UIElement (Aggregate Root)
-├── id              (Long — DB auto-increment)
+├── id              (UIElementId — typed Value Object wrapping Long)
 ├── elementId       (String — unique, immutable — frontend hardcodes this)
 ├── label           (String — display label)
 ├── type            (Enum: BUTTON | TAB | MENU_ITEM)
@@ -109,6 +127,10 @@ UIElement (Aggregate Root)
 ├── orderIndex      (int)
 ├── resourceId      (ResourceId — FK to resource_definition)
 └── actionId        (ActionId — FK to action_definition)
+
+UIElementId         (Value Object — Long)
+UIElementErrorCode  (per-aggregate error codes: 30012–30013)
+UIElementException  (DomainException factory: uiElementNotFound, uiElementIdDuplicate)
 ```
 
 **`elementGroup`**: Metadata phân nhóm, không ảnh hưởng đến ABAC evaluation. Dùng để admin filter/quản lý element theo màn hình (ví dụ: `user-detail-actions`, `admin-nav`). Frontend evaluate theo `elementId`, không theo group.
@@ -124,7 +146,7 @@ UIElement (Aggregate Root)
 ### Package: `domain/abac/audit/`
 
 ```
-AbacAuditLog (JPA Entity — bảng abac_audit_log)
+AbacAuditLog (plain POJO — không có JPA annotation, thuần domain object)
 ├── id              (Long — auto-increment)
 ├── entityType      (AuditEntityType — POLICY_SET/POLICY/RULE/UI_ELEMENT)
 ├── entityId        (Long)
@@ -133,6 +155,11 @@ AbacAuditLog (JPA Entity — bảng abac_audit_log)
 ├── performedBy     (String — username từ SecurityContext)
 ├── changedAt       (long — epoch millis)
 └── snapshotJson    (String — nullable, JSON snapshot trạng thái sau thay đổi)
+
+AbacAuditLogRepository  (domain interface — không extends JpaRepository)
+  JPA entity: infrastructure/persistence/abac/audit/AbacAuditLogJpaEntity
+  Spring Data repo: infrastructure/persistence/abac/audit/AbacAuditLogJpaRepository
+  Adapter: infrastructure/adapter/repository/abac/AbacAuditLogPersistenceAdapter
 
 AbacAuditLogEvent (extends AbstractDomainEvent — NOT record)
   Dispatched bởi tất cả command handlers; handled bởi AuditLogEventHandler
@@ -173,7 +200,7 @@ Phase 1: Chỉ có 1 root PolicySet. `serviceName` bị bỏ qua — luôn trả
 
 ## SpelExpressionAnalyzer
 
-Static helper tại `application/rule/SpelExpressionAnalyzer.java`. Walk SpEL AST để phân tích nội dung expression.
+Static helper tại `application/rule/service/SpelExpressionAnalyzer.java`. Walk SpEL AST để phân tích nội dung expression.
 
 ```
 SpelExpressionAnalyzer.analyze(String... expressions) → AnalysisResult

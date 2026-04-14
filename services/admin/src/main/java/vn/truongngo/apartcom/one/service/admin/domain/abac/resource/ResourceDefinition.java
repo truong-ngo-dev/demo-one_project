@@ -61,7 +61,7 @@ public class ResourceDefinition {
         Assert.hasText(name, "action name is required");
         boolean exists = actions.stream()
                 .anyMatch(a -> a.getName().equalsIgnoreCase(name));
-        if (exists) throw AbacException.actionNameDuplicate();
+        if (exists) throw ResourceException.actionNameDuplicate();
 
         List<ActionDefinition> updated = new ArrayList<>(actions);
         updated.add(ActionDefinition.create(this.id, name, description, isStandard));
@@ -77,7 +77,7 @@ public class ResourceDefinition {
                         : a)
                 .toList();
         boolean found = updated.stream().anyMatch(a -> a.getId() != null && a.getId().equals(actionId));
-        if (!found) throw AbacException.actionNotFound();
+        if (!found) throw ResourceException.actionNotFound();
         return new ResourceDefinition(
                 this.id, this.name, this.description, this.serviceName,
                 updated, this.createdAt, System.currentTimeMillis());
@@ -86,7 +86,7 @@ public class ResourceDefinition {
     public ResourceDefinition removeAction(ActionId actionId) {
         boolean exists = actions.stream()
                 .anyMatch(a -> a.getId() != null && a.getId().equals(actionId));
-        if (!exists) throw AbacException.actionNotFound();
+        if (!exists) throw ResourceException.actionNotFound();
         List<ActionDefinition> updated = actions.stream()
                 .filter(a -> !actionId.equals(a.getId()))
                 .toList();

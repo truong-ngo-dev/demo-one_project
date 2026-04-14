@@ -3,6 +3,7 @@ package vn.truongngo.apartcom.one.service.admin.domain.abac.policy;
 import lombok.Getter;
 import vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public class PolicyDefinition {
                                         ExpressionVO targetExpression, ExpressionVO conditionExpression,
                                         Effect effect) {
         boolean found = rules.stream().anyMatch(r -> ruleId.equals(r.getId()));
-        if (!found) throw AbacPolicyException.ruleNotFound();
+        if (!found) throw PolicyException.ruleNotFound();
         List<RuleDefinition> updated = rules.stream()
                 .map(r -> ruleId.equals(r.getId()) ? r.update(name, description, targetExpression, conditionExpression, effect) : r)
                 .toList();
@@ -85,7 +86,7 @@ public class PolicyDefinition {
 
     public PolicyDefinition removeRule(RuleId ruleId) {
         boolean found = rules.stream().anyMatch(r -> ruleId.equals(r.getId()));
-        if (!found) throw AbacPolicyException.ruleNotFound();
+        if (!found) throw PolicyException.ruleNotFound();
         List<RuleDefinition> updated = rules.stream()
                 .filter(r -> !ruleId.equals(r.getId()))
                 .toList();
@@ -104,7 +105,7 @@ public class PolicyDefinition {
             RuleDefinition rule = rules.stream()
                     .filter(r -> rid.equals(r.getId()))
                     .findFirst()
-                    .orElseThrow(AbacPolicyException::ruleNotFound);
+                    .orElseThrow(PolicyException::ruleNotFound);
             reordered.add(rule.withOrderIndex(i));
         }
         return new PolicyDefinition(this.id, this.policySetId, this.name, this.targetExpression,

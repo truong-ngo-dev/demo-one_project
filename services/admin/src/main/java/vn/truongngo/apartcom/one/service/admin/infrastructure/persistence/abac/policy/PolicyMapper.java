@@ -5,7 +5,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyId;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleId;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.abac.expression.AbacExpressionJpaEntity;

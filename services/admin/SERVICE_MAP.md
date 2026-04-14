@@ -13,7 +13,7 @@ Chi tiết từng domain xem tại docs riêng:
 |--------|------|
 | **user** | [docs/domains/user.md](docs/domains/user.md) |
 | **role** | [docs/domains/role.md](docs/domains/role.md) |
-| **abac** (resource, policy, uielement, audit) | [docs/domains/abac.md](docs/domains/abac.md) |
+| **abac** (resource, policy_set, policy, uielement, audit) | [docs/domains/abac.md](docs/domains/abac.md) |
 
 ---
 
@@ -78,6 +78,7 @@ Chi tiết từng domain xem tại docs riêng:
 
 - `get_policy_set/GetPolicySet`: Lấy PolicySet theo ID kèm danh sách policy summary. **Query**
 - `list_policy_sets/ListPolicySets`: Phân trang + filter keyword. **Query**
+- `delete_preview/GetPolicySetDeletePreview`: Trả số lượng policy + rule sẽ bị xóa theo cascade. **Query**
 
 ### abac/policy — Commands *(UC-021)*
 
@@ -89,6 +90,7 @@ Chi tiết từng domain xem tại docs riêng:
 
 - `get_policy/GetPolicy`: Lấy Policy theo ID kèm danh sách RuleView. **Query**
 - `list_policies/ListPolicies`: Danh sách policy theo policySetId. **Query**
+- `delete_preview/GetPolicyDeletePreview`: Trả số lượng rule sẽ bị xóa theo cascade. **Query**
 
 ### abac/rule — Commands *(UC-022)*
 
@@ -99,11 +101,13 @@ Chi tiết từng domain xem tại docs riêng:
 
 ### abac/rule — Queries *(UC-022, UC-032)*
 
-- `get_rule_impact_preview/GetRuleImpactPreview`: UC-032 — Phân tích SpEL target + condition expression qua `SpelExpressionAnalyzer`. Trả `requiredRoles`, `requiredAttributes`, `specificActions`, `navigableWithoutData`, `hasInstanceCondition`. **Query**
+- `get_rule/GetRule`: Lấy Rule theo ID, trả `RuleView`. **Query**
+- `list_rules/ListRules`: Danh sách rules theo policyId. **Query**
+- `impact_preview/GetRuleImpactPreview`: UC-032 — Phân tích SpEL target + condition expression qua `SpelExpressionAnalyzer`. Trả `requiredRoles`, `requiredAttributes`, `specificActions`, `navigableWithoutData`, `hasInstanceCondition`. **Query**
 
 ### abac/rule — Shared Application Services
 
-- `SpelExpressionAnalyzer`: Static helper — walk SpEL AST để phân tích expressions. Dùng bởi: impact preview, reverse lookup, UIElement coverage check. Trả `AnalysisResult(requiredRoles, requiredAttributes, specificActions, navigableWithoutData, hasInstanceCondition, parseWarning)`.
+- `service/SpelExpressionAnalyzer`: Static helper — walk SpEL AST để phân tích expressions. Dùng bởi: impact preview, reverse lookup, UIElement coverage check. Trả `AnalysisResult(requiredRoles, requiredAttributes, specificActions, navigableWithoutData, hasInstanceCondition, parseWarning)`.
 
 ### abac/ui_element — Commands *(UC-023)*
 
@@ -155,7 +159,7 @@ Chi tiết từng domain xem tại docs riêng:
 - **`persistence/abac/policy/`**: `PolicyJpaEntity`, `PolicyJpaRepository`, `PolicyMapper`
 - **`persistence/abac/rule/`**: `RuleJpaEntity`, `RuleJpaRepository`
 - **`persistence/abac/uielement/`**: `UIElementJpaEntity`, `UIElementJpaRepository`, `UIElementMapper`
-- **`persistence/abac/audit/`**: `AbacAuditLog` (JPA entity trực tiếp, không cần mapper riêng)
+- **`persistence/abac/audit/`**: `AbacAuditLogJpaEntity`, `AbacAuditLogJpaRepository` (JPA entity tách khỏi domain; domain `AbacAuditLog` là plain POJO)
 
 ### 🔌 Adapters (`adapter/`)
 
@@ -165,7 +169,7 @@ Chi tiết từng domain xem tại docs riêng:
 - **`adapter/repository/abac/PolicySetPersistenceAdapter`**: implement `PolicySetRepository` — CRUD + search + findAllRoot
 - **`adapter/repository/abac/PolicyPersistenceAdapter`**: implement `PolicyRepository` — CRUD + findByPolicySetId; handles expression upsert (abac_expression) + rule upsert
 - **`adapter/repository/abac/UIElementPersistenceAdapter`**: implement `UIElementRepository` — CRUD + batch findByElementIds + existsBy*
-- **`adapter/repository/abac/AbacAuditLogPersistenceAdapter`** *(hoặc direct Spring Data JPA)*: implement `AbacAuditLogRepository` — persist + query audit log entries
+- **`adapter/repository/abac/AbacAuditLogPersistenceAdapter`**: implement `AbacAuditLogRepository` domain interface — maps between `AbacAuditLog` (domain POJO) và `AbacAuditLogJpaEntity` (infrastructure)
 - **`adapter/abac/AdminPolicyProvider`**: implement `PolicyProvider` (libs/abac) — tải root PolicySet từ DB → map sang libs/abac domain để PdpEngine evaluate
 - **`adapter/abac/AdminSubjectProvider`**: implement `SubjectProvider` (libs/abac) — build `Subject` từ `Principal.getName()` (userId) → load user + role names từ DB
 

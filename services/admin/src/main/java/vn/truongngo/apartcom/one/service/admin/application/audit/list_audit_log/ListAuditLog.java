@@ -44,14 +44,14 @@ public class ListAuditLog {
 
             Page<AbacAuditLog> page;
             if (query.entityType() != null && query.entityId() != null) {
-                page = repository.findByEntityTypeAndEntityIdOrderByChangedAtDesc(
+                page = repository.findByEntityTypeAndEntityId(
                         query.entityType(), query.entityId(), pageable);
             } else if (query.entityType() != null) {
-                page = repository.findByEntityTypeOrderByChangedAtDesc(query.entityType(), pageable);
+                page = repository.findByEntityType(query.entityType(), pageable);
             } else if (query.performedBy() != null && !query.performedBy().isBlank()) {
-                page = repository.findByPerformedByOrderByChangedAtDesc(query.performedBy(), pageable);
+                page = repository.findByPerformedBy(query.performedBy(), pageable);
             } else {
-                page = repository.findAllByOrderByChangedAtDesc(pageable);
+                page = repository.findAll(pageable);
             }
 
             return page.map(log -> new AuditLogEntry(

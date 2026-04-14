@@ -11,8 +11,8 @@ import vn.truongngo.apartcom.one.lib.abac.pip.PolicyProvider;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefinition;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
 
 import java.util.List;

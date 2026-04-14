@@ -2,7 +2,7 @@ package vn.truongngo.apartcom.one.service.admin.domain.abac.uielement;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 
@@ -13,13 +13,13 @@ public interface UIElementRepository {
 
     UIElement save(UIElement element);
 
-    Optional<UIElement> findById(Long id);
+    Optional<UIElement> findById(UIElementId id);
 
     Page<UIElement> findAll(Long resourceId, UIElementType type, String group, Scope scope, Pageable pageable);
 
     List<UIElement> findByElementIds(List<String> elementIds);
 
-    void delete(Long id);
+    void delete(UIElementId id);
 
     boolean existsByElementId(String elementId);
 

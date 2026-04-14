@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementType;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.abac.uielement.UIElementJpaEntity;
@@ -31,8 +32,8 @@ public class UIElementPersistenceAdapter implements UIElementRepository {
     }
 
     @Override
-    public Optional<UIElement> findById(Long id) {
-        return jpaRepository.findById(id).map(UIElementMapper::toDomain);
+    public Optional<UIElement> findById(UIElementId id) {
+        return jpaRepository.findById(id.getValue()).map(UIElementMapper::toDomain);
     }
 
     @Override
@@ -49,8 +50,8 @@ public class UIElementPersistenceAdapter implements UIElementRepository {
     }
 
     @Override
-    public void delete(Long id) {
-        jpaRepository.deleteById(id);
+    public void delete(UIElementId id) {
+        jpaRepository.deleteById(id.getValue());
     }
 
     @Override

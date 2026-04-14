@@ -25,11 +25,11 @@ public class SpelValidator {
     }
 
     /**
-     * Throws AbacPolicyException if the expression is not valid SpEL.
+     * Throws PolicyException if the expression is not valid SpEL.
      */
     public static void validate(String expression) {
         if (!isValid(expression)) {
-            throw AbacPolicyException.invalidSpelExpression();
+            throw PolicyException.invalidSpElExpression();
         }
     }
 }

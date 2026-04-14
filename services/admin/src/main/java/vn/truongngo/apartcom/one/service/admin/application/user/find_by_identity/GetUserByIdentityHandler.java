@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.domain.exception.DomainException;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;

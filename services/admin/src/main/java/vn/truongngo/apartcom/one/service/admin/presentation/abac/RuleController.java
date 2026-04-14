@@ -6,12 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
 import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
-import vn.truongngo.apartcom.one.service.admin.application.rule.command.create_rule.CreateRule;
-import vn.truongngo.apartcom.one.service.admin.application.rule.command.delete_rule.DeleteRule;
-import vn.truongngo.apartcom.one.service.admin.application.rule.command.reorder_rules.ReorderRules;
-import vn.truongngo.apartcom.one.service.admin.application.rule.command.update_rule.UpdateRule;
-import vn.truongngo.apartcom.one.service.admin.application.rule.query.get_rule.GetRule;
-import vn.truongngo.apartcom.one.service.admin.application.rule.query.list_rules.ListRules;
+import vn.truongngo.apartcom.one.service.admin.application.rule.create_rule.CreateRule;
+import vn.truongngo.apartcom.one.service.admin.application.rule.delete_rule.DeleteRule;
+import vn.truongngo.apartcom.one.service.admin.application.rule.reorder_rules.ReorderRules;
+import vn.truongngo.apartcom.one.service.admin.application.rule.update_rule.UpdateRule;
+import vn.truongngo.apartcom.one.service.admin.application.rule.get_rule.GetRule;
+import vn.truongngo.apartcom.one.service.admin.application.rule.list_rules.ListRules;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
 

@@ -2,7 +2,7 @@ package vn.truongngo.apartcom.one.service.admin.domain.abac.uielement;
 
 import lombok.Getter;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 
@@ -13,7 +13,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 @Getter
 public class UIElement {
 
-    private final Long id;
+    private final UIElementId id;
     private final String elementId;
     private final String label;
     private final UIElementType type;
@@ -23,7 +23,7 @@ public class UIElement {
     private final ResourceId resourceId;
     private final ActionId actionId;
 
-    private UIElement(Long id, String elementId, String label, UIElementType type,
+    private UIElement(UIElementId id, String elementId, String label, UIElementType type,
                       Scope scope, String elementGroup, int orderIndex,
                       ResourceId resourceId, ActionId actionId) {
         this.id = id;
@@ -49,7 +49,7 @@ public class UIElement {
         return new UIElement(null, elementId, label, type, scope, elementGroup, orderIndex, resourceId, actionId);
     }
 
-    public static UIElement reconstitute(Long id, String elementId, String label, UIElementType type,
+    public static UIElement reconstitute(UIElementId id, String elementId, String label, UIElementType type,
                                          Scope scope, String elementGroup, int orderIndex,
                                          ResourceId resourceId, ActionId actionId) {
         return new UIElement(id, elementId, label, type, scope, elementGroup, orderIndex, resourceId, actionId);

@@ -3,12 +3,13 @@ package vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.abac.
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementId;
 
 public class UIElementMapper {
 
     public static UIElement toDomain(UIElementJpaEntity entity) {
         return UIElement.reconstitute(
-                entity.getId(),
+                entity.getId() != null ? UIElementId.of(entity.getId()) : null,
                 entity.getElementId(),
                 entity.getLabel(),
                 entity.getType(),
@@ -22,7 +23,7 @@ public class UIElementMapper {
 
     public static UIElementJpaEntity toEntity(UIElement domain) {
         UIElementJpaEntity entity = new UIElementJpaEntity();
-        entity.setId(domain.getId());
+        entity.setId(domain.getId() != null ? domain.getId().getValue() : null);
         entity.setElementId(domain.getElementId());
         entity.setLabel(domain.getLabel());
         entity.setType(domain.getType());

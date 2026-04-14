@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName;
 import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
 import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
-import vn.truongngo.apartcom.one.service.admin.application.policy.command.create_policy.CreatePolicy;
-import vn.truongngo.apartcom.one.service.admin.application.policy.command.delete_policy.DeletePolicy;
-import vn.truongngo.apartcom.one.service.admin.application.policy.command.update_policy.UpdatePolicy;
-import vn.truongngo.apartcom.one.service.admin.application.policy.query.delete_preview.GetPolicyDeletePreview;
-import vn.truongngo.apartcom.one.service.admin.application.policy.query.get_policy.GetPolicy;
-import vn.truongngo.apartcom.one.service.admin.application.policy.query.list_policies.ListPolicies;
+import vn.truongngo.apartcom.one.service.admin.application.policy.create_policy.CreatePolicy;
+import vn.truongngo.apartcom.one.service.admin.application.policy.delete_policy.DeletePolicy;
+import vn.truongngo.apartcom.one.service.admin.application.policy.update_policy.UpdatePolicy;
+import vn.truongngo.apartcom.one.service.admin.application.policy.delete_preview.GetPolicyDeletePreview;
+import vn.truongngo.apartcom.one.service.admin.application.policy.get_policy.GetPolicy;
+import vn.truongngo.apartcom.one.service.admin.application.policy.list_policies.ListPolicies;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
 
 import java.util.List;

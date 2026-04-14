@@ -13,11 +13,12 @@ import vn.truongngo.apartcom.one.lib.abac.pdp.AuthzDecision;
 import vn.truongngo.apartcom.one.lib.abac.pdp.AuthzRequest;
 import vn.truongngo.apartcom.one.lib.abac.pdp.PdpEngine;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.AbacPolicyException;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefinition;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetId;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetRepository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.adapter.abac.AdminPolicyProvider;
@@ -68,18 +69,18 @@ public class SimulatePolicy {
         public SimulateResult handle(Command command) {
             // 1. Validate resource + action exist
             ResourceDefinition resource = resourceRepository.findByName(command.resource().name())
-                    .orElseThrow(AbacException::resourceNotFound);
+                    .orElseThrow(ResourceException::resourceNotFound);
             boolean actionExists = resource.getActions().stream()
                     .anyMatch(a -> a.getName().equalsIgnoreCase(command.action()));
             if (!actionExists) {
-                throw AbacException.actionNotFound();
+                throw ResourceException.actionNotFound();
             }
 
             // 2. Load PolicySet
             PolicySetDefinition policySetDef;
             if (command.policySetId() != null) {
                 policySetDef = policySetRepository.findById(PolicySetId.of(command.policySetId()))
-                        .orElseThrow(AbacPolicyException::policySetNotFound);
+                        .orElseThrow(PolicySetException::policySetNotFound);
             } else {
                 List<PolicySetDefinition> roots = policySetRepository.findAllRoot();
                 policySetDef = roots.isEmpty() ? null : roots.get(0);

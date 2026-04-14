@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
 import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
-import vn.truongngo.apartcom.one.service.admin.application.rule.query.impact_preview.GetRuleImpactPreview;
+import vn.truongngo.apartcom.one.service.admin.application.rule.impact_preview.GetRuleImpactPreview;
 import vn.truongngo.apartcom.one.service.admin.presentation.abac.model.ImpactPreviewRequest;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
 

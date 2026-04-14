@@ -1,9 +1,9 @@
 package vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.abac.policy_set;
 
 import vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefinition;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetId;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 
 public class PolicySetMapper {
 
