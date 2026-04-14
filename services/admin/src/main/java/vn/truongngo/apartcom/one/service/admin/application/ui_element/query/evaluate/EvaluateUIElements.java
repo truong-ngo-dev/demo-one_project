@@ -13,6 +13,7 @@ import vn.truongngo.apartcom.one.lib.abac.pdp.PdpEngine;
 import vn.truongngo.apartcom.one.lib.abac.pip.PolicyProvider;
 import vn.truongngo.apartcom.one.lib.abac.pip.SubjectProvider;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
@@ -62,7 +63,7 @@ public class EvaluateUIElements {
                         ? resource.getActions().stream()
                                 .filter(a -> element.getActionId().equals(a.getId()))
                                 .findFirst()
-                                .map(a -> a.getName())
+                                .map(ActionDefinition::getName)
                                 .orElse("unknown")
                         : "unknown";
 

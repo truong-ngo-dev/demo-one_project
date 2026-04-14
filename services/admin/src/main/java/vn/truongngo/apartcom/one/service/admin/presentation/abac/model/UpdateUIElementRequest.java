@@ -6,5 +6,6 @@ public record UpdateUIElementRequest(
         String group,
         int orderIndex,
         Long resourceId,
-        Long actionId
+        Long actionId,
+        String scope   // optional — keeps existing scope when null
 ) {}

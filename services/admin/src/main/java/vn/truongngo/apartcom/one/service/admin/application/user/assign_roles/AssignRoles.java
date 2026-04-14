@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleException;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
@@ -47,7 +48,15 @@ public class AssignRoles {
                 throw RoleException.notFound();
             }
 
-            user.assignRoles(roleIds);
+            boolean hasAdminContext = user.getRoleContexts().stream()
+                    .anyMatch(ctx -> ctx.matchesScope(Scope.ADMIN, null));
+            if (!hasAdminContext) {
+                user.addRoleContext(Scope.ADMIN, null, roleIds);
+            } else {
+                for (RoleId roleId : roleIds) {
+                    user.assignRoleToContext(Scope.ADMIN, null, roleId);
+                }
+            }
             userRepository.save(user);
 
             return null;

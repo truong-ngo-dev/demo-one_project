@@ -31,10 +31,22 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, String> 
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
 
-    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM UserJpaEntity u JOIN u.roles r WHERE r.id = :roleId")
+    @Query("""
+        SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
+        FROM UserJpaEntity u
+        JOIN u.roleContexts ctx
+        JOIN ctx.roles r
+        WHERE r.id = :roleId
+    """)
     boolean existsUserWithRole(@Param("roleId") String roleId);
 
-    @Query("SELECT COUNT(u) FROM UserJpaEntity u JOIN u.roles r WHERE r.name = :roleName")
+    @Query("""
+        SELECT COUNT(u)
+        FROM UserJpaEntity u
+        JOIN u.roleContexts ctx
+        JOIN ctx.roles r
+        WHERE r.name = :roleName
+    """)
     long countByRoleName(@Param("roleName") String roleName);
 
     @Query(
@@ -47,7 +59,10 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, String> 
             )
             AND (:status IS NULL OR u.status = :status)
             AND (:roleId IS NULL OR EXISTS (
-                SELECT r.id FROM UserJpaEntity u2 JOIN u2.roles r WHERE u2.id = u.id AND r.id = :roleId
+                SELECT 1 FROM UserJpaEntity u2
+                JOIN u2.roleContexts ctx
+                JOIN ctx.roles r
+                WHERE u2.id = u.id AND r.id = :roleId
             ))
             """,
         countQuery = """
@@ -59,7 +74,10 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, String> 
             )
             AND (:status IS NULL OR u.status = :status)
             AND (:roleId IS NULL OR EXISTS (
-                SELECT r.id FROM UserJpaEntity u2 JOIN u2.roles r WHERE u2.id = u.id AND r.id = :roleId
+                SELECT COUNT(r2) FROM UserJpaEntity u2
+                JOIN u2.roleContexts ctx2
+                JOIN ctx2.roles r2
+                WHERE u2.id = u.id AND r2.id = :roleId
             ))
             """
     )

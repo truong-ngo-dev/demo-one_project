@@ -75,15 +75,13 @@ public class AuthorizationAspect {
         Action action;
 
         ResourceMapping resourceMapping = method.getAnnotation(ResourceMapping.class);
-        if (resourceMapping != null) {
-            resource.setName(resourceMapping.resource());
-            action = Action.semantic(resourceMapping.action());
-        } else {
-            action = new Action(request);
-            String path = action.getRequest().getRequestedURI();
-            String resourceName = pipEngine.getResourceName(path);
-            resource.setName(resourceName);
+        if (resourceMapping == null) {
+            throw new AuthorizationException(
+                    "Missing @ResourceMapping on method: " + method.getName() +
+                    ". All @PreEnforce/@PostEnforce methods must declare resource and action explicitly.");
         }
+        resource.setName(resourceMapping.resource());
+        action = Action.semantic(resourceMapping.action());
 
         return new AuthzRequest(subject, resource, action, environment, policy);
     }

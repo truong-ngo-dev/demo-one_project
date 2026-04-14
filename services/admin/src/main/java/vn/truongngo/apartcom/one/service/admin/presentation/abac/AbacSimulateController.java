@@ -3,6 +3,8 @@ package vn.truongngo.apartcom.one.service.admin.presentation.abac;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.simulate.reverse_lookup.GetReverseLookup;
 import vn.truongngo.apartcom.one.service.admin.application.simulate.simulate_navigation.SimulateNavigation;
 import vn.truongngo.apartcom.one.service.admin.application.simulate.simulate_policy.SimulatePolicy;
@@ -20,6 +22,8 @@ public class AbacSimulateController {
     private final GetReverseLookup.Handler reverseLookupHandler;
 
     @PostMapping
+    @ResourceMapping(resource = "abac_simulate", action = "EXECUTE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<SimulatePolicy.SimulateResult>> simulate(
             @RequestBody SimulateRequest request) {
         SimulatePolicy.Command command = new SimulatePolicy.Command(
@@ -40,6 +44,8 @@ public class AbacSimulateController {
     }
 
     @PostMapping("/navigation")
+    @ResourceMapping(resource = "abac_simulate", action = "EXECUTE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<SimulateNavigation.Result>> simulateNavigation(
             @RequestBody NavigationSimulateRequest request) {
         SimulateNavigation.Query query = new SimulateNavigation.Query(
@@ -52,6 +58,8 @@ public class AbacSimulateController {
     }
 
     @GetMapping("/reverse")
+    @ResourceMapping(resource = "abac_simulate", action = "EXECUTE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetReverseLookup.Result>> reverseLookup(
             @RequestParam String resourceName,
             @RequestParam String actionName,

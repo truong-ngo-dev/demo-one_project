@@ -43,7 +43,7 @@ public class AdminPolicyProvider implements PolicyProvider {
             return empty;
         }
         // Use the first root policy set
-        PolicySetDefinition rootPs = roots.get(0);
+        PolicySetDefinition rootPs = roots.get(1);
         return mapPolicySet(rootPs);
     }
 

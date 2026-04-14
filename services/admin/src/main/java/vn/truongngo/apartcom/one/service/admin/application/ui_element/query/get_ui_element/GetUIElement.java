@@ -11,6 +11,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefin
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
@@ -27,6 +28,7 @@ public class GetUIElement {
             String elementId,
             String label,
             String type,
+            String scope,
             String elementGroup,
             int orderIndex,
             Long resourceId,
@@ -58,7 +60,7 @@ public class GetUIElement {
             String actionName = resource.getActions().stream()
                     .filter(a -> element.getActionId().equals(a.getId()))
                     .findFirst()
-                    .map(a -> a.getName())
+                    .map(ActionDefinition::getName)
                     .orElse(null);
             boolean covered = actionName != null && computeCoverage(actionName);
             return new UIElementView(
@@ -66,6 +68,7 @@ public class GetUIElement {
                     element.getElementId(),
                     element.getLabel(),
                     element.getType().name(),
+                    element.getScope().name(),
                     element.getElementGroup(),
                     element.getOrderIndex(),
                     element.getResourceId().getValue(),

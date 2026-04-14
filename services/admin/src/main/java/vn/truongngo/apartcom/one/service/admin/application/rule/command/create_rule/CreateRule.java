@@ -78,8 +78,8 @@ public class CreateRule {
             String snapshot = objectMapper.writeValueAsString(Map.of(
                     "name", newRule.getName(),
                     "effect", newRule.getEffect().name(),
-                    "targetExpression", newRule.getTargetExpression() != null ? newRule.getTargetExpression().spElExpression() : null,
-                    "conditionExpression", newRule.getConditionExpression() != null ? newRule.getConditionExpression().spElExpression() : null
+                    "targetExpression", newRule.getTargetExpression() != null ? newRule.getTargetExpression().spElExpression() : "",
+                    "conditionExpression", newRule.getConditionExpression() != null ? newRule.getConditionExpression().spElExpression() : ""
             ));
             eventDispatcher.dispatch(new AbacAuditLogEvent(
                     AuditEntityType.RULE, newRule.getId().getValue(), newRule.getName(),
@@ -88,10 +88,10 @@ public class CreateRule {
             return new Result(newRule.getId().getValue());
         }
 
-        private ExpressionVO resolveExpression(String spel, Long existingId) {
-            if (spel == null || spel.isBlank()) return null;
-            SpelValidator.validate(spel);
-            return new ExpressionVO(existingId, spel);
+        private ExpressionVO resolveExpression(String spEl, Long existingId) {
+            if (spEl == null || spEl.isBlank()) return null;
+            SpelValidator.validate(spEl);
+            return new ExpressionVO(existingId, spEl);
         }
     }
 }

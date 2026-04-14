@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleException;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
@@ -34,13 +35,13 @@ public class RemoveRole {
                     .orElseThrow(UserException::notFound);
 
             RoleId roleId = RoleId.of(command.roleId());
-            boolean hasRole = user.getRoleIds().stream()
+            boolean hasRole = user.getRoleIdsForScope(Scope.ADMIN, null).stream()
                     .anyMatch(r -> r.getValue().equals(roleId.getValue()));
             if (!hasRole) {
                 throw RoleException.notFound();
             }
 
-            user.removeRole(roleId);
+            user.removeRoleFromContext(Scope.ADMIN, null, roleId);
             userRepository.save(user);
 
             return null;

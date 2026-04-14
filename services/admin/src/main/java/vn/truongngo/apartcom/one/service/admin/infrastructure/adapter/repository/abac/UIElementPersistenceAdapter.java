@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
@@ -35,8 +36,8 @@ public class UIElementPersistenceAdapter implements UIElementRepository {
     }
 
     @Override
-    public Page<UIElement> findAll(Long resourceId, UIElementType type, String group, Pageable pageable) {
-        return jpaRepository.search(resourceId, type, group, pageable)
+    public Page<UIElement> findAll(Long resourceId, UIElementType type, String group, Scope scope, Pageable pageable) {
+        return jpaRepository.search(resourceId, type, group, scope, pageable)
                 .map(UIElementMapper::toDomain);
     }
 

@@ -13,6 +13,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefin
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
@@ -84,7 +85,7 @@ public class ListUncoveredUIElements {
 
             // Load all UIElements and filter uncovered ones
             var pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("orderIndex").ascending());
-            List<UIElement> all = uiElementRepository.findAll(null, null, null, pageable).getContent();
+            List<UIElement> all = uiElementRepository.findAll(null, null, null, null, pageable).getContent();
 
             Map<Long, ResourceDefinition> resourceCache = new HashMap<>();
             List<UncoveredUIElement> uncovered = new ArrayList<>();
@@ -96,7 +97,7 @@ public class ListUncoveredUIElements {
                 String actionName = resource.getActions().stream()
                         .filter(a -> element.getActionId().equals(a.getId()))
                         .findFirst()
-                        .map(a -> a.getName())
+                        .map(ActionDefinition::getName)
                         .orElse(null);
                 if (actionName == null || !coveredActions.contains(actionName)) {
                     uncovered.add(new UncoveredUIElement(

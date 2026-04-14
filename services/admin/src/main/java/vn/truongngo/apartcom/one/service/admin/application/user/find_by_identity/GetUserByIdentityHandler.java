@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.domain.exception.DomainException;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
@@ -26,7 +27,7 @@ public class GetUserByIdentityHandler implements CommandHandler<GetUserByIdentit
         if (user.isLocked()) {
             throw UserException.locked();
         }
-        Set<Role> roles = roleRepository.findAllByIds(user.getRoleIds());
+        Set<Role> roles = roleRepository.findAllByIds(user.getRoleIdsForScope(Scope.ADMIN, null));
         return UserViewMapper.toView(user, roles);
     }
 

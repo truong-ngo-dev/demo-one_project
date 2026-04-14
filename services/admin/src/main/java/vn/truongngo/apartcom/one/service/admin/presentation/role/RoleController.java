@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.role.create.CreateRole;
 import vn.truongngo.apartcom.one.service.admin.application.role.delete.DeleteRole;
 import vn.truongngo.apartcom.one.service.admin.application.role.find_all.FindAllRoles;
@@ -28,6 +30,8 @@ public class RoleController {
 
     // UC-008: Tạo role
     @PostMapping
+    @ResourceMapping(resource = "role", action = "CREATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<CreateRole.Result>> createRole(@RequestBody CreateRoleRequest request) {
         CreateRole.Result result = createRoleHandler.handle(new CreateRole.Command(request.name(), request.description()));
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(result));
@@ -35,6 +39,8 @@ public class RoleController {
 
     // UC-009: Tìm role theo ID
     @GetMapping("/{id}")
+    @ResourceMapping(resource = "role", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<FindRoleById.RoleDetail>> getRoleById(@PathVariable String id) {
         FindRoleById.RoleDetail detail = findRoleByIdHandler.handle(new FindRoleById.Query(id));
         return ResponseEntity.ok(ApiResponse.of(detail));
@@ -42,6 +48,8 @@ public class RoleController {
 
     // UC-010: Danh sách roles
     @GetMapping
+    @ResourceMapping(resource = "role", action = "LIST")
+    @PreEnforce
     public ResponseEntity<PagedApiResponse<FindAllRoles.RoleSummary>> getAllRoles(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer page,
@@ -54,6 +62,8 @@ public class RoleController {
 
     // UC-011: Cập nhật role
     @PatchMapping("/{id}")
+    @ResourceMapping(resource = "role", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<UpdateRole.RoleDetail>> updateRole(
             @PathVariable String id,
             @RequestBody UpdateRoleRequest request) {
@@ -64,6 +74,8 @@ public class RoleController {
 
     // UC-012: Xóa role
     @DeleteMapping("/{id}")
+    @ResourceMapping(resource = "role", action = "DELETE")
+    @PreEnforce
     public ResponseEntity<Void> deleteRole(@PathVariable String id) {
         deleteRoleHandler.handle(new DeleteRole.Command(id));
         return ResponseEntity.noContent().build();

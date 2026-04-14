@@ -16,6 +16,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementType;
@@ -32,7 +33,8 @@ public class UpdateUIElement {
             String elementGroup,
             int orderIndex,
             Long resourceId,
-            Long actionId
+            Long actionId,
+            String scope   // nullable — keeps existing scope when null
     ) {
         public Command {
             Assert.notNull(id, "id is required");
@@ -71,8 +73,9 @@ public class UpdateUIElement {
             }
 
             UIElementType elementType = UIElementType.valueOf(command.type());
+            Scope elementScope = command.scope() != null ? Scope.valueOf(command.scope()) : element.getScope();
             UIElement updated = element.update(
-                    command.label(), elementType, command.elementGroup(),
+                    command.label(), elementType, elementScope, command.elementGroup(),
                     command.orderIndex(), resourceId, actionId);
             uiElementRepository.save(updated);
 

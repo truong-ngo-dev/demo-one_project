@@ -14,6 +14,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyReposito
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicySetRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.AbacException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
@@ -28,10 +29,10 @@ import java.util.Set;
 
 public class ListUIElements {
 
-    public record Query(Long resourceId, String type, String group, int page, int size) {
-        public static Query of(Long resourceId, String type, String group, Integer page, Integer size) {
+    public record Query(Long resourceId, String type, String group, String scope, int page, int size) {
+        public static Query of(Long resourceId, String type, String group, String scope, Integer page, Integer size) {
             return new Query(
-                    resourceId, type, group,
+                    resourceId, type, group, scope,
                     page != null ? page : 0,
                     size != null ? size : 20
             );
@@ -43,6 +44,7 @@ public class ListUIElements {
             String elementId,
             String label,
             String type,
+            String scope,
             String elementGroup,
             int orderIndex,
             Long resourceId,
@@ -64,7 +66,8 @@ public class ListUIElements {
         @Override
         public Page<UIElementSummary> handle(Query query) {
             Pageable pageable = PageRequest.of(query.page(), query.size(), Sort.by("orderIndex").ascending());
-            Page<UIElement> page = uiElementRepository.findAll(query.resourceId(), null, query.group(), pageable);
+            Scope scopeFilter = query.scope() != null ? Scope.valueOf(query.scope()) : null;
+            Page<UIElement> page = uiElementRepository.findAll(query.resourceId(), null, query.group(), scopeFilter, pageable);
             CoverageIndex coverageIndex = buildCoverageIndex();
             // Cache resource lookups to avoid N+1
             Map<Long, ResourceDefinition> resourceCache = new HashMap<>();
@@ -82,7 +85,7 @@ public class ListUIElements {
                         (coverageIndex.hasWildcard() || coverageIndex.coveredActions().contains(actionName));
                 return new UIElementSummary(
                         e.getId(), e.getElementId(), e.getLabel(),
-                        e.getType().name(), e.getElementGroup(), e.getOrderIndex(),
+                        e.getType().name(), e.getScope().name(), e.getElementGroup(), e.getOrderIndex(),
                         rid, resource.getName(),
                         e.getActionId().getValue(), actionName, covered
                 );

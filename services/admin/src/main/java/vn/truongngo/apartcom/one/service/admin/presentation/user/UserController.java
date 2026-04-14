@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.user.admin_create.AdminCreateUser;
 import vn.truongngo.apartcom.one.service.admin.application.user.register.RegisterUser;
 import vn.truongngo.apartcom.one.service.admin.application.user.assign_roles.AssignRoles;
@@ -59,6 +61,8 @@ public class UserController {
 
     // UC-001: Admin tạo user
     @PostMapping
+    @ResourceMapping(resource = "user", action = "CREATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<AdminCreateUser.Result>> createUser(
             @RequestBody CreateUserRequest request) {
         AdminCreateUser.Result result = adminCreateUserHandler.handle(
@@ -74,6 +78,8 @@ public class UserController {
 
     // UC-004: Tìm user theo ID
     @GetMapping("/{id}")
+    @ResourceMapping(resource = "user", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<FindUserById.UserDetail>> getUserById(@PathVariable String id) {
         FindUserById.UserDetail detail = findUserByIdHandler.handle(new FindUserById.Query(id));
         return ResponseEntity.ok(ApiResponse.of(detail));
@@ -81,6 +87,8 @@ public class UserController {
 
     // UC-006: Search users
     @GetMapping
+    @ResourceMapping(resource = "user", action = "LIST")
+    @PreEnforce
     public ResponseEntity<PagedApiResponse<SearchUsers.UserSummary>> searchUsers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
@@ -95,6 +103,8 @@ public class UserController {
 
     // UC-007: Lock user
     @PostMapping("/{id}/lock")
+    @ResourceMapping(resource = "user", action = "LOCK")
+    @PreEnforce
     public ResponseEntity<Void> lockUser(@PathVariable String id) {
         lockUserHandler.handle(new LockUser.Command(id));
         return ResponseEntity.noContent().build();
@@ -102,6 +112,8 @@ public class UserController {
 
     // UC-007: Unlock user
     @PostMapping("/{id}/unlock")
+    @ResourceMapping(resource = "user", action = "UNLOCK")
+    @PreEnforce
     public ResponseEntity<Void> unlockUser(@PathVariable String id) {
         unlockUserHandler.handle(new UnlockUser.Command(id));
         return ResponseEntity.noContent().build();
@@ -109,6 +121,8 @@ public class UserController {
 
     // UC-013: Gán role cho user
     @PostMapping("/{id}/roles")
+    @ResourceMapping(resource = "user", action = "ASSIGN_ROLE")
+    @PreEnforce
     public ResponseEntity<Void> assignRoles(
             @PathVariable String id,
             @RequestBody AssignRolesRequest request) {
@@ -118,6 +132,8 @@ public class UserController {
 
     // UC-014: Gỡ role khỏi user
     @DeleteMapping("/{id}/roles/{roleId}")
+    @ResourceMapping(resource = "user", action = "REMOVE_ROLE")
+    @PreEnforce
     public ResponseEntity<Void> removeRole(
             @PathVariable String id,
             @PathVariable String roleId) {

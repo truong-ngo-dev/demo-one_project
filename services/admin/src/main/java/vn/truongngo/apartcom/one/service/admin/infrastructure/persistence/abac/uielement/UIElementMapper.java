@@ -12,6 +12,7 @@ public class UIElementMapper {
                 entity.getElementId(),
                 entity.getLabel(),
                 entity.getType(),
+                entity.getScope(),
                 entity.getElementGroup(),
                 entity.getOrderIndex(),
                 ResourceId.of(entity.getResourceId()),
@@ -25,6 +26,7 @@ public class UIElementMapper {
         entity.setElementId(domain.getElementId());
         entity.setLabel(domain.getLabel());
         entity.setType(domain.getType());
+        entity.setScope(domain.getScope());
         entity.setElementGroup(domain.getElementGroup());
         entity.setOrderIndex(domain.getOrderIndex());
         entity.setResourceId(domain.getResourceId().getValue());

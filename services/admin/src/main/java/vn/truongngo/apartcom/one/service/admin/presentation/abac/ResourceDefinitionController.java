@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.resource.command.add_action.AddActionToResource;
 import vn.truongngo.apartcom.one.service.admin.application.resource.command.create_resource.CreateResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.application.resource.command.delete_resource.DeleteResourceDefinition;
@@ -33,6 +35,8 @@ public class ResourceDefinitionController {
 
     // UC-019-R1: Tạo resource
     @PostMapping
+    @ResourceMapping(resource = "abac_resource", action = "CREATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<CreateResourceDefinition.Result>> create(
             @RequestBody CreateResourceRequest request) {
         CreateResourceDefinition.Result result = createHandler.handle(
@@ -42,6 +46,8 @@ public class ResourceDefinitionController {
 
     // UC-019-R2: Lấy resource theo ID
     @GetMapping("/{id}")
+    @ResourceMapping(resource = "abac_resource", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetResourceDefinition.ResourceView>> getById(@PathVariable Long id) {
         GetResourceDefinition.ResourceView view = getHandler.handle(new GetResourceDefinition.Query(id));
         return ResponseEntity.ok(ApiResponse.of(view));
@@ -49,6 +55,8 @@ public class ResourceDefinitionController {
 
     // UC-019-R3: Danh sách resources
     @GetMapping
+    @ResourceMapping(resource = "abac_resource", action = "LIST")
+    @PreEnforce
     public ResponseEntity<PagedApiResponse<ListResourceDefinitions.ResourceSummaryView>> list(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer page,
@@ -60,6 +68,8 @@ public class ResourceDefinitionController {
 
     // UC-019-R4: Cập nhật resource
     @PutMapping("/{id}")
+    @ResourceMapping(resource = "abac_resource", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<UpdateResourceDefinition.Result>> update(
             @PathVariable Long id,
             @RequestBody UpdateResourceRequest request) {
@@ -70,6 +80,8 @@ public class ResourceDefinitionController {
 
     // UC-019-R5: Xóa resource
     @DeleteMapping("/{id}")
+    @ResourceMapping(resource = "abac_resource", action = "DELETE")
+    @PreEnforce
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteHandler.handle(new DeleteResourceDefinition.Command(id));
         return ResponseEntity.noContent().build();
@@ -77,6 +89,8 @@ public class ResourceDefinitionController {
 
     // UC-019-A1: Thêm action
     @PostMapping("/{resourceId}/actions")
+    @ResourceMapping(resource = "abac_resource", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<AddActionToResource.Result>> addAction(
             @PathVariable Long resourceId,
             @RequestBody AddActionRequest request) {
@@ -87,6 +101,8 @@ public class ResourceDefinitionController {
 
     // UC-019-A2: Cập nhật action
     @PatchMapping("/{resourceId}/actions/{actionId}")
+    @ResourceMapping(resource = "abac_resource", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<UpdateActionDefinition.Result>> updateAction(
             @PathVariable Long resourceId,
             @PathVariable Long actionId,
@@ -98,6 +114,8 @@ public class ResourceDefinitionController {
 
     // UC-019-A3: Xóa action
     @DeleteMapping("/{resourceId}/actions/{actionId}")
+    @ResourceMapping(resource = "abac_resource", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<Void> removeAction(
             @PathVariable Long resourceId,
             @PathVariable Long actionId) {

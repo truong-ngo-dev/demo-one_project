@@ -7,50 +7,13 @@
 
 ## 📂 1. Domain Layer (`domain/`)
 
-- **user**: Người dùng hệ thống — identity, credential, social connections, trạng thái.
-    - `Root`: `User` — bảo vệ invariant: chỉ đổi username 1 lần, không thể unlock user không bị lock, không thể thực hiện hành động trên user LOCKED.
-    - `Value Objects`: `UserId`, `UserPassword` (hashed), `SocialConnection` (provider + socialId + email)
-    - `Enum`: `UserStatus` — ACTIVE, LOCKED, PENDING
-    - `Factory`: `UserFactory` — tạo user qua register (self) và admin-create (với roles)
-    - `Port`: `UserRepository`
-    - `ErrorCode`: `UserErrorCode`
-    - `Domain Events`: `UserCreatedEvent`, `UserLockedEvent`, `UserUnlockedEvent`, `UserPasswordChangedEvent`, `SocialConnectedEvent`
+Chi tiết từng domain xem tại docs riêng:
 
-- **role**: Vai trò hệ thống — nhãn để nhóm quyền, assign cho user.
-    - `Root`: `Role` — immutable name (không đổi sau khi tạo), chỉ update description
-    - `Value Objects`: `RoleId`
-    - `Port`: `RoleRepository`
-    - `ErrorCode`: `RoleErrorCode`
-
-- **abac/resource** *(UC-019)*: Resource & Action Catalogue — namespace định danh cho policy.
-    - `Root`: `ResourceDefinition` — immutable name; owns `List<ActionDefinition>`
-    - `Value Objects`: `ResourceId`, `ActionId`
-    - `Port`: `ResourceDefinitionRepository`
-    - `ErrorCode`: `AbacErrorCode` (30001–30006) + `AbacException`
-    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
-
-- **abac/policy** *(UC-020–022)*: PolicySet → Policy → Rule hierarchy.
-    - `Roots`: `PolicySetDefinition`, `PolicyDefinition` (owns rules)
-    - `Entity`: `RuleDefinition` — owned by Policy, ordered by `orderIndex`
-    - `Value Object`: `ExpressionVO` (LITERAL SpEL, FK to abac_expression)
-    - `Enums`: `Scope` (OPERATOR/TENANT), `Effect` (PERMIT/DENY)
-    - `Ports`: `PolicySetRepository`, `PolicyRepository`
-    - `Services`: `SpelValidator`, `AbacPolicyException`
-    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
-
-- **abac/uielement** *(UC-023)*: UIElement Registry — map frontend button/tab/menu item sang resource:action.
-    - `Root`: `UIElement` — immutable `elementId`; `actionId` phải thuộc `resourceId`
-    - `Enum`: `UIElementType` (BUTTON/TAB/MENU_ITEM)
-    - `Port`: `UIElementRepository` — CRUD + `findByElementIds` + `existsByElementId/ActionId/ResourceId`
-    - `ErrorCode`: `AbacErrorCode` 30012–30013 + `AbacException.uiElementNotFound/uiElementIdDuplicate`
-    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
-
-- **abac/audit** *(UC-035)*: Admin Change Audit Log — lưu vết mọi thay đổi policy/rule/UIElement.
-    - `Entity`: `AbacAuditLog` — JPA entity, bảng `abac_audit_log`
-    - `Event`: `AbacAuditLogEvent` — extends `AbstractDomainEvent` (NOT record), dispatched bởi command handlers
-    - `Enum`: `AuditActionType` (CREATED/UPDATED/DELETED), `AuditEntityType` (POLICY_SET/POLICY/RULE/UI_ELEMENT)
-    - `Port`: `AbacAuditLogRepository` — Spring Data JPA, filter by entityType/entityId/performedBy
-    - Chi tiết: [docs/domains/abac.md](docs/domains/abac.md)
+| Domain | File |
+|--------|------|
+| **user** | [docs/domains/user.md](docs/domains/user.md) |
+| **role** | [docs/domains/role.md](docs/domains/role.md) |
+| **abac** (resource, policy, uielement, audit) | [docs/domains/abac.md](docs/domains/abac.md) |
 
 ---
 
@@ -175,8 +138,8 @@
     - `User` ↔ `UserJpaEntity` → bảng `users`
         - `UserPassword` → embedded cột `hashed_password`
     - `SocialConnection` ↔ `SocialConnectionJpaEntity` → bảng `social_connections` (FK: `user_id`)
+    - `RoleContext` ↔ `UserRoleContextJpaEntity` → bảng `user_role_context` (FK: `user_id`); roles qua join table `user_role_context_roles`
     - `Role` ↔ `RoleJpaEntity` → bảng `roles`
-    - `user_roles` → join table (FK: `user_id`, `role_id`)
     - `ResourceDefinition` + `ActionDefinition` ↔ `ResourceDefinitionJpaEntity` + `ActionDefinitionJpaEntity` → bảng `resource_definition`, `action_definition`
     - `PolicySetDefinition` ↔ `PolicySetJpaEntity` → bảng `policy_set`
     - `PolicyDefinition` ↔ `PolicyJpaEntity` → bảng `policy`
@@ -345,7 +308,10 @@ Params: `entityType`, `entityId`, `performedBy`, `page`, `size`
 
 - `application.properties` / `application-dev.properties`: Server port, DB datasource, OAuth2 resource server JWT issuer URI.
 - `db/migration/`:
-    - `V1__init_schema.sql` — bảng `users`, `roles`, `social_connections`, `user_roles`
-    - `V2__*.sql` — seed data (nếu có)
+    - `V1__create_roles_table.sql` — bảng `roles`
+    - `V2__create_users_tables.sql` — bảng `users`, `social_connections`
     - `V3__abac_schema.sql` — bảng ABAC: `resource_definition`, `action_definition`, `abac_expression`, `policy_set`, `policy`, `rule`, `ui_element`
     - `V4__create_abac_audit_log.sql` — bảng `abac_audit_log` + indexes
+    - `V5__abac_scope_expansion.sql` — mở rộng scope enum
+    - `V6__user_role_context.sql` — bảng `user_role_context`, `user_role_context_roles`
+    - `V7__migrate_user_roles_to_context.sql` — migrate flat `user_roles` → context model, drop `user_roles`

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
@@ -72,7 +73,7 @@ public class FindUserById {
         public UserDetail handle(Query query) {
             User user = userRepository.findById(UserId.of(query.id()))
                     .orElseThrow(UserException::notFound);
-            Set<Role> roles = roleRepository.findAllByIds(user.getRoleIds());
+            Set<Role> roles = roleRepository.findAllByIds(user.getRoleIdsForScope(Scope.ADMIN, null));
             return Mapper.toDetail(user, roles);
         }
     }

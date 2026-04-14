@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.abac.context.Subject;
 import vn.truongngo.apartcom.one.lib.abac.pip.SubjectProvider;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserId;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserRepository;
@@ -37,8 +39,8 @@ public class AdminSubjectProvider implements SubjectProvider {
         subject.setUserId(userIdStr);
 
         userRepository.findById(UserId.of(userIdStr)).ifPresent(user -> {
-            List<String> roles = roleRepository.findAllByIds(user.getRoleIds()).stream()
-                    .map(r -> r.getName())
+            List<String> roles = roleRepository.findAllByIds(user.getRoleIdsForScope(Scope.ADMIN, null)).stream()
+                    .map(Role::getName)
                     .toList();
             subject.setRoles(roles);
         });

@@ -5,6 +5,7 @@ import vn.truongngo.apartcom.one.lib.common.domain.exception.DomainException;
 import vn.truongngo.apartcom.one.lib.common.domain.model.AbstractAggregateRoot;
 import vn.truongngo.apartcom.one.lib.common.domain.model.AggregateRoot;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 
 import java.time.Instant;
@@ -21,7 +22,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
     private UserPassword password;        // nullable — social only user không có password
     private final Set<SocialConnection> socialConnections;
     private UserStatus status;
-    private final Set<RoleId> roleIds;
+    private final Set<RoleContext> roleContexts;  // all role assignments, keyed by (scope, orgId)
     private boolean usernameChanged;      // false = đang dùng auto-generated, true = đã đổi 1 lần
     private Instant lockedAt;
     private final Instant createdAt;
@@ -32,8 +33,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
          String email,
          String phoneNumber,
          String fullName,
-         UserPassword password,
-         Set<RoleId> roleIds) {
+         UserPassword password) {
         super(id);
         this.username          = username;
         this.email             = email;
@@ -42,7 +42,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
         this.password          = password;
         this.socialConnections = new HashSet<>();
         this.status            = UserStatus.ACTIVE;
-        this.roleIds           = new HashSet<>(roleIds);
+        this.roleContexts      = new HashSet<>();
         this.usernameChanged   = false;
         this.createdAt         = Instant.now();
         this.updatedAt         = this.createdAt;
@@ -56,7 +56,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                  UserPassword password,
                  Set<SocialConnection> socialConnections,
                  UserStatus status,
-                 Set<RoleId> roleIds,
+                 Set<RoleContext> roleContexts,
                  boolean usernameChanged,
                  Instant lockedAt,
                  Instant createdAt,
@@ -69,7 +69,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
         this.password          = password;
         this.socialConnections = new HashSet<>(socialConnections);
         this.status            = status;
-        this.roleIds           = new HashSet<>(roleIds);
+        this.roleContexts      = new HashSet<>(roleContexts);
         this.usernameChanged   = usernameChanged;
         this.lockedAt          = lockedAt;
         this.createdAt         = createdAt;
@@ -84,13 +84,13 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                                     UserPassword password,
                                     Set<SocialConnection> socialConnections,
                                     UserStatus status,
-                                    Set<RoleId> roleIds,
+                                    Set<RoleContext> roleContexts,
                                     boolean usernameChanged,
                                     Instant lockedAt,
                                     Instant createdAt,
                                     Instant updatedAt) {
         return new User(id, username, email, phoneNumber, fullName, password,
-                socialConnections, status, roleIds,
+                socialConnections, status, roleContexts,
                 usernameChanged, lockedAt, createdAt, updatedAt);
     }
 
@@ -157,16 +157,47 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
     public boolean isLocked()    { return this.status == UserStatus.LOCKED; }
     public boolean hasPassword() { return this.password != null; }
 
-    // ───────────── Roles ─────────────
+    // ───────────── RoleContext ─────────────
 
-    public void assignRoles(Set<RoleId> roleIdsToAdd) {
-        this.roleIds.addAll(roleIdsToAdd);
+    public void addRoleContext(Scope scope, String orgId, Set<RoleId> roleIdsForContext) {
+        boolean exists = roleContexts.stream().anyMatch(ctx -> ctx.matchesScope(scope, orgId));
+        if (exists) throw new DomainException(UserErrorCode.ROLE_CONTEXT_ALREADY_EXISTS);
+        roleContexts.add(RoleContext.create(scope, orgId, roleIdsForContext));
         this.updatedAt = Instant.now();
     }
 
-    public void removeRole(RoleId roleId) {
-        this.roleIds.removeIf(r -> r.getValue().equals(roleId.getValue()));
+    public void removeRoleContext(Scope scope, String orgId) {
+        boolean removed = roleContexts.removeIf(ctx -> ctx.matchesScope(scope, orgId));
+        if (!removed) throw new DomainException(UserErrorCode.ROLE_CONTEXT_NOT_FOUND);
         this.updatedAt = Instant.now();
+    }
+
+    public void assignRoleToContext(Scope scope, String orgId, RoleId roleId) {
+        RoleContext ctx = roleContexts.stream()
+                .filter(c -> c.matchesScope(scope, orgId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(UserErrorCode.ROLE_CONTEXT_NOT_FOUND));
+        ctx.addRole(roleId);
+        this.updatedAt = Instant.now();
+    }
+
+    public void removeRoleFromContext(Scope scope, String orgId, RoleId roleId) {
+        RoleContext ctx = roleContexts.stream()
+                .filter(c -> c.matchesScope(scope, orgId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(UserErrorCode.ROLE_CONTEXT_NOT_FOUND));
+        ctx.removeRole(roleId);
+        this.updatedAt = Instant.now();
+    }
+
+    /** Returns all roleIds for a given (scope, orgId) context, or empty set if no context exists. */
+    public Set<RoleId> getRoleIdsForScope(Scope scope, String orgId) {
+        return roleContexts.stream()
+                .filter(ctx -> ctx.matchesScope(scope, orgId))
+                .findFirst()
+                .map(RoleContext::getRoleIds)
+                .map(Set::copyOf)
+                .orElse(Set.of());
     }
 
     // ───────────── Guards ─────────────

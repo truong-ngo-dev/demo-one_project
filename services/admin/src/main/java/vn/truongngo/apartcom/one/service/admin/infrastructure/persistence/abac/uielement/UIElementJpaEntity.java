@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementType;
 
 @Entity
@@ -27,6 +28,10 @@ public class UIElementJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private UIElementType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "scope", nullable = false)
+    private Scope scope;
 
     @Column(name = "element_group", length = 100)
     private String elementGroup;

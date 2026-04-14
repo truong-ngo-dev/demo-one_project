@@ -91,10 +91,10 @@ Gateway invalidate Redis session
   → IdP JDBC session destroyed → SessionDestroyedEvent (side effect, idempotent)
 ```
 
-| Strategy | Việc cần làm |
-|----------|-------------|
-| **A** | Không cần thay đổi — đã implemented ✓ |
-| **B** | Không cần thay đổi — đã implemented ✓ |
+| Strategy | Việc cần làm                          |
+|----------|---------------------------------------|
+| **A**    | Không cần thay đổi — đã implemented ✓ |
+| **B**    | Không cần thay đổi — đã implemented ✓ |
 
 ---
 
@@ -113,10 +113,10 @@ Gateway detect 401
 
 `sid` = `authorizationId` không đổi trong suốt refresh cycle → mapping keys không cần cập nhật.
 
-| Strategy | Việc cần làm |
-|----------|-------------|
-| **A** | Không cần thay đổi — đã implemented ✓ |
-| **B** | Không cần thay đổi — đã implemented ✓ |
+| Strategy | Việc cần làm                          |
+|----------|---------------------------------------|
+| **A**    | Không cần thay đổi — đã implemented ✓ |
+| **B**    | Không cần thay đổi — đã implemented ✓ |
 
 ---
 

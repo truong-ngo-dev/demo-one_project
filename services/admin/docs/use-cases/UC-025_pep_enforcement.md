@@ -7,7 +7,7 @@ Wire Policy Enforcement Point (PEP) vào admin service. Mỗi controller method 
 System (transparent với caller — xảy ra tự động trên mọi request có annotation)
 
 ## Trạng thái
-Planned
+Implemented (Phase 1 — 2026-04-13)
 
 ---
 

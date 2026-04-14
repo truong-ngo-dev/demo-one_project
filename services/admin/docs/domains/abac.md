@@ -61,7 +61,7 @@ ActionDefinition (Entity — owned by ResourceDefinition)
 PolicySetDefinition (Aggregate Root)
 ├── PolicySetId         (Value Object — Long)
 ├── name                (String — unique, immutable)
-├── scope               (Enum: OPERATOR | TENANT)
+├── scope               (Enum: ADMIN | OPERATOR | TENANT | RESIDENT)
 ├── combineAlgorithm    (CombineAlgorithmName — từ libs/abac)
 ├── isRoot              (boolean — system-wide active policy set)
 └── tenantId            (String — nullable, chỉ dùng khi scope=TENANT)
@@ -104,14 +104,18 @@ UIElement (Aggregate Root)
 ├── elementId       (String — unique, immutable — frontend hardcodes this)
 ├── label           (String — display label)
 ├── type            (Enum: BUTTON | TAB | MENU_ITEM)
-├── elementGroup    (String — optional grouping)
+├── scope           (Enum: ADMIN | OPERATOR | TENANT | RESIDENT — portal owner)
+├── elementGroup    (String — optional, tên nhóm/màn hình chứa element)
 ├── orderIndex      (int)
 ├── resourceId      (ResourceId — FK to resource_definition)
 └── actionId        (ActionId — FK to action_definition)
 ```
 
+**`elementGroup`**: Metadata phân nhóm, không ảnh hưởng đến ABAC evaluation. Dùng để admin filter/quản lý element theo màn hình (ví dụ: `user-detail-actions`, `admin-nav`). Frontend evaluate theo `elementId`, không theo group.
+
 **Invariants**:
 - `elementId` immutable sau khi tạo — frontend dùng để lookup visibility.
+- `scope` xác định portal nào sở hữu element — mặc định `ADMIN` nếu không chỉ định khi tạo.
 - `actionId` phải thuộc về `resourceId` — cross-validated khi create/update.
 - Không xóa Resource/Action nếu có UIElement reference.
 

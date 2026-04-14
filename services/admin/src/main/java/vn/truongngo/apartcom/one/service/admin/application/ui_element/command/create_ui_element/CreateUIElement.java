@@ -16,6 +16,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ActionId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceDefinitionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.resource.ResourceId;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElement;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.uielement.UIElementType;
@@ -32,7 +33,8 @@ public class CreateUIElement {
             String elementGroup,
             int orderIndex,
             Long resourceId,
-            Long actionId
+            Long actionId,
+            String scope   // nullable — defaults to ADMIN when null
     ) {
         public Command {
             Assert.hasText(elementId, "elementId is required");
@@ -74,8 +76,9 @@ public class CreateUIElement {
             }
 
             UIElementType elementType = UIElementType.valueOf(command.type());
+            Scope elementScope = command.scope() != null ? Scope.valueOf(command.scope()) : Scope.ADMIN;
             UIElement element = UIElement.create(
-                    command.elementId(), command.label(), elementType,
+                    command.elementId(), command.label(), elementType, elementScope,
                     command.elementGroup(), command.orderIndex(), resourceId, actionId);
             UIElement saved = uiElementRepository.save(element);
 

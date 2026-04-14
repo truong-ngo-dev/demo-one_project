@@ -3,6 +3,7 @@ package vn.truongngo.apartcom.one.service.admin.presentation.base;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import vn.truongngo.apartcom.one.lib.abac.exception.AuthorizationException;
 import vn.truongngo.apartcom.one.lib.common.domain.exception.DomainException;
 import vn.truongngo.apartcom.one.lib.common.domain.exception.ErrorCode;
 
@@ -15,6 +16,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.httpStatus())
                 .body(ErrorResponse.of(errorCode.code(), errorCode.defaultMessage()));
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationException(AuthorizationException ex) {
+        return ResponseEntity
+                .status(403)
+                .body(ErrorResponse.of("FORBIDDEN", "Access denied"));
     }
 
     @ExceptionHandler(Exception.class)

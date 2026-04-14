@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.rule.query.impact_preview.GetRuleImpactPreview;
 import vn.truongngo.apartcom.one.service.admin.presentation.abac.model.ImpactPreviewRequest;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
@@ -18,6 +20,8 @@ public class RuleImpactController {
     private final GetRuleImpactPreview.Handler impactHandler;
 
     @PostMapping("/impact-preview")
+    @ResourceMapping(resource = "abac_rule", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetRuleImpactPreview.Result>> impactPreview(
             @RequestBody ImpactPreviewRequest request) {
         GetRuleImpactPreview.Query query = new GetRuleImpactPreview.Query(

@@ -25,13 +25,14 @@ one-project/
 
 ## Conventions — đọc trước khi sinh code
 
-| Convention                                 | File                                                                       |
-|--------------------------------------------|----------------------------------------------------------------------------|
-| Service internal mapping                   | **`SERVICE_MAP.md`** (tại thư mục gốc của từng service)                    |
-| Package structure, DDD, CQRS, Event        | [`docs/conventions/ddd-structure.md`](docs/conventions/ddd-structure.md)   |
-| API design, URL, response format           | [`docs/conventions/api-design.md`](docs/conventions/api-design.md)         |
-| Error handling, ErrorCode, DomainException | [`docs/conventions/error-handling.md`](docs/conventions/error-handling.md) |
-| Testing, layer strategy, fixture           | [`docs/conventions/testing.md`](docs/conventions/testing.md)               |
+| Convention                                 | File                                                                             |
+|--------------------------------------------|----------------------------------------------------------------------------------|
+| Service internal mapping                   | **`SERVICE_MAP.md`** (tại thư mục gốc của từng service)                          |
+| Package structure, DDD, CQRS, Event        | [`docs/conventions/ddd-structure.md`](docs/conventions/ddd-structure.md)         |
+| API design, URL, response format           | [`docs/conventions/api-design.md`](docs/conventions/api-design.md)               |
+| Error handling, ErrorCode, DomainException | [`docs/conventions/error-handling.md`](docs/conventions/error-handling.md)       |
+| Testing, layer strategy, fixture           | [`docs/conventions/testing.md`](docs/conventions/testing.md)                     |
+| Doc structure, where to put what           | [`docs/conventions/doc-structure.md`](docs/conventions/doc-structure.md)         |
 
 ---
 

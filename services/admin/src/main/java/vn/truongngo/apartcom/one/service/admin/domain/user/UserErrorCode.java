@@ -18,7 +18,9 @@ public enum UserErrorCode implements ErrorCode {
     INVALID_STATUS("INVALID_STATUS", "Invalid status for this operation", "error.user.invalid_status", 422),
     USERNAME_ALREADY_CHANGED("10012", "Username has already been changed", "error.user.username_already_changed", 422),
     PHONE_ALREADY_EXISTS("10013", "Phone number already exists", "error.user.phone_exists", 409),
-    CURRENT_PASSWORD_REQUIRED("10014", "Current password is required", "error.user.current_password_required", 422);
+    CURRENT_PASSWORD_REQUIRED("10014", "Current password is required", "error.user.current_password_required", 422),
+    ROLE_CONTEXT_ALREADY_EXISTS("10015", "Role context already exists for this scope and org", "error.user.role_context_exists", 409),
+    ROLE_CONTEXT_NOT_FOUND("10016", "Role context not found", "error.user.role_context_not_found", 404);
 
     private final String code;
     private final String defaultMessage;

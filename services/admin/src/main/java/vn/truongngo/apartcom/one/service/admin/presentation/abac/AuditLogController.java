@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.audit.list_audit_log.ListAuditLog;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditEntityType;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.PagedApiResponse;
@@ -16,6 +18,8 @@ public class AuditLogController {
     private final ListAuditLog.Handler listHandler;
 
     @GetMapping
+    @ResourceMapping(resource = "abac_audit_log", action = "LIST")
+    @PreEnforce
     public ResponseEntity<PagedApiResponse<ListAuditLog.AuditLogEntry>> list(
             @RequestParam(required = false) String entityType,
             @RequestParam(required = false) Long entityId,

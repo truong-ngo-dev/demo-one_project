@@ -89,13 +89,13 @@ và kiểm soát phân quyền theo mô hình ABAC.
 
 ### 3.4 `services/admin/` — Administration Service
 
-| Thuộc tính      | Giá trị                                                    |
-|-----------------|------------------------------------------------------------|
-| Stack           | TBD                                                        |
-| Vai trò         | Quản trị user, role; cấu hình bảo mật hệ thống             |
-| Database        | MySQL — schema riêng                                       |
-| Core domains    | user-management, role-management                           |
-| Planned domains | policy-management (ABAC), mfa-config, login-attempt-config |
+| Thuộc tính      | Giá trị                                                              |
+|-----------------|----------------------------------------------------------------------|
+| Stack           | Java 21, Spring Boot 4.x, MySQL                                      |
+| Vai trò         | Quản trị user, role; ABAC Policy Console                             |
+| Database        | MySQL — schema riêng                                                 |
+| Core domains    | user-management, role-management, abac (resource/policy/ui-element) |
+| Planned domains | mfa-config, login-attempt-config                                     |
 
 → Chi tiết: [`services/admin/CLAUDE.md`](../../services/admin/CLAUDE.md)
 
@@ -103,13 +103,13 @@ và kiểm soát phân quyền theo mô hình ABAC.
 
 ### 3.5 `libs/` — Shared Libraries
 
-| Lib                  | Nội dung                                                         |
-|----------------------|------------------------------------------------------------------|
-| `libs/common`        | Utilities dùng chung (TBD)                                       |
-| `libs/shared`        | Shared DTOs, constants (TBD)                                     |
-| `libs/policy-engine` | **[PLANNED]** ABAC engine — các service import để enforce policy |
+| Lib           | Nội dung                                                                          |
+|---------------|-----------------------------------------------------------------------------------|
+| `libs/common` | EventDispatcher, EventHandler, DomainException, ErrorCode, shared utilities       |
+| `libs/shared` | [PLANNED] Shared business concepts (shared kernel) — chưa có nội dung             |
+| `libs/abac`   | ABAC engine — PdpEngine, PepEngine, Subject, AuthzRequest, CombineAlgorithm       |
 
-**Quy tắc**: Services không được import code trực tiếp của nhau. Mọi sharing phải đi qua `libs/`.
+**Quy tắc**: Services không được import code trực tiếp của nhau. Mọi sharing phải đi qua `libs/`. `libs/shared` chỉ dành cho business shared concept — utility và infrastructure đã có `libs/common`.
 
 → Chi tiết: [`libs/common/CLAUDE.md`](../../libs/common/CLAUDE.md)
 → Chi tiết: [`libs/shared/CLAUDE.md`](../../libs/shared/CLAUDE.md)
@@ -189,5 +189,5 @@ web ──── session cookie ────▶ Web gateway ──── Bearer 
 2. **Web không lưu token** → Mọi auth logic phải nằm ở Web gateway
 3. **Thêm field vào DB** → Phải có migration file, không sửa schema trực tiếp
 4. **Không truy cập DB chéo** giữa các services
-5. **Policy engine** → Nằm trong `libs/`, không implement trong từng service
+5. **ABAC engine** (`libs/abac`) → Services import để enforce policy, không implement engine trong từng service
 6. **Internal endpoints** → Hiện tại `permitAll`, không tự thêm auth

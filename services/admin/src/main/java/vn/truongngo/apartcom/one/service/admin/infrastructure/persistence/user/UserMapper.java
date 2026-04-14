@@ -3,11 +3,11 @@ package vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
+import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContext;
 import vn.truongngo.apartcom.one.service.admin.domain.user.SocialConnection;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserId;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserPassword;
-import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.role.RoleJpaEntity;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.role.RoleJpaRepository;
 
 import java.util.HashSet;
@@ -31,9 +31,16 @@ public class UserMapper {
                 .map(s -> SocialConnection.reconstitute(s.getProvider(), s.getSocialId(), s.getEmail(), s.getConnectedAt()))
                 .collect(Collectors.toSet());
 
-        Set<RoleId> roleIds = entity.getRoles()
+        Set<RoleContext> roleContexts = entity.getRoleContexts()
                 .stream()
-                .map(r -> RoleId.of(r.getId()))
+                .map(ctx -> {
+                    Set<RoleId> ctxRoleIds = ctx.getRoles().stream()
+                            .map(r -> RoleId.of(r.getId()))
+                            .collect(Collectors.toSet());
+                    // '' sentinel → null domain orgId
+                    String orgId = ctx.getOrgId().isEmpty() ? null : ctx.getOrgId();
+                    return RoleContext.reconstitute(ctx.getId(), ctx.getScope(), orgId, ctxRoleIds);
+                })
                 .collect(Collectors.toSet());
 
         return User.reconstitute(
@@ -45,7 +52,7 @@ public class UserMapper {
                 password,
                 socialConnections,
                 entity.getStatus(),
-                roleIds,
+                roleContexts,
                 entity.isUsernameChanged(),
                 entity.getLockedAt(),
                 entity.getCreatedAt(),
@@ -53,7 +60,7 @@ public class UserMapper {
         );
     }
 
-    // Update scalar fields and roles of an existing JpaEntity (no social connections)
+    // Update scalar fields and roleContexts of an existing JpaEntity (no social connections)
     public void updateFields(UserJpaEntity existing, User user) {
         existing.setUsername(user.getUsername());
         existing.setEmail(user.getEmail());
@@ -65,10 +72,10 @@ public class UserMapper {
         existing.setLockedAt(user.getLockedAt());
         existing.setUpdatedAt(user.getUpdatedAt());
 
-        Set<String> roleIds = user.getRoleIds().stream()
-                .map(RoleId::getValue)
-                .collect(Collectors.toSet());
-        existing.setRoles(new HashSet<>(roleJpaRepository.findAllById(roleIds)));
+        existing.getRoleContexts().clear();
+        for (RoleContext ctx : user.getRoleContexts()) {
+            existing.getRoleContexts().add(buildContextEntity(user.getId().getValue(), ctx));
+        }
     }
 
     // Domain → JpaEntity (insert)
@@ -90,12 +97,6 @@ public class UserMapper {
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
 
-        Set<String> roleIds = user.getRoleIds().stream()
-                .map(RoleId::getValue)
-                .collect(Collectors.toSet());
-        Set<RoleJpaEntity> roleEntities = new HashSet<>(roleJpaRepository.findAllById(roleIds));
-        entity.setRoles(roleEntities);
-
         Set<SocialConnectionJpaEntity> socialEntities = user.getSocialConnections()
                 .stream()
                 .map(s -> {
@@ -108,8 +109,26 @@ public class UserMapper {
                     return se;
                 })
                 .collect(Collectors.toSet());
-
         entity.setSocialConnections(socialEntities);
+
+        Set<UserRoleContextJpaEntity> contextEntities = user.getRoleContexts().stream()
+                .map(ctx -> buildContextEntity(user.getId().getValue(), ctx))
+                .collect(Collectors.toSet());
+        entity.setRoleContexts(contextEntities);
+
         return entity;
+    }
+
+    private UserRoleContextJpaEntity buildContextEntity(String userId, RoleContext ctx) {
+        UserRoleContextJpaEntity ctxEntity = new UserRoleContextJpaEntity();
+        ctxEntity.setUserId(userId);
+        ctxEntity.setScope(ctx.getScope());
+        // null domain orgId → '' sentinel in DB (for UNIQUE constraint compatibility)
+        ctxEntity.setOrgId(ctx.getOrgId() != null ? ctx.getOrgId() : "");
+        Set<String> ctxRoleIds = ctx.getRoleIds().stream()
+                .map(RoleId::getValue)
+                .collect(Collectors.toSet());
+        ctxEntity.setRoles(new HashSet<>(roleJpaRepository.findAllById(ctxRoleIds)));
+        return ctxEntity;
     }
 }

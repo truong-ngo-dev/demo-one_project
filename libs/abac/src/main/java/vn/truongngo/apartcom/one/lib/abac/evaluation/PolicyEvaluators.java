@@ -66,7 +66,9 @@ public class PolicyEvaluators {
     };
 
     public static PolicyElementEvaluator<AbstractPolicy> policyEvaluator = (context, policy) -> {
-        ExpressionResult target = ExpressionEvaluators.evaluate(context, policy.getTarget());
+        ExpressionResult target = policy.getTarget() == null ?
+                new ExpressionResult(ExpressionResult.ResultType.MATCH) :
+                ExpressionEvaluators.evaluate(context, policy.getTarget());
         if (target.isNotMatch()) {
             return new EvaluationResult(EvaluationResult.EvaluationResultType.NOT_APPLICABLE);
         }

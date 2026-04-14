@@ -1,6 +1,7 @@
 package vn.truongngo.apartcom.one.service.admin.domain.user;
 
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 
 import java.time.Instant;
@@ -19,13 +20,15 @@ public class UserFactory {
                 "at least one identifier is required"
         );
 
-        User user = new User(UserId.generate(), username, email, phoneNumber, fullName, password, roleIds);
+        User user = new User(UserId.generate(), username, email, phoneNumber, fullName, password);
+        if (!roleIds.isEmpty()) {
+            user.addRoleContext(Scope.ADMIN, null, roleIds);
+        }
         user.registerEvent(new UserCreatedEvent(
                 user.getId().getValue(),
                 username,
                 email,
                 phoneNumber,
-                roleIds,
                 UserCreatedEvent.RegistrationMethod.DEFAULT
         ));
         return user;
@@ -39,13 +42,15 @@ public class UserFactory {
         Assert.hasText(username, "username is required");
         Assert.hasText(email, "email is required");
 
-        User user = new User(UserId.generate(), username, email, null, fullName, password, roleIds);
+        User user = new User(UserId.generate(), username, email, null, fullName, password);
+        if (!roleIds.isEmpty()) {
+            user.addRoleContext(Scope.ADMIN, null, roleIds);
+        }
         user.registerEvent(new UserCreatedEvent(
                 user.getId().getValue(),
                 username,
                 email,
                 null,
-                roleIds,
                 UserCreatedEvent.RegistrationMethod.ADMIN
         ));
         return user;
@@ -57,14 +62,13 @@ public class UserFactory {
         Assert.hasText(username, "username is required");
         Assert.hasText(email, "email is required");
 
-        User user = new User(UserId.generate(), username, email, null, null, null, Set.of());
+        User user = new User(UserId.generate(), username, email, null, null, null);
         user.connectSocial(provider, socialId, providerEmail, connectedAt);
         user.registerEvent(new UserCreatedEvent(
                 user.getId().getValue(),
                 username,
                 email,
                 null,
-                Set.of(),
                 UserCreatedEvent.RegistrationMethod.SOCIAL
         ));
         return user;

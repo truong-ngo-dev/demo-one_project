@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.policy_set.command.create_policy_set.CreatePolicySet;
 import vn.truongngo.apartcom.one.service.admin.application.policy_set.command.delete_policy_set.DeletePolicySet;
 import vn.truongngo.apartcom.one.service.admin.application.policy_set.command.update_policy_set.UpdatePolicySet;
@@ -31,6 +33,8 @@ public class PolicySetController {
     private final GetPolicySetDeletePreview.Handler deletePreviewHandler;
 
     @GetMapping
+    @ResourceMapping(resource = "abac_policy_set", action = "LIST")
+    @PreEnforce
     public ResponseEntity<PagedApiResponse<ListPolicySets.PolicySetSummary>> list(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -42,11 +46,15 @@ public class PolicySetController {
     }
 
     @GetMapping("/{id}")
+    @ResourceMapping(resource = "abac_policy_set", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetPolicySet.Result>> get(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.of(getHandler.handle(new GetPolicySet.Query(id))));
     }
 
     @PostMapping
+    @ResourceMapping(resource = "abac_policy_set", action = "CREATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<CreatePolicySet.Result>> create(
             @RequestBody PolicySetRequest request) {
         CreatePolicySet.Result result = createHandler.handle(new CreatePolicySet.Command(
@@ -57,6 +65,8 @@ public class PolicySetController {
     }
 
     @PutMapping("/{id}")
+    @ResourceMapping(resource = "abac_policy_set", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<Void> update(@PathVariable Long id,
                                         @RequestBody PolicySetRequest request) {
         updateHandler.handle(new UpdatePolicySet.Command(id,
@@ -67,12 +77,16 @@ public class PolicySetController {
     }
 
     @GetMapping("/{id}/delete-preview")
+    @ResourceMapping(resource = "abac_policy_set", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetPolicySetDeletePreview.Result>> deletePreview(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.of(deletePreviewHandler.handle(
                 new GetPolicySetDeletePreview.Query(id))));
     }
 
     @DeleteMapping("/{id}")
+    @ResourceMapping(resource = "abac_policy_set", action = "DELETE")
+    @PreEnforce
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteHandler.handle(new DeletePolicySet.Command(id));
         return ResponseEntity.noContent().build();

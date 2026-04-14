@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.truongngo.apartcom.one.lib.abac.pep.PreEnforce;
+import vn.truongngo.apartcom.one.lib.abac.rap.ResourceMapping;
 import vn.truongngo.apartcom.one.service.admin.application.rule.command.create_rule.CreateRule;
 import vn.truongngo.apartcom.one.service.admin.application.rule.command.delete_rule.DeleteRule;
 import vn.truongngo.apartcom.one.service.admin.application.rule.command.reorder_rules.ReorderRules;
@@ -28,17 +30,23 @@ public class RuleController {
     private final ListRules.Handler listHandler;
 
     @GetMapping
+    @ResourceMapping(resource = "abac_rule", action = "LIST")
+    @PreEnforce
     public ResponseEntity<ApiResponse<List<GetRule.Result>>> list(@PathVariable Long policyId) {
         return ResponseEntity.ok(ApiResponse.of(listHandler.handle(new ListRules.Query(policyId))));
     }
 
     @GetMapping("/{ruleId}")
+    @ResourceMapping(resource = "abac_rule", action = "READ")
+    @PreEnforce
     public ResponseEntity<ApiResponse<GetRule.Result>> get(
             @PathVariable Long policyId, @PathVariable Long ruleId) {
         return ResponseEntity.ok(ApiResponse.of(getHandler.handle(new GetRule.Query(policyId, ruleId))));
     }
 
     @PostMapping
+    @ResourceMapping(resource = "abac_rule", action = "CREATE")
+    @PreEnforce
     public ResponseEntity<ApiResponse<CreateRule.Result>> create(
             @PathVariable Long policyId, @RequestBody RuleRequest request) {
         CreateRule.Result result = createHandler.handle(new CreateRule.Command(
@@ -49,6 +57,8 @@ public class RuleController {
     }
 
     @PutMapping("/{ruleId}")
+    @ResourceMapping(resource = "abac_rule", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<Void> update(
             @PathVariable Long policyId, @PathVariable Long ruleId,
             @RequestBody RuleRequest request) {
@@ -60,6 +70,8 @@ public class RuleController {
     }
 
     @DeleteMapping("/{ruleId}")
+    @ResourceMapping(resource = "abac_rule", action = "DELETE")
+    @PreEnforce
     public ResponseEntity<Void> delete(
             @PathVariable Long policyId, @PathVariable Long ruleId) {
         deleteHandler.handle(new DeleteRule.Command(policyId, ruleId));
@@ -67,6 +79,8 @@ public class RuleController {
     }
 
     @PutMapping("/reorder")
+    @ResourceMapping(resource = "abac_rule", action = "UPDATE")
+    @PreEnforce
     public ResponseEntity<Void> reorder(
             @PathVariable Long policyId, @RequestBody ReorderRequest request) {
         reorderHandler.handle(new ReorderRules.Command(policyId, request.ruleIds()));
@@ -74,7 +88,7 @@ public class RuleController {
     }
 
     record RuleRequest(String name, String description, String targetExpression,
-                       String conditionExpression, String effect, int orderIndex) {}
+                       String conditionExpression, String effect, Integer orderIndex) {}
 
     record ReorderRequest(List<Long> ruleIds) {}
 }
