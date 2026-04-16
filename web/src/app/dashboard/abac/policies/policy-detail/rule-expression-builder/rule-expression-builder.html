@@ -6,7 +6,7 @@
       @if (activeTab() === 'builder') {
         <button type="button" class="wrap-pill-btn" (click)="wrapInBlock('AND')">
           <mat-icon>layers</mat-icon>
-          Wrap Group
+          Group
         </button>
       }
     </div>
@@ -25,10 +25,7 @@
     @if (activeTab() === 'builder') {
       <div class="builder-tab-form">
         <mat-form-field appearance="outline" class="raw-name-field expression-builder-field" floatLabel="always">
-          <mat-label>
-            Name *
-            <mat-icon class="label-info-icon" matTooltip="Tên gợi nhớ để tái sử dụng trong Expression Library">info_outline</mat-icon>
-          </mat-label>
+          <mat-label>Name *</mat-label>
           <input matInput placeholder="e.g. Là admin, Cùng tenant"
                  [value]="rawName()"
                  (input)="onRawNameInput($any($event.target).value)" />
@@ -196,10 +193,7 @@
     @if (activeTab() === 'library') {
       <div class="library-container">
         <mat-form-field appearance="outline" class="library-select-field expression-builder-field" floatLabel="always">
-          <mat-label>
-            Select from Library
-            <mat-icon class="label-info-icon" matTooltip="Chọn các biểu thức đã đặt tên để tái sử dụng">info_outline</mat-icon>
-          </mat-label>
+          <mat-label>Select from Library</mat-label>
           <mat-select [value]="selectedRefId()" (selectionChange)="selectLibraryItem($event.value)"
                       placeholder="Choose a named expression...">
             <mat-select-trigger>
@@ -210,7 +204,7 @@
                                    [noEntriesFoundLabel]="'No matching expressions'"
                                    [formControl]="librarySearchControl">
             </ngx-mat-select-search>
-            
+
             @if (!libraryLoaded()) {
               <mat-option disabled>Loading...</mat-option>
             } @else {
@@ -232,10 +226,7 @@
     @if (activeTab() === 'raw') {
       <div class="raw-container">
         <mat-form-field appearance="outline" class="raw-name-field expression-builder-field" floatLabel="always">
-          <mat-label>
-            Name *
-            <mat-icon class="label-info-icon" matTooltip="Bắt buộc — tên gợi nhớ để tái sử dụng">info_outline</mat-icon>
-          </mat-label>
+          <mat-label>Name *</mat-label>
           <input matInput
                  placeholder="e.g. Là admin, Cùng tenant"
                  [value]="rawName()"

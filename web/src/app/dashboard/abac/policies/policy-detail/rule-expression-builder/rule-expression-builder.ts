@@ -261,7 +261,8 @@ export class RuleExpressionBuilderComponent implements OnChanges {
       case 'library': {
         const refId = this.selectedRefId();
         if (refId === null) return { type: 'INLINE', spel: '', name: '' };
-        return { type: 'LIBRARY_REF', refId };
+        const found = this.namedExpressions().find(e => e.id === refId);
+        return { type: 'LIBRARY_REF', refId, spel: found?.spel };
       }
       case 'raw': {
         const spel = this.rawSpel().trim();

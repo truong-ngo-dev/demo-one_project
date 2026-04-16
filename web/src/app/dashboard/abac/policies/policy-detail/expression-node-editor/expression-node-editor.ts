@@ -61,7 +61,7 @@ export class ExpressionNodeEditorComponent implements OnChanges {
   private computeNodeSpel(node: ExpressionNodeRequest | null): string | null {
     if (!node) return null;
     if (node.type === 'INLINE') return node.spel || null;
-    if (node.type === 'LIBRARY_REF') return `ref:${node.refId}`; // Placeholder if spel unknown
+    if (node.type === 'LIBRARY_REF') return node.spel || `ref:${node.refId}`;
     
     if (node.type === 'COMPOSITION') {
       const childrenSpel = (node.children ?? [])
@@ -70,7 +70,9 @@ export class ExpressionNodeEditorComponent implements OnChanges {
       
       if (childrenSpel.length === 0) return null;
       if (childrenSpel.length === 1) return childrenSpel[0];
-      return `(${childrenSpel.join(` ${node.operator} `)})`;
+      
+      const op = node.operator === 'OR' ? '||' : '&&';
+      return `(${childrenSpel.join(` ${op} `)})`;
     }
     return null;
   }
