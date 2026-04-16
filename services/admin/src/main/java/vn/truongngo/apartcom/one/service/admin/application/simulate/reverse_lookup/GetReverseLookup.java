@@ -3,6 +3,7 @@ package vn.truongngo.apartcom.one.service.admin.application.simulate.reverse_loo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
 import vn.truongngo.apartcom.one.service.admin.application.rule.service.SpelExpressionAnalyzer;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
@@ -54,6 +55,7 @@ public class GetReverseLookup {
         private final PolicySetRepository policySetRepository;
         private final PolicyRepository policyRepository;
         private final UserRepository userRepository;
+        private final ExpressionTreeService expressionTreeService;
 
         @Override
         public Result handle(Query query) {
@@ -103,8 +105,8 @@ public class GetReverseLookup {
          * or {@code null} if the rule's target constraints exclude this action.
          */
         private RuleCoverage analyzeCoverage(RuleDefinition rule, String policyName, String actionName) {
-            String targetExpr    = rule.getTargetExpression()    != null ? rule.getTargetExpression().spElExpression()    : null;
-            String conditionExpr = rule.getConditionExpression() != null ? rule.getConditionExpression().spElExpression() : null;
+            String targetExpr    = expressionTreeService.resolveFromNode(rule.getTargetExpression());
+            String conditionExpr = expressionTreeService.resolveFromNode(rule.getConditionExpression());
 
             SpelExpressionAnalyzer.AnalysisResult analysis =
                     SpelExpressionAnalyzer.analyze(targetExpr, conditionExpr);

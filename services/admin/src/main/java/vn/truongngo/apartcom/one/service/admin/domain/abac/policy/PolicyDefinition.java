@@ -19,14 +19,14 @@ public class PolicyDefinition {
     private final PolicyId id;
     private final PolicySetId policySetId;
     private final String name;
-    private final ExpressionVO targetExpression;
+    private final ExpressionNode targetExpression;
     private final CombineAlgorithmName combineAlgorithm;
     private final List<RuleDefinition> rules;
     private final long createdAt;
     private final long updatedAt;
 
     private PolicyDefinition(PolicyId id, PolicySetId policySetId, String name,
-                              ExpressionVO targetExpression, CombineAlgorithmName combineAlgorithm,
+                              ExpressionNode targetExpression, CombineAlgorithmName combineAlgorithm,
                               List<RuleDefinition> rules, long createdAt, long updatedAt) {
         this.id               = id;
         this.policySetId      = policySetId;
@@ -39,7 +39,7 @@ public class PolicyDefinition {
     }
 
     public static PolicyDefinition create(PolicySetId policySetId, String name,
-                                           ExpressionVO targetExpression,
+                                           ExpressionNode targetExpression,
                                            CombineAlgorithmName combineAlgorithm) {
         Assert.hasText(name, "name is required");
         Assert.notNull(policySetId, "policySetId is required");
@@ -50,7 +50,7 @@ public class PolicyDefinition {
     }
 
     public static PolicyDefinition reconstitute(PolicyId id, PolicySetId policySetId, String name,
-                                                 ExpressionVO targetExpression,
+                                                 ExpressionNode targetExpression,
                                                  CombineAlgorithmName combineAlgorithm,
                                                  List<RuleDefinition> rules,
                                                  long createdAt, long updatedAt) {
@@ -58,7 +58,7 @@ public class PolicyDefinition {
                 rules, createdAt, updatedAt);
     }
 
-    public PolicyDefinition updatePolicy(ExpressionVO targetExpression,
+    public PolicyDefinition updatePolicy(ExpressionNode targetExpression,
                                           CombineAlgorithmName combineAlgorithm) {
         Assert.notNull(combineAlgorithm, "combineAlgorithm is required");
         return new PolicyDefinition(this.id, this.policySetId, this.name, targetExpression,
@@ -73,7 +73,7 @@ public class PolicyDefinition {
     }
 
     public PolicyDefinition updateRule(RuleId ruleId, String name, String description,
-                                        ExpressionVO targetExpression, ExpressionVO conditionExpression,
+                                        ExpressionNode targetExpression, ExpressionNode conditionExpression,
                                         Effect effect) {
         boolean found = rules.stream().anyMatch(r -> ruleId.equals(r.getId()));
         if (!found) throw PolicyException.ruleNotFound();

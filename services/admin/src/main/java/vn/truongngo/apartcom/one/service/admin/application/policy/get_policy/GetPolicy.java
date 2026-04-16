@@ -5,10 +5,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
+import vn.truongngo.apartcom.one.service.admin.application.rule.get_rule.GetRule;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.expression.NamedExpressionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
+import vn.truongngo.apartcom.one.service.admin.presentation.abac.model.ExpressionNodeView;
 
 import java.util.List;
 
@@ -20,36 +24,30 @@ public class GetPolicy {
         }
     }
 
-    public record RuleView(Long id, String name, String description,
-                           String targetExpression, String conditionExpression,
-                           String effect, int orderIndex) {}
-
     public record Result(Long id, Long policySetId, String name,
-                         String targetExpression, String combineAlgorithm,
-                         long createdAt, long updatedAt, List<RuleView> rules) {}
+                         ExpressionNodeView targetExpression, String combineAlgorithm,
+                         long createdAt, long updatedAt, List<GetRule.Result> rules) {}
 
     @Component
     @RequiredArgsConstructor
     public static class Handler implements QueryHandler<Query, Result> {
 
         private final PolicyRepository repository;
+        private final ExpressionTreeService expressionTreeService;
+        private final NamedExpressionRepository namedExpressionRepository;
 
         @Override
         @Transactional(readOnly = true)
         public Result handle(Query query) {
             PolicyDefinition policy = repository.findById(PolicyId.of(query.id()))
                     .orElseThrow(PolicyException::policyNotFound);
-            List<RuleView> rules = policy.getRules().stream()
-                    .map(r -> new RuleView(
-                            r.getId().getValue(), r.getName(), r.getDescription(),
-                            r.getTargetExpression() != null ? r.getTargetExpression().spElExpression() : null,
-                            r.getConditionExpression() != null ? r.getConditionExpression().spElExpression() : null,
-                            r.getEffect().name(), r.getOrderIndex()))
+            List<GetRule.Result> rules = policy.getRules().stream()
+                    .map(r -> GetRule.Handler.toResult(r, expressionTreeService, namedExpressionRepository))
                     .toList();
             return new Result(
                     policy.getId().getValue(), policy.getPolicySetId().getValue(),
                     policy.getName(),
-                    policy.getTargetExpression() != null ? policy.getTargetExpression().spElExpression() : null,
+                    ExpressionNodeView.from(policy.getTargetExpression(), expressionTreeService, namedExpressionRepository),
                     policy.getCombineAlgorithm().name(),
                     policy.getCreatedAt(), policy.getUpdatedAt(), rules);
         }

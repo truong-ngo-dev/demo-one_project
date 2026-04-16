@@ -7,7 +7,8 @@ public enum PolicyErrorCode implements ErrorCode {
     POLICY_NOT_FOUND("30009", "Policy not found", "error.abac.policy.not_found", 404),
     RULE_NOT_FOUND("30010", "Rule not found", "error.abac.rule.not_found", 404),
     INVALID_SPEL_EXPRESSION("30011", "Invalid SpEL expression", "error.abac.invalid_spel", 400),
-    DUPLICATE_POLICY_NAME("30012", "Duplicate policy name", "error.abac.duplicate_name", 400);
+    DUPLICATE_POLICY_NAME("30012", "Duplicate policy name", "error.abac.duplicate_name", 400),
+    NAMED_EXPRESSION_IN_USE("30014", "Named expression is in use", "error.abac.named_expression_in_use", 409);
 
     private final String code;
     private final String defaultMessage;

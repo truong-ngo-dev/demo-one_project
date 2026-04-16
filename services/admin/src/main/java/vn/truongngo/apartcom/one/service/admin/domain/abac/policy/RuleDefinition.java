@@ -13,15 +13,15 @@ public class RuleDefinition {
     private final PolicyId policyId;
     private final String name;
     private final String description;
-    private final ExpressionVO targetExpression;
-    private final ExpressionVO conditionExpression;
+    private final ExpressionNode targetExpression;
+    private final ExpressionNode conditionExpression;
     private final Effect effect;
     private final int orderIndex;
     private final long createdAt;
     private final long updatedAt;
 
     private RuleDefinition(RuleId id, PolicyId policyId, String name, String description,
-                            ExpressionVO targetExpression, ExpressionVO conditionExpression,
+                            ExpressionNode targetExpression, ExpressionNode conditionExpression,
                             Effect effect, int orderIndex, long createdAt, long updatedAt) {
         this.id                  = id;
         this.policyId            = policyId;
@@ -36,7 +36,7 @@ public class RuleDefinition {
     }
 
     public static RuleDefinition create(PolicyId policyId, String name, String description,
-                                        ExpressionVO targetExpression, ExpressionVO conditionExpression,
+                                        ExpressionNode targetExpression, ExpressionNode conditionExpression,
                                         Effect effect, int orderIndex) {
         long now = System.currentTimeMillis();
         return new RuleDefinition(null, policyId, name, description,
@@ -44,15 +44,15 @@ public class RuleDefinition {
     }
 
     public static RuleDefinition reconstitute(RuleId id, PolicyId policyId, String name,
-                                              String description, ExpressionVO targetExpression,
-                                              ExpressionVO conditionExpression, Effect effect,
+                                              String description, ExpressionNode targetExpression,
+                                              ExpressionNode conditionExpression, Effect effect,
                                               int orderIndex, long createdAt, long updatedAt) {
         return new RuleDefinition(id, policyId, name, description,
                 targetExpression, conditionExpression, effect, orderIndex, createdAt, updatedAt);
     }
 
-    public RuleDefinition update(String name, String description, ExpressionVO targetExpression,
-                                 ExpressionVO conditionExpression, Effect effect) {
+    public RuleDefinition update(String name, String description, ExpressionNode targetExpression,
+                                 ExpressionNode conditionExpression, Effect effect) {
         return new RuleDefinition(this.id, this.policyId, name, description,
                 targetExpression, conditionExpression, effect, this.orderIndex,
                 this.createdAt, System.currentTimeMillis());

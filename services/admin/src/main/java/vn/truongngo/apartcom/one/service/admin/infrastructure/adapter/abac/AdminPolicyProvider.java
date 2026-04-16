@@ -8,12 +8,14 @@ import vn.truongngo.apartcom.one.lib.abac.domain.Policy;
 import vn.truongngo.apartcom.one.lib.abac.domain.PolicySet;
 import vn.truongngo.apartcom.one.lib.abac.domain.Rule;
 import vn.truongngo.apartcom.one.lib.abac.pip.PolicyProvider;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetRepository;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.RuleDefinition;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class AdminPolicyProvider implements PolicyProvider {
 
     private final PolicySetRepository policySetRepository;
     private final PolicyRepository policyRepository;
+    private final ExpressionTreeService expressionTreeService;
 
     @Override
     public AbstractPolicy getPolicy(String serviceName) {
@@ -43,7 +46,7 @@ public class AdminPolicyProvider implements PolicyProvider {
             return empty;
         }
         // Use the first root policy set
-        PolicySetDefinition rootPs = roots.get(1);
+        PolicySetDefinition rootPs = roots.stream().filter(pd -> pd.getScope().equals(Scope.ADMIN)).findFirst().orElseThrow(() -> new RuntimeException("No root policy set configured"));
         return mapPolicySet(rootPs);
     }
 
@@ -89,12 +92,12 @@ public class AdminPolicyProvider implements PolicyProvider {
         return rule;
     }
 
-    private Expression toAbacExpression(ExpressionVO vo) {
-        if (vo == null) return null;
+    private Expression toAbacExpression(ExpressionNode node) {
+        if (node == null) return null;
+        String spel = expressionTreeService.resolveFromNode(node);
         Expression expr = new Expression();
-        expr.setId(vo.id() != null ? String.valueOf(vo.id()) : null);
         expr.setType(Expression.Type.LITERAL);
-        expr.setExpression(vo.spElExpression());
+        expr.setExpression(spel);
         expr.setSubExpressions(null);
         expr.setCombinationType(null);
         return expr;

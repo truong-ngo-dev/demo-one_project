@@ -1,4 +1,4 @@
-Party Model + Property Model — Mapping cho BMS                                                                                                                                                                  
+ Party Model + Property Model — Mapping cho BMS                                                                                                                                                                  
 Bắt đầu từ nguyên tắc: mỗi actor và operation phải tìm được "chỗ ngồi" trong model. Nếu không tìm được   → đó là gap cần extend.                                                                                                                                                                                         
 ---                                                                                                      1. Mapping Actors → Party Model
 

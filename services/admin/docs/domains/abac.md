@@ -10,6 +10,7 @@ Tích hợp với `libs/abac` — thư viện PDP engine nội bộ thực hiệ
 - **Phase 1 (Core)**: Resource/Action, PolicySet/Policy/Rule CRUD, UIElement Registry, Basic Simulator
 - **Phase 2 (Usability)**: Navigation Simulate, Rule Impact Preview (SpEL AST analysis)
 - **Phase 3 (Observability)**: Instance Trace, Reverse Lookup, Admin Change Audit Log, UIElement Coverage
+- **Phase 4 (Expression Tree)**: `NamedExpression` AR, `ExpressionNode` sealed VO, `ExpressionTreeService`, Library tab in FE builder
 
 ---
 
@@ -78,6 +79,24 @@ PolicySetException  (DomainException factory: policySetNotFound, policySetNameDu
 
 ---
 
+### Package: `domain/abac/expression/` *(Phase 4)*
+
+```
+NamedExpression (Aggregate Root — reusable library expression)
+├── NamedExpressionId   (Value Object — Long)
+├── name                (String — unique, mutable via rename())
+└── spel                (String — mutable via updateSpel())
+
+NamedExpressionRepository (domain interface)
+  findById(id) / findBySpel(spel) / findAll() / save() / delete() / isInUse(id)
+```
+
+**Invariants**:
+- `name` phải unique toàn bộ `named_expression` table.
+- Không xóa nếu có `abac_expression` row còn tham chiếu (`isInUse()`).
+
+---
+
 ### Package: `domain/abac/policy/`
 
 ```
@@ -85,7 +104,7 @@ PolicyDefinition (Aggregate Root — owns RuleDefinition)
 ├── PolicyId            (Value Object — Long)
 ├── policySetId         (PolicySetId — parent reference, from policy_set/)
 ├── name                (String — immutable)
-├── targetExpression    (ExpressionVO — nullable, SpEL filter)
+├── targetExpression    (ExpressionNode — nullable, Phase 4: sealed VO)
 ├── combineAlgorithm    (CombineAlgorithmName)
 └── rules               (List<RuleDefinition> — owned, ordered)
 
@@ -94,23 +113,24 @@ RuleDefinition (Entity — owned by PolicyDefinition)
 ├── policyId            (PolicyId — parent)
 ├── name                (String)
 ├── description         (String — optional)
-├── targetExpression    (ExpressionVO — nullable)
-├── conditionExpression (ExpressionVO — nullable, main auth logic)
+├── targetExpression    (ExpressionNode — nullable)
+├── conditionExpression (ExpressionNode — nullable, main auth logic)
 ├── effect              (Enum: PERMIT | DENY)
 └── orderIndex          (int — for rule evaluation order)
 
-ExpressionVO (Value Object — Phase 1: LITERAL only)
-├── id                  (Long — DB FK to abac_expression)
-└── spelExpression      (String — raw SpEL string)
+ExpressionNode (sealed interface — Phase 4, replaces ExpressionVO)
+  ├── Inline(name: String?, spel: String)       — raw SpEL, optionally named
+  ├── LibraryRef(refId: NamedExpressionId)      — reference to NamedExpression AR
+  └── Composition(operator: AND|OR, children: List<ExpressionNode>)
 
-PolicyErrorCode     (per-aggregate error codes: 30009–30011)
-PolicyException     (DomainException factory: policyNotFound, ruleNotFound, invalidSpelExpression)
+PolicyErrorCode     (per-aggregate error codes: 30009–30014)
+PolicyException     (DomainException factory: policyNotFound, ruleNotFound, invalidSpelExpression, namedExpressionInUse)
 ```
 
 **Invariants**:
 - `PolicyDefinition` là aggregate root của `RuleDefinition` — rule chỉ được thêm/sửa/xóa qua Policy.
 - `reorderRules()` — tất cả ruleId phải thuộc về policy này.
-- Phase 1: chỉ hỗ trợ LITERAL expression (SpEL thuần). COMPOSITION reserved cho Phase 2.
+- `ExpressionNode` là pure VO — không có DB id, lưu qua `ExpressionTreeService`.
 
 ---
 
@@ -177,6 +197,35 @@ AuditEntityType   POLICY_SET | POLICY | RULE | UI_ELEMENT
 
 ---
 
+## ExpressionTreeService *(Phase 4)*
+
+Application-layer bridge để persist/resolve/delete `ExpressionNode` tree:
+
+```
+ExpressionTreeService
+  persist(node: ExpressionNode, parentId: Long?) → Long (root row id)
+    — INLINE(named): tạo row với name
+    — INLINE(anon): dedup bởi spel ở root level (parentId=null)
+    — LIBRARY_REF: tạo placeholder row với named_expression_id=refId
+    — COMPOSITION: tạo row + recurse children
+
+  resolveFromNode(node: ExpressionNode) → String (resolved SpEL)
+    — Inline: trả spel trực tiếp
+    — LibraryRef: lookup NamedExpressionRepository.findById → spel
+    — Composition: đệ quy, join bằng && hoặc ||
+
+  loadTree(rootId: Long) → ExpressionNode
+    — Đọc abac_expression row, phân loại theo named_expression_id / children
+
+  deleteTree(rootId: Long)
+    — COMPOSITION: cascade children
+    — INLINE anon: delete
+    — INLINE named: skip (shared — lifecycle riêng)
+    — LIBRARY_REF: delete placeholder row, không xóa NamedExpression AR
+```
+
+---
+
 ## AdminPolicyProvider
 
 Bridge từ DB domain → libs/abac PdpEngine:
@@ -190,7 +239,7 @@ AdminPolicyProvider implements PolicyProvider
     4. Map: PolicySetDefinition → libs/abac.PolicySet
            PolicyDefinition → libs/abac.Policy
            RuleDefinition → libs/abac.Rule
-           ExpressionVO → libs/abac.Expression (type=LITERAL)
+           ExpressionNode → resolved SpEL via ExpressionTreeService.resolveFromNode()
     5. Return mapped PolicySet
 ```
 
@@ -277,6 +326,7 @@ AdminSubjectProvider implements SubjectProvider
 | 30011 | 400  | INVALID_SPEL_EXPRESSION    | SpEL expression sai cú pháp             |
 | 30012 | 404  | UI_ELEMENT_NOT_FOUND       |                                         |
 | 30013 | 409  | UI_ELEMENT_ID_DUPLICATE    | elementId đã tồn tại                    |
+| 30014 | 409  | NAMED_EXPRESSION_IN_USE    | NamedExpression đang được rule tham chiếu |
 
 ---
 
@@ -302,3 +352,4 @@ AdminSubjectProvider implements SubjectProvider
 - [UC-034 Reverse Lookup](../use-cases/UC-034_reverse_lookup.md)
 - [UC-035 Admin Change Audit Log](../use-cases/UC-035_admin_change_audit_log.md)
 - [UC-036 UIElement Policy Coverage](../use-cases/UC-036_ui_element_policy_coverage.md)
+- [UC-027 Expression Composition](../use-cases/UC-027_expression_composition.md)

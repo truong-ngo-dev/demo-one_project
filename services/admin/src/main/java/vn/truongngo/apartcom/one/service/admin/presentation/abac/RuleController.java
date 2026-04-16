@@ -13,6 +13,8 @@ import vn.truongngo.apartcom.one.service.admin.application.rule.update_rule.Upda
 import vn.truongngo.apartcom.one.service.admin.application.rule.get_rule.GetRule;
 import vn.truongngo.apartcom.one.service.admin.application.rule.list_rules.ListRules;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
+import vn.truongngo.apartcom.one.service.admin.presentation.abac.model.ExpressionNodeRequest;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
 
 import java.util.List;
@@ -51,7 +53,8 @@ public class RuleController {
             @PathVariable Long policyId, @RequestBody RuleRequest request) {
         CreateRule.Result result = createHandler.handle(new CreateRule.Command(
                 policyId, request.name(), request.description(),
-                request.targetExpression(), request.conditionExpression(),
+                toExpressionNode(request.targetExpression()),
+                toExpressionNode(request.conditionExpression()),
                 Effect.valueOf(request.effect()), request.orderIndex()));
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(result));
     }
@@ -64,7 +67,8 @@ public class RuleController {
             @RequestBody RuleRequest request) {
         updateHandler.handle(new UpdateRule.Command(
                 policyId, ruleId, request.name(), request.description(),
-                request.targetExpression(), request.conditionExpression(),
+                toExpressionNode(request.targetExpression()),
+                toExpressionNode(request.conditionExpression()),
                 Effect.valueOf(request.effect())));
         return ResponseEntity.noContent().build();
     }
@@ -87,8 +91,15 @@ public class RuleController {
         return ResponseEntity.noContent().build();
     }
 
-    record RuleRequest(String name, String description, String targetExpression,
-                       String conditionExpression, String effect, Integer orderIndex) {}
+    private ExpressionNode toExpressionNode(ExpressionNodeRequest req) {
+        if (req == null) return null;
+        return req.toDomain();
+    }
+
+    record RuleRequest(String name, String description,
+                       ExpressionNodeRequest targetExpression,
+                       ExpressionNodeRequest conditionExpression,
+                       String effect, Integer orderIndex) {}
 
     record ReorderRequest(List<Long> ruleIds) {}
 }

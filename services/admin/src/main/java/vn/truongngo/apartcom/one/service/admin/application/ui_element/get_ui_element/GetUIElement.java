@@ -3,6 +3,7 @@ package vn.truongngo.apartcom.one.service.admin.application.ui_element.get_ui_el
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
 import vn.truongngo.apartcom.one.service.admin.application.rule.service.SpelExpressionAnalyzer;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
@@ -48,6 +49,7 @@ public class GetUIElement {
         private final ResourceDefinitionRepository resourceRepository;
         private final PolicySetRepository policySetRepository;
         private final PolicyRepository policyRepository;
+        private final ExpressionTreeService expressionTreeService;
 
         @Override
         public UIElementView handle(Query query) {
@@ -88,10 +90,8 @@ public class GetUIElement {
                 for (PolicyDefinition policy : policies) {
                     for (RuleDefinition rule : policy.getRules()) {
                         if (rule.getEffect() != Effect.PERMIT) continue;
-                        String target = rule.getTargetExpression() != null
-                                ? rule.getTargetExpression().spElExpression() : null;
-                        String condition = rule.getConditionExpression() != null
-                                ? rule.getConditionExpression().spElExpression() : null;
+                        String target = expressionTreeService.resolveFromNode(rule.getTargetExpression());
+                        String condition = expressionTreeService.resolveFromNode(rule.getConditionExpression());
                         SpelExpressionAnalyzer.AnalysisResult result =
                                 SpelExpressionAnalyzer.analyze(target, condition);
                         if (result.specificActions().isEmpty()

@@ -24,4 +24,8 @@ public class PolicyException extends DomainException {
     public static Exception policySetNameDuplicate() {
         return new PolicyException(PolicyErrorCode.DUPLICATE_POLICY_NAME);
     }
+
+    public static PolicyException namedExpressionInUse() {
+        return new PolicyException(PolicyErrorCode.NAMED_EXPRESSION_IN_USE);
+    }
 }

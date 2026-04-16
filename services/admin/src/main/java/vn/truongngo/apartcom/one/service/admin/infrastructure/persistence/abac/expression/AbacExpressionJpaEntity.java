@@ -31,6 +31,12 @@ public class AbacExpressionJpaEntity {
     @Column(name = "parent_id")
     private Long parentId;
 
+    @Column(name = "name", length = 200)
+    private String name;
+
+    @Column(name = "named_expression_id")
+    private Long namedExpressionId;
+
     public enum ExpressionType {
         LITERAL, COMPOSITION
     }

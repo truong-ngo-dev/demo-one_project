@@ -13,7 +13,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AbacAuditLogEve
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditActionType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditEntityType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.PolicySetId;
@@ -53,10 +53,10 @@ public class CreatePolicy {
             if (policySetRepository.findById(policySetId).isEmpty()) {
                 throw PolicyException.policyNotFound();
             }
-            ExpressionVO target = null;
+            ExpressionNode target = null;
             if (command.targetExpression() != null && !command.targetExpression().isBlank()) {
                 SpelValidator.validate(command.targetExpression());
-                target = ExpressionVO.create(command.targetExpression());
+                target = new ExpressionNode.Inline(null, command.targetExpression());
             }
             PolicyDefinition policy = PolicyDefinition.create(
                     policySetId, command.name(), target, command.combineAlgorithm());

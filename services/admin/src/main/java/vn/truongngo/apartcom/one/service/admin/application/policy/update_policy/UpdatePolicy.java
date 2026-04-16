@@ -13,7 +13,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AbacAuditLogEve
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditActionType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditEntityType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class UpdatePolicy {
 
-    public record Command(Long id, String targetExpression, CombineAlgorithmName combineAlgorithm) {
+    public record Command(Long id, ExpressionNode targetExpression, CombineAlgorithmName combineAlgorithm) {
         public Command {
             Assert.notNull(id, "id is required");
             Assert.notNull(combineAlgorithm, "combineAlgorithm is required");
@@ -45,13 +45,12 @@ public class UpdatePolicy {
         public Void handle(Command command) {
             PolicyDefinition policy = repository.findById(PolicyId.of(command.id()))
                     .orElseThrow(PolicyException::policyNotFound);
-            ExpressionVO target = null;
-            if (command.targetExpression() != null && !command.targetExpression().isBlank()) {
-                SpelValidator.validate(command.targetExpression());
-                ExpressionVO existing = policy.getTargetExpression();
-                Long existingId = existing != null ? existing.id() : null;
-                target = new ExpressionVO(existingId, command.targetExpression());
+
+            ExpressionNode target = command.targetExpression();
+            if (target instanceof ExpressionNode.Inline inline && inline.spel() != null && !inline.spel().isBlank()) {
+                SpelValidator.validate(inline.spel());
             }
+
             PolicyDefinition updated = policy.updatePolicy(target, command.combineAlgorithm());
             repository.save(updated);
 

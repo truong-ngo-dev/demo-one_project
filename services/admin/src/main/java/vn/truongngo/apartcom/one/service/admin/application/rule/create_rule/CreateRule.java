@@ -8,12 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.application.EventDispatcher;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AbacAuditLogEvent;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditActionType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.audit.AuditEntityType;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
-import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionVO;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public class CreateRule {
 
     public record Command(Long policyId, String name, String description,
-                          String targetExpression, String conditionExpression,
+                          ExpressionNode targetExpression, ExpressionNode conditionExpression,
                           Effect effect, int orderIndex) {
         public Command {
             Assert.notNull(policyId, "policyId is required");
@@ -44,6 +45,7 @@ public class CreateRule {
     public static class Handler implements CommandHandler<Command, Result> {
 
         private final PolicyRepository policyRepository;
+        private final ExpressionTreeService expressionTreeService;
         private final EventDispatcher eventDispatcher;
         private final ObjectMapper objectMapper;
 
@@ -60,12 +62,13 @@ public class CreateRule {
                     .map(r -> r.getId().getValue())
                     .collect(Collectors.toSet());
 
-            ExpressionVO target = resolveExpression(command.targetExpression(), null);
-            ExpressionVO condition = resolveExpression(command.conditionExpression(), null);
+            validateExpression(command.targetExpression());
+            validateExpression(command.conditionExpression());
 
             RuleDefinition rule = RuleDefinition.create(
                     policyId, command.name(), command.description(),
-                    target, condition, command.effect(), command.orderIndex());
+                    command.targetExpression(), command.conditionExpression(),
+                    command.effect(), command.orderIndex());
 
             PolicyDefinition updated = policy.addRule(rule);
             PolicyDefinition saved = policyRepository.save(updated);
@@ -75,11 +78,14 @@ public class CreateRule {
                     .findFirst()
                     .orElseThrow(PolicyException::ruleNotFound);
 
+            String resolvedTarget = expressionTreeService.resolveFromNode(newRule.getTargetExpression());
+            String resolvedCondition = expressionTreeService.resolveFromNode(newRule.getConditionExpression());
+
             String snapshot = objectMapper.writeValueAsString(Map.of(
                     "name", newRule.getName(),
                     "effect", newRule.getEffect().name(),
-                    "targetExpression", newRule.getTargetExpression() != null ? newRule.getTargetExpression().spElExpression() : "",
-                    "conditionExpression", newRule.getConditionExpression() != null ? newRule.getConditionExpression().spElExpression() : ""
+                    "targetExpression", resolvedTarget != null ? resolvedTarget : "",
+                    "conditionExpression", resolvedCondition != null ? resolvedCondition : ""
             ));
             eventDispatcher.dispatch(new AbacAuditLogEvent(
                     AuditEntityType.RULE, newRule.getId().getValue(), newRule.getName(),
@@ -88,10 +94,12 @@ public class CreateRule {
             return new Result(newRule.getId().getValue());
         }
 
-        private ExpressionVO resolveExpression(String spEl, Long existingId) {
-            if (spEl == null || spEl.isBlank()) return null;
-            SpelValidator.validate(spEl);
-            return new ExpressionVO(existingId, spEl);
+        private void validateExpression(ExpressionNode node) {
+            if (node == null) return;
+            String spel = expressionTreeService.resolveFromNode(node);
+            if (spel != null && !spel.isBlank()) {
+                SpelValidator.validate(spel);
+            }
         }
     }
 }

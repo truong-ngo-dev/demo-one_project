@@ -5,10 +5,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
+import vn.truongngo.apartcom.one.service.admin.application.rule.get_rule.GetRule;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.expression.NamedExpressionRepository;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyException;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyId;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyRepository;
-import vn.truongngo.apartcom.one.service.admin.application.rule.get_rule.GetRule;
 
 import java.util.List;
 
@@ -25,6 +27,8 @@ public class ListRules {
     public static class Handler implements QueryHandler<Query, List<GetRule.Result>> {
 
         private final PolicyRepository policyRepository;
+        private final ExpressionTreeService expressionTreeService;
+        private final NamedExpressionRepository namedExpressionRepository;
 
         @Override
         @Transactional(readOnly = true)
@@ -33,7 +37,7 @@ public class ListRules {
                     .orElseThrow(PolicyException::policyNotFound)
                     .getRules()
                     .stream()
-                    .map(GetRule.Handler::toResult)
+                    .map(r -> GetRule.Handler.toResult(r, expressionTreeService, namedExpressionRepository))
                     .toList();
         }
     }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.lib.common.application.QueryHandler;
+import vn.truongngo.apartcom.one.service.admin.application.expression.ExpressionTreeService;
 import vn.truongngo.apartcom.one.service.admin.application.rule.service.SpelExpressionAnalyzer;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.Effect;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.PolicyDefinition;
@@ -50,6 +51,7 @@ public class ListUncoveredUIElements {
         private final ResourceDefinitionRepository resourceRepository;
         private final PolicySetRepository policySetRepository;
         private final PolicyRepository policyRepository;
+        private final ExpressionTreeService expressionTreeService;
 
         @Override
         public List<UncoveredUIElement> handle(Query query) {
@@ -63,10 +65,8 @@ public class ListUncoveredUIElements {
                 for (PolicyDefinition policy : policies) {
                     for (RuleDefinition rule : policy.getRules()) {
                         if (rule.getEffect() != Effect.PERMIT) continue;
-                        String target = rule.getTargetExpression() != null
-                                ? rule.getTargetExpression().spElExpression() : null;
-                        String condition = rule.getConditionExpression() != null
-                                ? rule.getConditionExpression().spElExpression() : null;
+                        String target = expressionTreeService.resolveFromNode(rule.getTargetExpression());
+                        String condition = expressionTreeService.resolveFromNode(rule.getConditionExpression());
                         SpelExpressionAnalyzer.AnalysisResult result =
                                 SpelExpressionAnalyzer.analyze(target, condition);
                         if (result.specificActions().isEmpty()) {

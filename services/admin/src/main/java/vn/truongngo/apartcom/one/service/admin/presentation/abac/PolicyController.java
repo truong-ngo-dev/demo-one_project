@@ -13,6 +13,9 @@ import vn.truongngo.apartcom.one.service.admin.application.policy.update_policy.
 import vn.truongngo.apartcom.one.service.admin.application.policy.delete_preview.GetPolicyDeletePreview;
 import vn.truongngo.apartcom.one.service.admin.application.policy.get_policy.GetPolicy;
 import vn.truongngo.apartcom.one.service.admin.application.policy.list_policies.ListPolicies;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.ExpressionNode;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy.SpelValidator;
+import vn.truongngo.apartcom.one.service.admin.presentation.abac.model.ExpressionNodeRequest;
 import vn.truongngo.apartcom.one.service.admin.presentation.base.ApiResponse;
 
 import java.util.List;
@@ -50,8 +53,11 @@ public class PolicyController {
     @PreEnforce
     public ResponseEntity<ApiResponse<CreatePolicy.Result>> create(
             @RequestBody PolicyRequest request) {
+        // CreatePolicy.Command still takes a raw SpEL string (validated inline).
+        // For backward compat, accept either targetExpression string or targetExpressionNode.
+        String spel = resolveSpelFromRequest(request.targetExpression(), request.targetExpressionNode());
         CreatePolicy.Result result = createHandler.handle(new CreatePolicy.Command(
-                request.policySetId(), request.name(), request.targetExpression(),
+                request.policySetId(), request.name(), spel,
                 CombineAlgorithmName.valueOf(request.combineAlgorithm())));
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(result));
     }
@@ -61,7 +67,12 @@ public class PolicyController {
     @PreEnforce
     public ResponseEntity<Void> update(@PathVariable Long id,
                                         @RequestBody PolicyRequest request) {
-        updateHandler.handle(new UpdatePolicy.Command(id, request.targetExpression(),
+        ExpressionNode targetNode = request.targetExpressionNode() != null
+                ? request.targetExpressionNode().toDomain()
+                : (request.targetExpression() != null && !request.targetExpression().isBlank()
+                        ? new ExpressionNode.Inline(null, request.targetExpression())
+                        : null);
+        updateHandler.handle(new UpdatePolicy.Command(id, targetNode,
                 CombineAlgorithmName.valueOf(request.combineAlgorithm())));
         return ResponseEntity.noContent().build();
     }
@@ -82,6 +93,13 @@ public class PolicyController {
         return ResponseEntity.noContent().build();
     }
 
-    record PolicyRequest(Long policySetId, String name, String targetExpression,
+    private String resolveSpelFromRequest(String rawSpel, ExpressionNodeRequest nodeRequest) {
+        if (nodeRequest != null && nodeRequest.spel() != null) return nodeRequest.spel();
+        return rawSpel;
+    }
+
+    record PolicyRequest(Long policySetId, String name,
+                         String targetExpression,                  // legacy — plain SpEL string
+                         ExpressionNodeRequest targetExpressionNode, // new tree format
                          String combineAlgorithm) {}
 }
