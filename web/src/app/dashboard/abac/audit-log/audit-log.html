@@ -10,7 +10,7 @@
 
   <!-- Filters Row -->
   <div class="filter-row">
-    <mat-form-field appearance="outline" class="filter-select">
+    <mat-form-field appearance="outline" class="filter-select" floatLabel="always">
       <mat-label>Entity Type</mat-label>
       <mat-select [ngModel]="filterEntityType()" (ngModelChange)="filterEntityType.set($event); onFilterChange()">
         @for (opt of entityTypeOptions; track opt.value) {
@@ -19,7 +19,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="filter-input">
+    <mat-form-field appearance="outline" class="filter-input" floatLabel="always">
       <mat-label>Performed By</mat-label>
       <input matInput [ngModel]="filterPerformedBy()" (ngModelChange)="filterPerformedBy.set($event)"
              (keyup.enter)="onFilterChange()" placeholder="Username" />

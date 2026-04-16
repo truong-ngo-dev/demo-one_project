@@ -7,15 +7,15 @@
   <form [formGroup]="form" class="resource-form">
 
     <div class="basic-info-row">
-      <mat-form-field appearance="outline" class="flex-1 rule-dialog-field">
+      <mat-form-field appearance="outline" class="flex-1 rule-dialog-field" floatLabel="always">
         <mat-label>Name</mat-label>
         <input matInput formControlName="name" placeholder="e.g. Allow read for managers" />
         <mat-error>Name is required.</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" style="width: 140px" class="rule-dialog-field">
+      <mat-form-field appearance="outline" style="width: 140px" class="rule-dialog-field" floatLabel="always">
         <mat-label>Effect</mat-label>
-        <mat-select formControlName="effect">
+        <mat-select formControlName="effect" placeholder="Select effect">
           @for (e of effects; track e) {
             <mat-option [value]="e">{{ e }}</mat-option>
           }
@@ -23,11 +23,10 @@
       </mat-form-field>
     </div>
 
-    <mat-form-field appearance="outline" class="w-full rule-dialog-field">
+    <mat-form-field appearance="outline" class="w-full rule-dialog-field" floatLabel="always">
       <mat-label>Description (optional)</mat-label>
       <input matInput formControlName="description" placeholder="Short description of this rule" />
     </mat-form-field>
-
     <div class="expression-divider"></div>
 
     <!-- Target Expression -->

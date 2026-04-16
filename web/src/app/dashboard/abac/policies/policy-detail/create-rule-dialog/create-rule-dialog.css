@@ -32,16 +32,70 @@
   margin-bottom: 4px;
 }
 
-/* Ensure labels don't overlap by using standard MDC density adjustments if needed, 
-   but here we prefer keeping them standard for Dialogs to ensure readability. */
+.rule-dialog-field ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 44px !important;
+  font-size: 0.85rem !important;
+  background-color: #ffffff !important;
+}
+
+.rule-dialog-field ::ng-deep .mat-mdc-form-field-flex {
+  height: 44px !important;
+}
+
+.rule-dialog-field ::ng-deep .mat-mdc-floating-label {
+  font-size: 0.85rem !important;
+  top: 50% !important;
+  left: 0 !important;
+  display: flex !important;
+  align-items: center;
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+/* Fix label to border top when floating always */
+.rule-dialog-field.mat-mdc-form-field-label-always-float ::ng-deep .mat-mdc-floating-label {
+  transform: translateY(-28px) scale(0.75) !important;
+  background-color: #ffffff !important;
+  padding: 0 8px !important;
+  color: var(--text-secondary) !important;
+  z-index: 5 !important;
+  opacity: 1 !important;
+}
+
+.rule-dialog-field ::ng-deep .mat-mdc-form-field-label-wrapper {
+  overflow: visible !important;
+}
+
+.rule-dialog-field ::ng-deep .mat-mdc-form-field-infix {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.rule-dialog-field ::ng-deep input::placeholder,
+.rule-dialog-field ::ng-deep .mat-mdc-select-placeholder {
+  font-size: 0.8rem !important;
+  opacity: 0.5;
+}
+
+/* Adjust select value alignment and font size */
+.rule-dialog-field ::ng-deep .mat-mdc-select-value,
+.rule-dialog-field ::ng-deep .mat-mdc-select-placeholder {
+  font-size: 0.85rem !important;
+}
 
 .expression-section {
   margin-top: 16px;
   margin-bottom: 16px;
   padding: 16px;
   background: #f8fafc;
-  border: 1px solid var(--border-color);
+  border: 1px solid #cbd5e1; /* More prominent border */
   border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .expression-section-label {
