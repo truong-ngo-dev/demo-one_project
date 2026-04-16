@@ -1,0 +1,102 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>New UI Element</h1>
+  <p class="dialog-subtitle">Map a frontend element to a resource:action pair for policy-driven visibility.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="resource-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Element ID</mat-label>
+      <input matInput formControlName="elementId" placeholder="e.g. btn:employee:update" autocomplete="off" cdkFocusInitial />
+      @if (form.controls.elementId.hasError('required')) {
+        <mat-error>Element ID is required.</mat-error>
+      }
+      @if (elementIdError()) {
+        <mat-error>{{ elementIdError() }}</mat-error>
+      }
+      <mat-hint>Unique, immutable. Convention: {{ '{' }}type{{ '}' }}:{{ '{' }}resource{{ '}' }}:{{ '{' }}action-slug{{ '}' }}</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Label</mat-label>
+      <input matInput formControlName="label" placeholder="e.g. Edit Employee" autocomplete="off" />
+      @if (form.controls.label.hasError('required')) {
+        <mat-error>Label is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        @for (t of typeOptions; track t.value) {
+          <mat-option [value]="t.value">{{ t.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Group</mat-label>
+        <input matInput formControlName="elementGroup" placeholder="e.g. employee-detail-actions" autocomplete="off" />
+        <mat-hint>Optional — groups elements.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Order Index</mat-label>
+        <input matInput type="number" formControlName="orderIndex" min="0" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Resource</mat-label>
+        <mat-select formControlName="resourceId" (selectionChange)="onResourceChange($event.value)">
+          @for (r of resources(); track r.id) {
+            <mat-option [value]="r.id">{{ r.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.resourceId.hasError('required') && form.controls.resourceId.touched) {
+          <mat-error>Resource is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Action</mat-label>
+        <mat-select formControlName="actionId">
+          @for (a of availableActions(); track a.id) {
+            <mat-option [value]="a.id">{{ a.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.actionId.hasError('required') && form.controls.actionId.touched) {
+          <mat-error>Action is required.</mat-error>
+        }
+        @if (availableActions().length === 0 && form.controls.resourceId.value) {
+          <mat-hint>No actions available.</mat-hint>
+        } @else if (!form.controls.resourceId.value) {
+          <mat-hint>Select a resource first.</mat-hint>
+        }
+      </mat-form-field>
+    </div>
+
+    @if (generalError()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ generalError() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="create-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="18"></mat-spinner>
+      <span>Creating...</span>
+    } @else {
+      <span>Create UI Element</span>
+    }
+  </button>
+</mat-dialog-actions>

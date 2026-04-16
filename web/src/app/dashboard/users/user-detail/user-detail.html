@@ -6,12 +6,14 @@
   } @else if (user()) {
     <div class="page-header flex justify-between items-center mb-8">
       <div class="header-left flex items-center gap-4">
-        <button mat-icon-button (click)="goBack()" matTooltip="Back to users" class="bg-white border border-slate-200">
-          <mat-icon class="text-slate-600">arrow_back</mat-icon>
+        <button (click)="goBack()" 
+                matTooltip="Back to users" 
+                class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-all shadow-sm focus:outline-none">
+          <mat-icon class="text-slate-600" style="width: 24px; height: 24px; line-height: 24px;">arrow_back</mat-icon>
         </button>
         <div class="user-info flex items-center gap-3">
-          <h1 class="page-title text-2xl font-bold text-slate-900">{{ user()?.username }}</h1>
-          <span class="status-badge px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider" 
+          <h1 class="page-title text-2xl font-bold text-slate-900 m-0 leading-none">{{ user()?.username }}</h1>
+          <span class="status-badge px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider"
                 [class.status-active]="user()?.status === 'ACTIVE'"
                 [class.status-locked]="user()?.status === 'LOCKED'">
             {{ user()?.status }}
@@ -19,12 +21,14 @@
         </div>
       </div>
       <div class="header-actions">
-        <button mat-flat-button class="action-btn px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors" 
-                (click)="toggleLock()"
-                [color]="user()?.status === 'ACTIVE' ? 'warn' : 'primary'">
-          <mat-icon>{{ user()?.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
-          <span>{{ user()?.status === 'ACTIVE' ? 'Lock User' : 'Unlock User' }}</span>
-        </button>
+        @if (abacService.isPermitted('btn:user:lock')) {
+          <button mat-flat-button class="action-btn px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                  (click)="toggleLock()"
+                  [color]="user()?.status === 'ACTIVE' ? 'warn' : 'primary'">
+            <mat-icon>{{ user()?.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
+            <span>{{ user()?.status === 'ACTIVE' ? 'Lock User' : 'Unlock User' }}</span>
+          </button>
+        }
       </div>
     </div>
 
@@ -33,7 +37,7 @@
       <!-- ── Tab 1: Profile ── -->
       <mat-tab label="Profile">
         <div class="tab-content p-6 flex flex-col gap-8">
-          
+
           <!-- Profile Card -->
           <section class="detail-section">
             <h2 class="section-title text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
@@ -254,7 +258,7 @@
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="activityColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: activityColumns;" 
+                    <tr mat-row *matRowDef="let row; columns: activityColumns;"
                         class="hover:bg-slate-50 transition-colors"
                         [class.bg-red-50]="row.result !== 'SUCCESS'"></tr>
                   </table>

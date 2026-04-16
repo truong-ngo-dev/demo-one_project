@@ -116,6 +116,28 @@
   font-variation-settings: 'FILL' 1 !important;
 }
 
+.sidebar-item-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: auto !important; /* keep tooltip events */
+}
+
+.sidebar-item-disabled:hover {
+  background-color: transparent !important;
+}
+
+.sidebar-soon-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .sidebar-footer {
   flex-shrink: 0;
   padding-bottom: 16px;
@@ -511,6 +533,80 @@
 .badge.success { background-color: #dcfce7; color: #166534; }
 .badge.error { background-color: #fee2e2; color: #991b1b; }
 .badge.warning { background-color: #ffedd5; color: #9a3412; }
+
+/* --- COMPACT INPUTS (Global) --- */
+.tiny-field {
+  --mdc-outlined-text-field-container-height: 40px;
+  --mdc-outlined-text-field-label-text-size: 0.8rem;
+  --mdc-outlined-text-field-floating-label-text-size: 0.7rem;
+  font-size: 0.8rem !important;
+}
+
+::ng-deep .tiny-field input {
+  font-size: 0.8rem !important;
+}
+
+::ng-deep .tiny-field .mat-mdc-select-value {
+  font-size: 0.8rem !important;
+}
+
+::ng-deep .tiny-field input::placeholder {
+  font-size: 0.8rem !important;
+}
+
+::ng-deep .tiny-field .mat-mdc-text-field-wrapper {
+  height: 40px !important;
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+::ng-deep .tiny-field .mat-mdc-form-field-flex {
+  height: 40px !important;
+}
+
+::ng-deep .tiny-field .mat-mdc-form-field-infix {
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+}
+
+/* Ensure resting label is perfectly centered vertically and has correct size */
+::ng-deep .tiny-field .mdc-floating-label {
+  font-size: 0.8rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin: 0 !important;
+}
+
+/* Perfect floating position for 40px height */
+/* When it floats, it should sit on the border top. Since it's top: 50% (20px), 
+   moving it up another 22px-24px puts it perfectly on the border. */
+::ng-deep .tiny-field.mat-form-field-should-float .mdc-floating-label {
+  transform: translateY(-34px) scale(0.85) !important;
+}
+
+/* Hide placeholder when label is centered to avoid overlap */
+::ng-deep .tiny-field:not(.mat-form-field-should-float) input::placeholder {
+  color: transparent !important;
+}
+
+::ng-deep .tiny-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+/* Global Select Options font size reduction */
+::ng-deep .mat-mdc-option {
+  min-height: 32px !important;
+}
+::ng-deep .mat-mdc-option .mdc-list-item__primary-text {
+  font-size: 0.8rem !important;
+}
+
+.tiny-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1024px) {

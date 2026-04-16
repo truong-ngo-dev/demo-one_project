@@ -1,0 +1,49 @@
+@import '../../../dashboard.css';
+
+/* --- DIALOG LAYOUT --- */
+.dialog-header {
+  padding: 24px 24px 16px;
+}
+
+mat-dialog-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary);
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+.dialog-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+}
+
+mat-dialog-content {
+  padding: 0 24px 24px !important;
+  width: 600px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color);
+}
+
+/* --- CODE DISPLAY --- */
+.snapshot-code {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 0;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  max-height: 400px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

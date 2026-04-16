@@ -73,10 +73,12 @@
               <button mat-icon-button (click)="viewUser(user)" matTooltip="View details">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button (click)="toggleLock(user)"
-                      [matTooltip]="user.status === 'ACTIVE' ? 'Lock user' : 'Unlock user'">
-                <mat-icon>{{ user.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
-              </button>
+              @if (abacService.isPermitted('btn:user:lock')) {
+                <button mat-icon-button (click)="toggleLock(user)"
+                        [matTooltip]="user.status === 'ACTIVE' ? 'Lock user' : 'Unlock user'">
+                  <mat-icon>{{ user.status === 'ACTIVE' ? 'lock' : 'lock_open' }}</mat-icon>
+                </button>
+              }
             </td>
           </ng-container>
 

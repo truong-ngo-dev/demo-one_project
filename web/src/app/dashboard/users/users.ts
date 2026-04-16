@@ -13,9 +13,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AbacService } from '../../core/services/abac.service';
 import { UserService, UserStatus, UserSummary } from '../../core/services/user.service';
 import { CreateUserDialogComponent } from './create-user-dialog/create-user-dialog';
-import {LockConfirmDialogComponent} from './lock-confirm-dialog/lock-confirm-dialog';
+import { LockConfirmDialogComponent } from './lock-confirm-dialog/lock-confirm-dialog';
 
 @Component({
   selector: 'app-users',
@@ -43,6 +44,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private destroy$ = new Subject<void>();
   private keywordSubject = new Subject<string>();
+  readonly abacService = inject(AbacService);
 
   users = signal<UserSummary[]>([]);
   isLoading = signal(false);
@@ -81,7 +83,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   loadUsers(kw?: string): void {
     this.isLoading.set(true);
     const status = this.statusFilter() || undefined;
-    this.userService.getUsers({ keyword: (kw ?? this.keyword()) || undefined, status }).subscribe({
+    this.userService.getUsers({ keyword: (kw ?? this.keyword()) || undefined, status, size: 100 }).subscribe({
       next: result => {
         this.users.set(result.data);
         this.isLoading.set(false);

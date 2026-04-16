@@ -1,0 +1,82 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title>Confirm Rule Change</h2>
+  <p class="dialog-subtitle">Review the impact before saving</p>
+</div>
+
+<mat-dialog-content>
+
+  @if (impact.parseWarning) {
+    <div class="parse-warning">
+      <mat-icon>warning_amber</mat-icon>
+      <div class="warning-content">
+        <strong>Limited Analysis:</strong>
+        <span>{{ impact.parseWarning }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="impact-section">
+    <div class="impact-label">Required Roles</div>
+    <div class="chip-list">
+      @for (role of impact.requiredRoles; track role) {
+        <span class="impact-chip role-chip">{{ role }}</span>
+      } @empty {
+        <span class="empty-text">Any</span>
+      }
+    </div>
+  </div>
+
+  <div class="impact-section">
+    <div class="impact-label">Required Attributes</div>
+    <div class="chip-list">
+      @for (attr of impact.requiredAttributes; track attr) {
+        <span class="impact-chip attribute-chip">{{ attr }}</span>
+      } @empty {
+        <span class="empty-text">-</span>
+      }
+    </div>
+  </div>
+
+  <div class="impact-section">
+    <div class="impact-label">Affected Actions</div>
+    <div class="chip-list">
+      @for (action of impact.specificActions; track action) {
+        <span class="impact-chip action-chip">{{ action }}</span>
+      } @empty {
+        <span class="empty-text">All actions</span>
+      }
+    </div>
+  </div>
+
+  <div class="indicator-group">
+    <div class="indicator-row">
+      <mat-icon [class.success]="impact.navigableWithoutData" [class.neutral]="!impact.navigableWithoutData">
+        {{ impact.navigableWithoutData ? 'check_circle' : 'info' }}
+      </mat-icon>
+      <div class="indicator-text">
+        <div class="indicator-label">
+          {{ impact.navigableWithoutData ? 'Accessible without instance data' : 'Requires instance data' }}
+        </div>
+        <div class="indicator-hint">
+          {{ impact.navigableWithoutData ? 'Rule applies at navigation level (menu/button visibility)' : 'Rule only evaluates correctly when object data is provided' }}
+        </div>
+      </div>
+    </div>
+
+    @if (impact.hasInstanceCondition) {
+      <div class="indicator-row">
+        <mat-icon class="neutral">data_object</mat-icon>
+        <div class="indicator-text">
+          <div class="indicator-label">Has instance-level conditions</div>
+          <div class="indicator-hint">Impact on specific records depends on their field values</div>
+        </div>
+      </div>
+    }
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="confirm-save-btn" (click)="confirm()">Confirm & Save</button>
+</mat-dialog-actions>

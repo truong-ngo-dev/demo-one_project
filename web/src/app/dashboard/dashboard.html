@@ -16,26 +16,82 @@
 
       <div class="sidebar-section-title">Management</div>
       <mat-nav-list class="sidebar-nav-list">
-        <mat-list-item class="sidebar-item" routerLink="users" routerLinkActive="active">
-          <mat-icon matListItemIcon>group</mat-icon>
-          <span matListItemTitle>Users</span>
+        @if (abacService.isPermitted('route:users')) {
+          <mat-list-item class="sidebar-item" routerLink="users" routerLinkActive="active">
+            <mat-icon matListItemIcon>group</mat-icon>
+            <span matListItemTitle>Users</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:roles')) {
+          <mat-list-item class="sidebar-item" routerLink="roles" routerLinkActive="active">
+            <mat-icon matListItemIcon>shield</mat-icon>
+            <span matListItemTitle>Roles</span>
+          </mat-list-item>
+        }
+        <!-- Phase A placeholder — requires Organization aggregate -->
+        <mat-list-item class="sidebar-item sidebar-item-disabled"
+                       matTooltip="Khả dụng sau khi triển khai Organization Management"
+                       matTooltipPosition="right">
+          <mat-icon matListItemIcon>business</mat-icon>
+          <span matListItemTitle>Organizations</span>
+          <span class="sidebar-soon-badge">Soon</span>
         </mat-list-item>
-        <mat-list-item class="sidebar-item" routerLink="roles" routerLinkActive="active">
-          <mat-icon matListItemIcon>shield</mat-icon>
-          <span matListItemTitle>Roles</span>
-        </mat-list-item>
+      </mat-nav-list>
+
+      <div class="sidebar-section-title">ACCESS CONTROL</div>
+      <mat-nav-list class="sidebar-nav-list">
+        @if (abacService.isPermitted('route:abac:resources')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/resources" routerLinkActive="active">
+            <mat-icon matListItemIcon>policy</mat-icon>
+            <span matListItemTitle>Resources</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:abac:policy-sets')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/policy-sets" routerLinkActive="active">
+            <mat-icon matListItemIcon>account_tree</mat-icon>
+            <span matListItemTitle>Policy Sets</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:abac:ui-elements')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/ui-elements" routerLinkActive="active">
+            <mat-icon matListItemIcon>widgets</mat-icon>
+            <span matListItemTitle>UI Elements</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:abac:expressions')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/expressions" routerLinkActive="active">
+            <mat-icon matListItemIcon>auto_awesome</mat-icon>
+            <span matListItemTitle>Expressions</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:abac:simulator')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/simulator" routerLinkActive="active">
+            <mat-icon matListItemIcon>science</mat-icon>
+            <span matListItemTitle>Simulator</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:abac:audit-log')) {
+          <mat-list-item class="sidebar-item" routerLink="abac/audit-log" routerLinkActive="active">
+            <mat-icon matListItemIcon>history</mat-icon>
+            <span matListItemTitle>Audit Log</span>
+          </mat-list-item>
+        }
       </mat-nav-list>
 
       <div class="sidebar-section-title">Monitoring</div>
       <mat-nav-list class="sidebar-nav-list">
-        <mat-list-item class="sidebar-item" routerLink="active-sessions" routerLinkActive="active">
-          <mat-icon matListItemIcon>devices</mat-icon>
-          <span matListItemTitle>Sessions</span>
-        </mat-list-item>
-        <mat-list-item class="sidebar-item" routerLink="login-activities" routerLinkActive="active">
-          <mat-icon matListItemIcon>history</mat-icon>
-          <span matListItemTitle>Login Activities</span>
-        </mat-list-item>
+        @if (abacService.isPermitted('route:active-sessions')) {
+          <mat-list-item class="sidebar-item" routerLink="active-sessions" routerLinkActive="active">
+            <mat-icon matListItemIcon>devices</mat-icon>
+            <span matListItemTitle>Sessions</span>
+          </mat-list-item>
+        }
+        @if (abacService.isPermitted('route:login-activities')) {
+          <mat-list-item class="sidebar-item" routerLink="login-activities" routerLinkActive="active">
+            <mat-icon matListItemIcon>history</mat-icon>
+            <span matListItemTitle>Login Activities</span>
+          </mat-list-item>
+        }
       </mat-nav-list>
     </div>
 

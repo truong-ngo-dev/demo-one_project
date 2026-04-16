@@ -1,0 +1,56 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title>New Policy Set</h2>
+  <p class="dialog-subtitle">Create a new container for your policies and nested policy sets.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="resource-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. Admin Policy Set" />
+      <mat-error>Name is required.</mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Scope</mat-label>
+        <mat-select formControlName="scope">
+          @for (s of scopes; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Combine Algorithm</mat-label>
+        <mat-select formControlName="combineAlgorithm">
+          @for (algo of algorithms; track algo) {
+            <mat-option [value]="algo">{{ algo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-checkbox formControlName="isRoot">Mark as Root Policy Set</mat-checkbox>
+
+    @if (nameError() || generalError()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ nameError() || generalError() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isSubmitting()">Cancel</button>
+  <button mat-flat-button class="create-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) { 
+      <mat-spinner diameter="18"></mat-spinner> 
+    } @else { 
+      Create Policy Set
+    }
+  </button>
+</mat-dialog-actions>

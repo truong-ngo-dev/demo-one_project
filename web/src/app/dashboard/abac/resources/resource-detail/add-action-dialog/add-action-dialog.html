@@ -1,0 +1,48 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>Add Action</h1>
+  <p class="dialog-subtitle px-6">Add an action to this resource.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="action-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Action Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. LOCK" autocomplete="off" cdkFocusInitial />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name is required.</mat-error>
+      }
+      @if (nameError()) {
+        <mat-error>{{ nameError() }}</mat-error>
+      }
+      <mat-hint>Cannot be changed after creation.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="2" placeholder="What does this action do?"></textarea>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isStandard">Standard action (LIST / READ / CREATE / UPDATE / DELETE)</mat-checkbox>
+
+    @if (generalError()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ generalError() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="add-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Adding...</span>
+    } @else {
+      <span>Add Action</span>
+    }
+  </button>
+</mat-dialog-actions>

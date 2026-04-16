@@ -1,0 +1,130 @@
+<div class="page-container">
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (resource()) {
+
+    <!-- Page Header -->
+    <div class="page-header mb-8">
+      <div class="header-left flex items-center gap-4">
+        <button (click)="goBack()" 
+                matTooltip="Back to Resources" 
+                class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-all shadow-sm focus:outline-none">
+          <mat-icon class="text-slate-600" style="width: 24px; height: 24px; line-height: 24px;">arrow_back</mat-icon>
+        </button>
+        <div class="flex flex-col justify-center">
+          <h1 class="page-title text-2xl font-bold text-slate-900 m-0 leading-none">{{ resource()!.name }}</h1>
+          <p class="page-subtitle text-sm text-slate-500 m-0 mt-1 leading-none">{{ resource()!.serviceName }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resource Meta Form -->
+    <div class="section-card">
+      <h2 class="section-title">Details</h2>
+      <form [formGroup]="form" class="details-form">
+
+        <div class="field-readonly">
+          <span class="field-label">Name</span>
+          <span class="field-value immutable-chip">{{ resource()!.name }}</span>
+          <span class="field-hint">Immutable — cannot be changed</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Service Name</mat-label>
+          <input matInput formControlName="serviceName" />
+          @if (form.controls.serviceName.hasError('required')) {
+            <mat-error>Service name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        @if (saveError()) {
+          <div class="error-banner">
+            <mat-icon class="error-icon">error</mat-icon>
+            <span>{{ saveError() }}</span>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button mat-flat-button class="save-btn" (click)="saveResource()" [disabled]="form.invalid || isSaving()">
+            @if (isSaving()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Saving...</span>
+            } @else {
+              <span>Save Changes</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Actions</h2>
+        <button mat-stroked-button class="add-action-btn" (click)="openAddActionDialog()">
+          <mat-icon>add</mat-icon>
+          <span>Add Action</span>
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="resource()!.actions" class="actions-table">
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let action">
+            <span class="action-name-chip">{{ action.name }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let action">{{ action.description }}</td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="isStandard">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let action">
+            @if (action.isStandard) {
+              <mat-chip class="standard-chip">Standard</mat-chip>
+            } @else {
+              <mat-chip class="custom-chip">Custom</mat-chip>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Row Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>ACTIONS</th>
+          <td mat-cell *matCellDef="let action">
+            <button mat-icon-button color="warn" (click)="deleteAction(action)" matTooltip="Delete action">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="actionColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: actionColumns"></tr>
+
+        <tr class="mat-mdc-no-data-row" *matNoDataRow>
+          <td [attr.colspan]="actionColumns.length" class="no-data-cell">
+            <p>No actions defined. Add an action to get started.</p>
+          </td>
+        </tr>
+
+      </table>
+    </div>
+
+  }
+
+</div>

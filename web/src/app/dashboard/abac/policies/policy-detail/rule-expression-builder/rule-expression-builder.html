@@ -1,0 +1,253 @@
+<div class="builder-container">
+
+  <!-- Header: wrap actions (left) + mode switch (right) -->
+  <div class="builder-mode-header">
+    <div class="wrap-actions">
+      @if (activeTab() === 'builder') {
+        <button type="button" class="wrap-pill-btn" (click)="wrapInBlock('AND')">
+          <mat-icon>layers</mat-icon>
+          Wrap Group
+        </button>
+      }
+    </div>
+    <div class="mode-pill-group">
+      <button type="button" class="mode-pill-btn" [class.active]="activeTab() === 'builder'"
+              (click)="switchTab('builder')">Builder</button>
+      <button type="button" class="mode-pill-btn" [class.active]="activeTab() === 'library'"
+              (click)="switchTab('library')">Library</button>
+      <button type="button" class="mode-pill-btn" [class.active]="activeTab() === 'raw'"
+              (click)="switchTab('raw')">Raw</button>
+    </div>
+  </div>
+
+  <div class="builder-content-area">
+    <!-- ── BUILDER TAB ─────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'builder') {
+      <div class="builder-tab-form">
+        <mat-form-field appearance="outline" class="raw-name-field expression-builder-field" floatLabel="always">
+          <mat-label>
+            Name *
+            <mat-icon class="label-info-icon" matTooltip="Tên gợi nhớ để tái sử dụng trong Expression Library">info_outline</mat-icon>
+          </mat-label>
+          <input matInput placeholder="e.g. Là admin, Cùng tenant"
+                 [value]="rawName()"
+                 (input)="onRawNameInput($any($event.target).value)" />
+        </mat-form-field>
+
+        <div class="single-condition-container">
+          @if (conditions().length > 0) {
+            @let row = conditions()[0];
+            <div class="condition-grid">
+              <!-- Condition Type always takes 1/2 width -->
+              <mat-form-field appearance="outline" class="condition-type-field expression-builder-field" floatLabel="always">
+                <mat-label>Condition Type</mat-label>
+                <mat-select [value]="row.type"
+                            (selectionChange)="updateConditionType(row.id, $event.value)">
+                  @for (opt of conditionOptions; track opt.value) {
+                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Param fields are placed directly in the grid -->
+              @if (row.type === 'subject_has_role') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Role</mat-label>
+                  <input matInput placeholder="e.g. MANAGER"
+                         [value]="row.params['role'] || ''"
+                         (input)="updateParam(row.id, 'role', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'subject_attr_contains') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Attribute</mat-label>
+                  <input matInput placeholder="attr"
+                         [value]="row.params['attribute'] || ''"
+                         (input)="updateParam(row.id, 'attribute', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Value</mat-label>
+                  <input matInput placeholder="val"
+                         [value]="row.params['value'] || ''"
+                         (input)="updateParam(row.id, 'value', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'subject_attr_equals') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Attribute</mat-label>
+                  <input matInput placeholder="attr"
+                         [value]="row.params['attribute'] || ''"
+                         (input)="updateParam(row.id, 'attribute', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Value</mat-label>
+                  <input matInput placeholder="val"
+                         [value]="row.params['value'] || ''"
+                         (input)="updateParam(row.id, 'value', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'action_is') {
+                @if (resourceActions.length > 0) {
+                  <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                    <mat-label>Action</mat-label>
+                    <mat-select [value]="row.params['action'] || ''"
+                                (selectionChange)="updateParam(row.id, 'action', $event.value)">
+                      @for (a of resourceActions; track a.id) {
+                        <mat-option [value]="a.name">{{ a.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                } @else {
+                  <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                    <mat-label>Action name</mat-label>
+                    <input matInput placeholder="e.g. READ"
+                           [value]="row.params['action'] || ''"
+                           (input)="updateParam(row.id, 'action', $any($event.target).value)" />
+                  </mat-form-field>
+                }
+              }
+              @if (row.type === 'action_is_one_of') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field param-full-width" floatLabel="always">
+                  <mat-label>Actions</mat-label>
+                  <input matInput placeholder="READ, UPDATE"
+                         [value]="row.params['actions'] || ''"
+                         (input)="updateParam(row.id, 'actions', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'navigation_only') {
+                <div class="static-hint-container">
+                  <span class="static-hint tiny-text">
+                    <mat-icon>explore</mat-icon>
+                    No instance data
+                  </span>
+                </div>
+              }
+              @if (row.type === 'navigation_or_instance') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field param-full-width" floatLabel="always">
+                  <mat-label>Instance SpEL</mat-label>
+                  <input matInput placeholder="object.data.field == ..."
+                         [value]="row.params['instanceCondition'] || ''"
+                         (input)="updateParam(row.id, 'instanceCondition', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'instance_field_equals') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Field</mat-label>
+                  <input matInput placeholder="field"
+                         [value]="row.params['field'] || ''"
+                         (input)="updateParam(row.id, 'field', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Value</mat-label>
+                  <input matInput placeholder="val"
+                         [value]="row.params['value'] || ''"
+                         (input)="updateParam(row.id, 'value', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'instance_field_contains') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Field</mat-label>
+                  <input matInput placeholder="field"
+                         [value]="row.params['field'] || ''"
+                         (input)="updateParam(row.id, 'field', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Value</mat-label>
+                  <input matInput placeholder="val"
+                         [value]="row.params['value'] || ''"
+                         (input)="updateParam(row.id, 'value', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'subject_attr_contains_field') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Subj attr</mat-label>
+                  <input matInput placeholder="attr"
+                         [value]="row.params['attribute'] || ''"
+                         (input)="updateParam(row.id, 'attribute', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Obj field</mat-label>
+                  <input matInput placeholder="field"
+                         [value]="row.params['field'] || ''"
+                         (input)="updateParam(row.id, 'field', $any($event.target).value)" />
+                </mat-form-field>
+              }
+              @if (row.type === 'subject_attr_equals_field') {
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Subj attr</mat-label>
+                  <input matInput placeholder="attr"
+                         [value]="row.params['attribute'] || ''"
+                         (input)="updateParam(row.id, 'attribute', $any($event.target).value)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="param-field expression-builder-field" floatLabel="always">
+                  <mat-label>Obj field</mat-label>
+                  <input matInput placeholder="field"
+                         [value]="row.params['field'] || ''"
+                         (input)="updateParam(row.id, 'field', $any($event.target).value)" />
+                </mat-form-field>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── LIBRARY TAB ─────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'library') {
+      <div class="library-container">
+        <mat-form-field appearance="outline" class="library-select-field expression-builder-field" floatLabel="always">
+          <mat-label>
+            Select from Library
+            <mat-icon class="label-info-icon" matTooltip="Chọn các biểu thức đã đặt tên để tái sử dụng">info_outline</mat-icon>
+          </mat-label>
+          <mat-select [value]="selectedRefId()" (selectionChange)="selectLibraryItem($event.value)"
+                      placeholder="Choose a named expression...">
+            <mat-select-trigger>
+              {{ getSelectedExpressionName() }}
+            </mat-select-trigger>
+
+            <ngx-mat-select-search [placeholderLabel]="'Search expressions...'"
+                                   [noEntriesFoundLabel]="'No matching expressions'"
+                                   [formControl]="librarySearchControl">
+            </ngx-mat-select-search>
+            
+            @if (!libraryLoaded()) {
+              <mat-option disabled>Loading...</mat-option>
+            } @else {
+              @for (expr of filteredExpressions(); track expr.id) {
+                <mat-option [value]="expr.id">
+                  <div class="library-option-content">
+                    <span class="option-name text-truncate">{{ expr.name }}</span>
+                    <span class="option-spel text-truncate">{{ expr.spel }}</span>
+                  </div>
+                </mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    <!-- ── RAW TAB ─────────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'raw') {
+      <div class="raw-container">
+        <mat-form-field appearance="outline" class="raw-name-field expression-builder-field" floatLabel="always">
+          <mat-label>
+            Name *
+            <mat-icon class="label-info-icon" matTooltip="Bắt buộc — tên gợi nhớ để tái sử dụng">info_outline</mat-icon>
+          </mat-label>
+          <input matInput
+                 placeholder="e.g. Là admin, Cùng tenant"
+                 [value]="rawName()"
+                 (input)="onRawNameInput($any($event.target).value)" />
+        </mat-form-field>
+        <textarea class="spel-raw-textarea"
+                  [value]="rawSpel()"
+                  (input)="onRawSpelInput($any($event.target).value)"
+                  rows="3"
+                  placeholder="Enter SpEL expression..."></textarea>
+      </div>
+    }
+  </div>
+
+</div>

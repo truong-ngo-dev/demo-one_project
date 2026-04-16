@@ -1,0 +1,150 @@
+<div class="page-container">
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (policy()) {
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a class="breadcrumb-link" (click)="goBack()">Policy Sets</a>
+      <span class="breadcrumb-sep">/</span>
+      <a class="breadcrumb-link" (click)="goToPolicySet()">{{ policySetName() }}</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ policy()!.name }}</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">{{ policy()!.name }}</h1>
+        <p class="page-subtitle">Configure combine algorithm and target expression for this policy.</p>
+      </div>
+    </div>
+
+    <!-- Policy settings -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Policy Configuration</h2>
+      </div>
+
+      <form [formGroup]="form" class="details-form">
+
+        <div class="spel-field-group">
+          <label class="spel-label">Target Expression</label>
+          <textarea formControlName="targetExpression" class="spel-textarea"
+                    rows="4" placeholder="e.g. resource.name == 'employee'"></textarea>
+          <div class="spel-hint">SpEL expression — leave empty to match all requests.</div>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Combine Algorithm</mat-label>
+          <mat-select formControlName="combineAlgorithm">
+            @for (algo of algorithms; track algo) {
+              <mat-option [value]="algo">{{ algo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (saveError()) {
+          <div class="error-banner">
+            <mat-icon class="error-icon">error</mat-icon>
+            <span>{{ saveError() }}</span>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button mat-flat-button class="save-btn" (click)="save()"
+                  [disabled]="form.invalid || !form.dirty || isSaving()">
+            @if (isSaving()) { <mat-spinner diameter="18"></mat-spinner> } @else { Save Changes }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Rules section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Rules</h2>
+        <button mat-flat-button class="add-rule-btn" (click)="openAddRuleDialog()">
+          <mat-icon>add</mat-icon>
+          <span>Add Rule</span>
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="sortedRules()" class="actions-table">
+
+          <!-- Order Column -->
+          <ng-container matColumnDef="order">
+            <th mat-header-cell *matHeaderCellDef>Order</th>
+            <td mat-cell *matCellDef="let rule; let i = index">
+              <div class="order-cell">
+                <span class="order-handle" matTooltip="Reorder rules">⋮⋮</span>
+                <div class="order-actions">
+                  <button mat-icon-button [disabled]="i === 0" (click)="moveUp(rule); $event.stopPropagation()" matTooltip="Move Up">
+                    <mat-icon>expand_less</mat-icon>
+                  </button>
+                  <button mat-icon-button [disabled]="i === sortedRules().length - 1" (click)="moveDown(rule); $event.stopPropagation()" matTooltip="Move Down">
+                    <mat-icon>expand_more</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let rule">
+              <div class="rule-name-info">
+                <span class="rule-name">{{ rule.name }}</span>
+                @if (rule.description) {
+                  <span class="rule-description">{{ rule.description }}</span>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Effect Column -->
+          <ng-container matColumnDef="effect">
+            <th mat-header-cell *matHeaderCellDef>Effect</th>
+            <td mat-cell *matCellDef="let rule">
+              <span class="effect-badge effect-{{ rule.effect.toLowerCase() }}">{{ rule.effect }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Row Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let rule" class="actions-cell">
+              <button mat-icon-button (click)="openEditRuleDialog(rule)" matTooltip="Edit rule">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteRule(rule); $event.stopPropagation()" matTooltip="Remove rule">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="ruleColumns"></tr>
+          <tr mat-row *matRowDef="let rule; columns: ruleColumns;"></tr>
+
+          <!-- Empty state in table -->
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="ruleColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">rule</mat-icon>
+                <p class="empty-state-title">No Rules</p>
+                <p class="empty-state-subtitle">Add rules to this policy to define access control logic.</p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    </div>
+
+  }
+</div>

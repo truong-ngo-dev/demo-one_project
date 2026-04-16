@@ -1,0 +1,50 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title>Add Policy</h2>
+  <p class="dialog-subtitle">Create a new policy to define specific access control rules.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="resource-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. Employee Access Policy" />
+      <mat-error>Name is required.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Combine Algorithm</mat-label>
+      <mat-select formControlName="combineAlgorithm">
+        @for (algo of algorithms; track algo) {
+          <mat-option [value]="algo">{{ algo }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="spel-field-group">
+      <label class="spel-label">Target Expression</label>
+      <textarea matInput formControlName="targetExpression" rows="4"
+                placeholder="e.g. resource.name == 'employee'" class="spel-textarea"></textarea>
+      <div class="spel-hint">SpEL expression — leave empty to match all requests.</div>
+    </div>
+
+    @if (spelError() || generalError()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ spelError() || generalError() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isSubmitting()">Cancel</button>
+  <button mat-flat-button class="create-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) { 
+      <mat-spinner diameter="18"></mat-spinner> 
+    } @else { 
+      Create Policy
+    }
+  </button>
+</mat-dialog-actions>

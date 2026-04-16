@@ -1,0 +1,54 @@
+<div class="dialog-header">
+  <h1 mat-dialog-title>New Resource</h1>
+  <p class="dialog-subtitle px-6">Define a new resource for ABAC policy management.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="resource-form">
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Resource Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. employee" autocomplete="off" cdkFocusInitial />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name is required.</mat-error>
+      }
+      @if (nameError()) {
+        <mat-error>{{ nameError() }}</mat-error>
+      }
+      <mat-hint>Unique identifier. Cannot be changed after creation.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Service Name</mat-label>
+      <input matInput formControlName="serviceName" placeholder="e.g. admin-service" autocomplete="off" />
+      @if (form.controls.serviceName.hasError('required')) {
+        <mat-error>Service name is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="A short summary of this resource."></textarea>
+    </mat-form-field>
+
+    @if (generalError()) {
+      <div class="error-banner">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ generalError() }}</span>
+      </div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="create-btn" (click)="submit()" [disabled]="form.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Creating...</span>
+    } @else {
+      <span>Create Resource</span>
+    }
+  </button>
+</mat-dialog-actions>

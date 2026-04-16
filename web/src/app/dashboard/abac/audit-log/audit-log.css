@@ -1,0 +1,226 @@
+@import '../../dashboard.css';
+
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* --- FILTERS --- */
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-select {
+  width: 200px;
+}
+
+.filter-input {
+  width: 200px;
+}
+
+.search-btn {
+  height: 48px !important;
+  border-radius: 8px !important;
+  color: var(--text-secondary) !important;
+}
+
+.total-count-badge {
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  padding: 2px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+/* --- TABLE --- */
+.table-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.audit-table {
+  width: 100%;
+}
+
+.audit-table .mat-mdc-header-row {
+  background-color: #f8fafc;
+}
+
+.audit-table .mat-mdc-header-cell {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.audit-table .mat-mdc-row {
+  transition: background-color 0.15s;
+}
+
+.audit-table .mat-mdc-row:hover {
+  background-color: #f8fafc;
+}
+
+.audit-table .mat-mdc-cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Column Widths */
+.mat-column-time { width: 160px; }
+.mat-column-entityType { width: 130px; }
+.mat-column-entityName { flex: 1; }
+.mat-column-action { width: 110px; }
+.mat-column-performedBy { flex: 1; }
+.mat-column-snapshot { width: 80px; text-align: center; }
+
+/* --- CELLS --- */
+.time-cell {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.entity-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+}
+
+.entity-id-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-left: 6px;
+  opacity: 0.6;
+}
+
+.performer-cell {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  white-space: nowrap;
+}
+
+.snapshot-cell {
+  text-align: center;
+}
+
+.snapshot-btn {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.snapshot-btn:hover {
+  opacity: 1;
+}
+
+.no-snapshot {
+  color: var(--border-color);
+}
+
+/* --- BADGES --- */
+.entity-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+}
+
+.entity-badge-policy-set { background-color: #eff6ff; color: #1d4ed8; }
+.entity-badge-policy     { background-color: #f0fdf4; color: #15803d; }
+.entity-badge-rule       { background-color: #faf5ff; color: #6b21a8; }
+.entity-badge-ui-element { background-color: #fff7ed; color: #c2410c; }
+
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.action-badge-created { background-color: #f0fdf4; color: #15803d; }
+.action-badge-updated { background-color: #fef3c7; color: #92400e; }
+.action-badge-deleted { background-color: #fef2f2; color: #dc2626; }
+
+/* --- PAGINATOR --- */
+mat-paginator {
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+  background: transparent !important;
+}
+
+/* --- EMPTY STATE --- */
+.no-data-cell {
+  padding: 64px 0;
+  text-align: center;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.empty-state-subtitle {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* --- LOADING --- */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+}

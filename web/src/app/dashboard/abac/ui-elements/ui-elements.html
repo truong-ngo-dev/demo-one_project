@@ -1,0 +1,143 @@
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">UI Elements</h1>
+      <p class="page-subtitle">Map frontend buttons, tabs, and menu items to resource:action pairs for policy-driven visibility.</p>
+    </div>
+    <div class="header-right">
+      <button mat-flat-button class="create-resource-btn" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        <span>New UI Element</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Coverage Warning Banner -->
+  @if (uncoveredCount() > 0) {
+    <div class="coverage-warning-banner">
+      <mat-icon>warning</mat-icon>
+      <span class="warning-text">{{ uncoveredCount() }} UI element(s) have no policy coverage — they will be hidden from all users.</span>
+      <button mat-button class="show-uncovered-btn" (click)="filterUncovered()">Show only uncovered</button>
+    </div>
+  }
+
+  <!-- Filters Row -->
+  <div class="filter-row">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Resource</mat-label>
+      <mat-select [ngModel]="selectedResource()" (ngModelChange)="selectedResource.set($event); onFilterChange()">
+        <mat-option [value]="null">All Resources</mat-option>
+        @for (r of resources(); track r.id) {
+          <mat-option [value]="r.id">{{ r.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Type</mat-label>
+      <mat-select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onFilterChange()">
+        @for (t of typeOptions; track t.value) {
+          <mat-option [value]="t.value">{{ t.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Content -->
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="elements()" class="resources-table">
+
+          <!-- Element ID Column -->
+          <ng-container matColumnDef="elementId">
+            <th mat-header-cell *matHeaderCellDef>ELEMENT ID</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="element-id-badge">{{ e.elementId }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Label Column -->
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>LABEL</th>
+            <td mat-cell *matCellDef="let e">{{ e.label }}</td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>TYPE</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="type-badge type-{{ e.type.toLowerCase() }}">{{ e.type }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Resource Column -->
+          <ng-container matColumnDef="resourceName">
+            <th mat-header-cell *matHeaderCellDef>RESOURCE</th>
+            <td mat-cell *matCellDef="let e">{{ e.resourceName }}</td>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="actionName">
+            <th mat-header-cell *matHeaderCellDef>ACTION</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="action-chip">{{ e.actionName }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Coverage Column -->
+          <ng-container matColumnDef="coverage">
+            <th mat-header-cell *matHeaderCellDef class="coverage-header">COVERAGE</th>
+            <td mat-cell *matCellDef="let e" class="coverage-cell">
+              @if (e.hasPolicyCoverage) {
+                <mat-icon class="coverage-verified" matTooltip="Policy coverage active">verified</mat-icon>
+              } @else {
+                <mat-icon class="coverage-warn" matTooltip="No policy — element hidden from all users">warning</mat-icon>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Row Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>ACTION</th>
+            <td mat-cell *matCellDef="let e" class="actions-cell">
+              <button mat-icon-button (click)="$event.stopPropagation(); goToDetail(e)" matTooltip="View & edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteElement(e)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"
+              class="table-row clickable-row"
+              (click)="goToDetail(row)"></tr>
+
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">widgets</mat-icon>
+                <p class="empty-state-title">No UI Elements Found</p>
+                <p class="empty-state-subtitle">Create a UI element to control button/tab visibility via ABAC policies.</p>
+                <button mat-flat-button class="create-resource-btn" (click)="openCreateDialog()">
+                  <mat-icon>add</mat-icon>
+                  <span>New UI Element</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    }
+  </div>
+
+</div>

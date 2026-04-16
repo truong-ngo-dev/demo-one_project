@@ -1,0 +1,133 @@
+<div class="page-container">
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (policySet()) {
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to Policy Sets">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">{{ policySet()!.name }}</h1>
+        @if (policySet()!.isRoot) {
+          <span class="is-root-badge">ROOT</span>
+        }
+      </div>
+      <div class="header-right">
+        <!-- Optional global actions could go here -->
+      </div>
+    </div>
+
+    <!-- Metadata section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">General Settings</h2>
+      </div>
+
+      <form [formGroup]="form" class="details-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Scope</mat-label>
+            <mat-select formControlName="scope">
+              @for (s of scopes; track s) {
+                <mat-option [value]="s">{{ s }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Combine Algorithm</mat-label>
+            <mat-select formControlName="combineAlgorithm">
+              @for (algo of algorithms; track algo) {
+                <mat-option [value]="algo">{{ algo }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-checkbox formControlName="isRoot">Mark as Root Policy Set</mat-checkbox>
+
+        @if (saveError()) {
+          <div class="error-banner">
+            <mat-icon class="error-icon">error</mat-icon>
+            <span>{{ saveError() }}</span>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button mat-flat-button class="save-btn" (click)="save()"
+                  [disabled]="form.invalid || !form.dirty || isSaving()">
+            @if (isSaving()) { <mat-spinner diameter="18"></mat-spinner> } @else { Save Changes }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Policies section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Policies</h2>
+        <button mat-flat-button class="add-policy-btn" (click)="openAddPolicyDialog()">
+          <mat-icon>add</mat-icon>
+          <span>Add Policy</span>
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="policySet()!.policies" class="actions-table">
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="policy-name-badge">{{ p.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Combine Algorithm Column -->
+          <ng-container matColumnDef="combineAlgorithm">
+            <th mat-header-cell *matHeaderCellDef>Algorithm</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="algorithm-badge">{{ p.combineAlgorithm }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Row Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let p" class="actions-cell">
+              <button mat-icon-button (click)="goToPolicy(p)" matTooltip="View & edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deletePolicy(p, $event)" matTooltip="Remove policy">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"
+              class="table-row clickable-row"
+              (click)="goToPolicy(row)"></tr>
+
+          <!-- Empty state in table -->
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">policy</mat-icon>
+                <p class="empty-state-title">No Policies</p>
+                <p class="empty-state-subtitle">Add policies to this set to define access rules.</p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    </div>
+
+  }
+</div>

@@ -1,0 +1,58 @@
+/* Inherit variables from dashboard.css */
+@import '../../../dashboard.css';
+
+.dialog-header {
+  padding-bottom: 0;
+}
+
+.dialog-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.resource-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.error-icon {
+  color: #dc2626;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+button.create-btn {
+  --mdc-filled-button-container-color: var(--primary-green) !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+  --mdc-filled-button-hover-state-layer-color: var(--primary-green-hover) !important;
+  --mdc-filled-button-pressed-state-layer-color: var(--primary-green-hover) !important;
+  border-radius: 8px !important;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 16px 24px 24px !important;
+}
+
+.mat-mdc-dialog-content {
+  padding-bottom: 8px !important;
+}

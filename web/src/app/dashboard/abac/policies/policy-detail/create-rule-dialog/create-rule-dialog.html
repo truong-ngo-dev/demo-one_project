@@ -1,0 +1,75 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title>Add Rule</h2>
+  <p class="dialog-subtitle">Define access logic with target and condition expressions.</p>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="resource-form">
+
+    <div class="basic-info-row">
+      <mat-form-field appearance="outline" class="flex-1 rule-dialog-field">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" placeholder="e.g. Allow read for managers" />
+        <mat-error>Name is required.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 140px" class="rule-dialog-field">
+        <mat-label>Effect</mat-label>
+        <mat-select formControlName="effect">
+          @for (e of effects; track e) {
+            <mat-option [value]="e">{{ e }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="w-full rule-dialog-field">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput formControlName="description" placeholder="Short description of this rule" />
+    </mat-form-field>
+
+    <div class="expression-divider"></div>
+
+    <!-- Target Expression -->
+    <div class="expression-section">
+      <div class="expression-section-label">
+        <mat-icon class="section-icon">filter_alt</mat-icon>
+        <span>Target Expression</span>
+        <mat-icon class="info-icon" matTooltip="Leave empty to match all requests">help_outline</mat-icon>
+      </div>
+      <app-expression-node-editor
+        mode="target"
+        [resourceActions]="[]"
+        [initialValue]="null"
+        [depth]="0"
+        (nodeChange)="targetExpression.set($event)">
+      </app-expression-node-editor>
+    </div>
+
+    <div class="expression-divider"></div>
+
+    <!-- Condition Expression -->
+    <div class="expression-section">
+      <div class="expression-section-label">
+        <mat-icon class="section-icon">rule</mat-icon>
+        <span>Condition Expression</span>
+        <mat-icon class="info-icon" matTooltip="Leave empty for unconditional effect">help_outline</mat-icon>
+      </div>
+      <app-expression-node-editor
+        mode="condition"
+        [resourceActions]="[]"
+        [initialValue]="null"
+        [depth]="0"
+        (nodeChange)="conditionExpression.set($event)">
+      </app-expression-node-editor>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button class="create-btn" (click)="submit()" [disabled]="form.invalid">
+    Create Rule
+  </button>
+</mat-dialog-actions>

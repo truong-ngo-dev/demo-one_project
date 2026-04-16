@@ -31,6 +31,27 @@
   border-color: #22c55e;
 }
 
+.panel-card {
+  border-radius: 12px;
+  background: #ffffff;
+  --mdc-elevated-card-container-shape: 12px;
+  --mdc-elevated-card-container-elevation: 0px;
+  border: 1px solid #e2e8f0;
+}
+
+.placeholder-row {
+  border-radius: 6px;
+}
+
+.placeholder-row:hover {
+  background-color: #f8fafc;
+}
+
+.audit-item,
+.activity-item {
+  border-bottom-color: #f1f5f9;
+}
+
 .kpi-icon-container {
   width: 40px;
   height: 40px;

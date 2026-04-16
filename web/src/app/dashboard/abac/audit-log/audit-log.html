@@ -1,0 +1,133 @@
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Audit Log</h1>
+      <p class="page-subtitle">Track all policy, rule, and UI element changes made by administrators.</p>
+    </div>
+  </div>
+
+  <!-- Filters Row -->
+  <div class="filter-row">
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>Entity Type</mat-label>
+      <mat-select [ngModel]="filterEntityType()" (ngModelChange)="filterEntityType.set($event); onFilterChange()">
+        @for (opt of entityTypeOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-input">
+      <mat-label>Performed By</mat-label>
+      <input matInput [ngModel]="filterPerformedBy()" (ngModelChange)="filterPerformedBy.set($event)"
+             (keyup.enter)="onFilterChange()" placeholder="Username" />
+    </mat-form-field>
+
+    <button mat-stroked-button (click)="onFilterChange()" class="search-btn">
+      <mat-icon>search</mat-icon>
+      Search
+    </button>
+
+    <div class="total-count-badge">
+      {{ totalElements() }} entries
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="entries()" class="audit-table">
+
+          <!-- Time Column -->
+          <ng-container matColumnDef="time">
+            <th mat-header-cell *matHeaderCellDef>TIME</th>
+            <td mat-cell *matCellDef="let e" class="time-cell">
+              {{ e.changedAt | date:'MMM d, y, HH:mm:ss' }}
+            </td>
+          </ng-container>
+
+          <!-- Entity Type Column -->
+          <ng-container matColumnDef="entityType">
+            <th mat-header-cell *matHeaderCellDef>ENTITY TYPE</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="entity-badge entity-badge-{{ e.entityType.toLowerCase() }}">
+                {{ e.entityType }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Entity Name Column -->
+          <ng-container matColumnDef="entityName">
+            <th mat-header-cell *matHeaderCellDef>ENTITY NAME</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="entity-name">{{ e.entityName ?? '—' }}</span>
+              <span class="entity-id-hint">#{{ e.entityId }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>ACTION</th>
+            <td mat-cell *matCellDef="let e">
+              <span class="action-badge action-badge-{{ e.actionType.toLowerCase() }}">
+                {{ e.actionType }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Performed By Column -->
+          <ng-container matColumnDef="performedBy">
+            <th mat-header-cell *matHeaderCellDef>PERFORMED BY</th>
+            <td mat-cell *matCellDef="let e" class="performer-cell" [matTooltip]="e.performedBy">
+              {{ e.performedBy ?? '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Snapshot Column -->
+          <ng-container matColumnDef="snapshot">
+            <th mat-header-cell *matHeaderCellDef>SNAPSHOT</th>
+            <td mat-cell *matCellDef="let e" class="snapshot-cell">
+              @if (e.snapshotJson) {
+                <button mat-icon-button (click)="openSnapshot(e)" matTooltip="View change snapshot" class="snapshot-btn">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              } @else {
+                <span class="no-snapshot">—</span>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row"></tr>
+
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">history</mat-icon>
+                <p class="empty-state-title">No Audit Entries Found</p>
+                <p class="empty-state-subtitle">No changes have been recorded yet.</p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    }
+  </div>
+
+</div>

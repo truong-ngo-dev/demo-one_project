@@ -1,0 +1,78 @@
+@if (isComposition()) {
+
+  <!-- ── COMPOSITION BLOCK ─────────────────────────────────────────────── -->
+  <div class="composition-block"
+       [class.depth-1]="depth === 1"
+       [class.depth-2]="depth === 2"
+       [class.depth-3]="depth === 3"
+       [class.depth-4]="depth >= 4">
+
+    <div class="composition-header">
+      <div class="composition-operator-toggle">
+        <button type="button" class="op-btn"
+                [class.active]="compositionOperator() === 'AND'"
+                (click)="setOperator('AND')">AND</button>
+        <button type="button" class="op-btn"
+                [class.active]="compositionOperator() === 'OR'"
+                (click)="setOperator('OR')">OR</button>
+      </div>
+      <span class="composition-label">Block</span>
+
+      <button mat-icon-button class="composition-remove-btn"
+              (click)="removeComposition()" aria-label="Remove block">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+
+    <div class="composition-children">
+      @for (child of children(); track child.id; let i = $index) {
+        <div class="composition-child-wrapper">
+          <app-expression-node-editor
+            [mode]="mode"
+            [resourceActions]="resourceActions"
+            [initialValue]="child.view"
+            [depth]="depth + 1"
+            (nodeChange)="onChildChange(child.id, $event)">
+          </app-expression-node-editor>
+
+          @if (children().length > 1) {
+             <button type="button" class="child-remove-btn-overlay"
+                     (click)="removeChild(child.id)" aria-label="Remove expression">
+               <mat-icon>close</mat-icon>
+             </button>
+          }
+        </div>
+      }
+    </div>
+
+    <button type="button" mat-stroked-button class="add-child-btn" (click)="addChild()">
+      <mat-icon>add</mat-icon>
+      Add expression
+    </button>
+
+  </div>
+
+} @else {
+
+  <!-- ── LEAF NODE ─────────────────────────────────────────────────────── -->
+  <div class="node-container">
+    <div class="node-body">
+      <app-rule-expression-builder
+        [mode]="mode"
+        [resourceActions]="resourceActions"
+        [initialValue]="initialValue"
+        [depth]="depth"
+        (nodeChange)="onLeafChange($event)">
+      </app-rule-expression-builder>
+    </div>
+  </div>
+
+}
+
+<!-- ── GLOBAL SPEL PREVIEW (Only at root) ──────────────────────────────── -->
+@if (depth === 0) {
+  <div class="spel-preview-section global-preview">
+    <div class="spel-preview-label">Generated SpEL Preview</div>
+    <div class="spel-preview-code">{{ fullSpel() }}</div>
+  </div>
+}

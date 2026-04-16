@@ -20,26 +20,219 @@
     </div>
   }
 
-  <!-- KPI Cards -->
-  @if (!isLoading() && !error()) {
-    <div class="kpi-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      @for (card of kpiCards(); track card.label) {
-        <mat-card class="kpi-card group hover:shadow-lg transition-all duration-300 border-none" 
-                  [class.kpi-card-warn]="card.icon === 'gpp_bad'">
-          <mat-card-content class="p-6">
-            <div class="flex justify-between items-start mb-4">
-              <span class="kpi-label text-sm font-medium text-slate-500">{{ card.label }}</span>
-              <div class="kpi-icon-container p-2 rounded-lg bg-slate-50 group-hover:bg-green-50 transition-colors duration-300">
-                <mat-icon class="kpi-icon text-slate-400 group-hover:text-green-600 transition-colors duration-300">
-                  {{ card.icon }}
-                </mat-icon>
+  @if (!isLoading() && !error() && data()) {
+
+    <!-- Section 1: System Health KPIs -->
+    <div class="kpi-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <!-- Active Sessions -->
+      <mat-card class="kpi-card border-none">
+        <mat-card-content class="p-5">
+          <div class="flex justify-between items-start mb-3">
+            <span class="kpi-label text-sm font-medium text-slate-500">Active Sessions</span>
+            <div class="kpi-icon-wrap p-2 rounded-lg bg-slate-50">
+              <mat-icon class="kpi-icon text-slate-400">wifi</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-3xl font-bold text-slate-900">{{ data()!.activeSessions }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Failed Logins -->
+      <mat-card class="kpi-card border-none" [class.kpi-card-warn]="data()!.failedLoginsToday > 10">
+        <mat-card-content class="p-5">
+          <div class="flex justify-between items-start mb-3">
+            <span class="kpi-label text-sm font-medium text-slate-500">Failed Logins Today</span>
+            <div class="kpi-icon-wrap p-2 rounded-lg" [class.bg-red-50]="data()!.failedLoginsToday > 10" [class.bg-slate-50]="data()!.failedLoginsToday <= 10">
+              <mat-icon class="kpi-icon" [class.text-red-400]="data()!.failedLoginsToday > 10" [class.text-slate-400]="data()!.failedLoginsToday <= 10">gpp_bad</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-3xl font-bold text-slate-900">{{ data()!.failedLoginsToday }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Locked Accounts -->
+      <mat-card class="kpi-card border-none cursor-pointer hover:shadow-md transition-shadow"
+                [class.kpi-card-warn]="data()!.lockedUsers > 0"
+                (click)="navigateToLockedUsers()"
+                matTooltip="Click để xem danh sách tài khoản bị khoá">
+        <mat-card-content class="p-5">
+          <div class="flex justify-between items-start mb-3">
+            <span class="kpi-label text-sm font-medium text-slate-500">Locked Accounts</span>
+            <div class="kpi-icon-wrap p-2 rounded-lg" [class.bg-amber-50]="data()!.lockedUsers > 0" [class.bg-slate-50]="data()!.lockedUsers === 0">
+              <mat-icon class="kpi-icon" [class.text-amber-500]="data()!.lockedUsers > 0" [class.text-slate-400]="data()!.lockedUsers === 0">lock</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-3xl font-bold" [class.text-amber-600]="data()!.lockedUsers > 0" [class.text-slate-900]="data()!.lockedUsers === 0">
+            {{ data()!.lockedUsers }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Uncovered UIElements -->
+      <mat-card class="kpi-card border-none cursor-pointer hover:shadow-md transition-shadow"
+                [class.kpi-card-warn]="uncoveredCount() > 0"
+                (click)="navigateToUncovered()"
+                matTooltip="Click để xem UIElements chưa có policy coverage">
+        <mat-card-content class="p-5">
+          <div class="flex justify-between items-start mb-3">
+            <span class="kpi-label text-sm font-medium text-slate-500">Uncovered UIElements</span>
+            <div class="kpi-icon-wrap p-2 rounded-lg" [class.bg-red-50]="uncoveredCount() > 0" [class.bg-slate-50]="uncoveredCount() === 0">
+              <mat-icon class="kpi-icon" [class.text-red-400]="uncoveredCount() > 0" [class.text-slate-400]="uncoveredCount() === 0">widgets</mat-icon>
+            </div>
+          </div>
+          <div class="kpi-value text-3xl font-bold" [class.text-red-600]="uncoveredCount() > 0" [class.text-slate-900]="uncoveredCount() === 0">
+            {{ uncoveredCount() }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Section 2+3: Platform Overview | ABAC Health -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+
+      <!-- Platform Overview -->
+      <mat-card class="panel-card border-none">
+        <mat-card-content class="p-5">
+          <h2 class="panel-title text-base font-semibold text-slate-800 mb-4">Platform Overview</h2>
+
+          <!-- Users breakdown -->
+          <div class="mb-5">
+            <div class="flex items-center gap-2 mb-2">
+              <mat-icon class="text-slate-400 text-lg">group</mat-icon>
+              <span class="text-sm font-medium text-slate-700">Users</span>
+              <span class="ml-auto text-lg font-bold text-slate-900">{{ data()!.totalUsers }}</span>
+            </div>
+            <div class="pl-7 flex flex-col gap-1">
+              <div class="flex justify-between text-sm text-slate-500">
+                <span>Active</span>
+                <span class="font-medium text-emerald-600">{{ data()!.activeUsers }}</span>
+              </div>
+              <div class="flex justify-between text-sm text-slate-500">
+                <span>Locked</span>
+                <span class="font-medium text-amber-600">{{ data()!.lockedUsers }}</span>
               </div>
             </div>
-            <div class="kpi-value text-3xl font-bold text-slate-900">{{ card.value }}</div>
-          </mat-card-content>
-        </mat-card>
-      }
+          </div>
+
+          <hr class="border-slate-100 mb-4">
+
+          <!-- Placeholder rows -->
+          <div class="placeholder-section">
+            <div class="placeholder-row flex justify-between items-center py-2"
+                 matTooltip="Khả dụng sau khi triển khai Organization Management">
+              <div class="flex items-center gap-2 text-sm text-slate-400">
+                <mat-icon class="text-slate-300 text-lg">domain</mat-icon>
+                <span>Buildings active</span>
+              </div>
+              <span class="text-sm font-medium text-slate-300">—</span>
+            </div>
+            <div class="placeholder-row flex justify-between items-center py-2"
+                 matTooltip="Khả dụng sau khi triển khai Organization Management">
+              <div class="flex items-center gap-2 text-sm text-slate-400">
+                <mat-icon class="text-slate-300 text-lg">business</mat-icon>
+                <span>Tenant orgs active</span>
+              </div>
+              <span class="text-sm font-medium text-slate-300">—</span>
+            </div>
+            <div class="placeholder-row flex justify-between items-center py-2"
+                 matTooltip="Khả dụng sau khi triển khai RoleContext model">
+              <div class="flex items-center gap-2 text-sm text-slate-400">
+                <mat-icon class="text-slate-300 text-lg">badge</mat-icon>
+                <span>Total active memberships</span>
+              </div>
+              <span class="text-sm font-medium text-slate-300">—</span>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ABAC Health -->
+      <mat-card class="panel-card border-none">
+        <mat-card-content class="p-5">
+          <h2 class="panel-title text-base font-semibold text-slate-800 mb-4">ABAC Health</h2>
+
+          <!-- Uncovered count -->
+          <div class="flex items-center justify-between mb-4 p-3 rounded-lg"
+               [class.bg-red-50]="uncoveredCount() > 0"
+               [class.bg-slate-50]="uncoveredCount() === 0">
+            <div class="flex items-center gap-2">
+              <mat-icon [class.text-red-400]="uncoveredCount() > 0" [class.text-slate-400]="uncoveredCount() === 0">widgets</mat-icon>
+              <span class="text-sm font-medium text-slate-700">Uncovered UIElements</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-bold" [class.text-red-600]="uncoveredCount() > 0" [class.text-slate-700]="uncoveredCount() === 0">
+                {{ uncoveredCount() }}
+              </span>
+              @if (uncoveredCount() > 0) {
+                <button class="text-xs text-red-500 underline hover:text-red-700 bg-transparent border-0 cursor-pointer"
+                        (click)="navigateToUncovered()">View</button>
+              }
+            </div>
+          </div>
+
+          <!-- Recent policy changes -->
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-slate-700">Recent Policy Changes</span>
+            <button class="text-xs text-slate-400 underline hover:text-slate-600 bg-transparent border-0 cursor-pointer"
+                    (click)="navigateToAuditLog()">View all</button>
+          </div>
+          @if (data()!.recentAudit.length === 0) {
+            <p class="text-sm text-slate-400 italic">No recent changes.</p>
+          } @else {
+            <div class="audit-feed flex flex-col gap-1">
+              @for (entry of data()!.recentAudit; track entry.id) {
+                <div class="audit-item flex items-start gap-2 py-1.5 border-b border-slate-50 last:border-0">
+                  <mat-icon class="text-slate-300 text-sm mt-0.5" style="font-size:16px;width:16px;height:16px;">history</mat-icon>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-600 truncate">{{ formatAuditEntry(entry) }}</p>
+                    <p class="text-xs text-slate-400">{{ formatTimestamp(entry.changedAt) }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+        </mat-card-content>
+      </mat-card>
+
     </div>
+
+    <!-- Section 4: Recent Activity -->
+    <mat-card class="panel-card border-none">
+      <mat-card-content class="p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="panel-title text-base font-semibold text-slate-800">Recent Activity</h2>
+          <button class="text-xs text-slate-400 underline hover:text-slate-600 bg-transparent border-0 cursor-pointer"
+                  (click)="navigateToAuditLog()">View audit log</button>
+        </div>
+        @if (data()!.recentAudit.length === 0) {
+          <p class="text-sm text-slate-400 italic">No activity recorded.</p>
+        } @else {
+          <div class="activity-feed flex flex-col gap-0">
+            @for (entry of data()!.recentAudit; track entry.id) {
+              <div class="activity-item flex items-center gap-3 py-3 border-b border-slate-50 last:border-0">
+                <div class="activity-dot w-2 h-2 rounded-full flex-shrink-0"
+                     [class.bg-emerald-400]="entry.actionType === 'CREATED'"
+                     [class.bg-blue-400]="entry.actionType === 'UPDATED'"
+                     [class.bg-red-400]="entry.actionType === 'DELETED'">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-slate-700">{{ formatAuditEntry(entry) }}</p>
+                  @if (entry.performedBy) {
+                    <p class="text-xs text-slate-400">by {{ entry.performedBy }}</p>
+                  }
+                </div>
+                <span class="text-xs text-slate-400 flex-shrink-0">{{ formatTimestamp(entry.changedAt) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
   }
 
 </div>

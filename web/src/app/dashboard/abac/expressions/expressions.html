@@ -1,0 +1,75 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Expression Library</h1>
+      <p class="page-subtitle">Named expressions referenced by policy rules across the system.</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table mat-table [dataSource]="expressions()" class="resources-table">
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let expr">
+            <span class="expression-name-cell">{{ expr.name }}</span>
+          </td>
+        </ng-container>
+
+        <!-- SpEL Column -->
+        <ng-container matColumnDef="spel">
+          <th mat-header-cell *matHeaderCellDef>SpEL Expression</th>
+          <td mat-cell *matCellDef="let expr">
+            <div class="spel-cell-wrapper">
+              <span class="expression-spel-cell" [title]="expr.spel">{{ expr.spel }}</span>
+
+              <details class="spel-details">
+                <summary class="spel-expand-btn">
+                  <mat-icon class="expand-icon">expand_more</mat-icon>
+                  <mat-icon class="collapse-icon">expand_less</mat-icon>
+                </summary>
+                <div class="spel-full">
+                  {{ expr.spel }}
+                </div>
+              </details>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let expr" class="actions-cell">
+            <button mat-icon-button color="warn" (click)="delete(expr)" matTooltip="Delete">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+
+        <tr class="mat-mdc-no-data-row" *matNoDataRow>
+          <td [attr.colspan]="columns.length">
+            <div class="empty-state-container">
+              <mat-icon class="empty-state-icon">auto_awesome</mat-icon>
+              <div class="empty-state-title">No named expressions</div>
+              <div class="empty-state-subtitle">
+                Named expressions are created from the rule builder when you save an inline expression with a name.
+              </div>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  }
+
+</div>

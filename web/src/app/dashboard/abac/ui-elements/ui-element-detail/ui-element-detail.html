@@ -1,0 +1,108 @@
+<div class="page-container">
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (element()) {
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to UI Elements">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">{{ element()!.label }}</h1>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">General Details</h2>
+      </div>
+
+      <form [formGroup]="form" class="details-form">
+
+        <div class="field-readonly">
+          <span class="field-label">Element ID</span>
+          <span class="immutable-chip">{{ element()!.elementId }}</span>
+          <span class="field-hint">Immutable — frontend hardcodes this value.</span>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Label</mat-label>
+            <input matInput formControlName="label" />
+            @if (form.controls.label.hasError('required')) {
+              <mat-error>Label is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type">
+              @for (t of typeOptions; track t.value) {
+                <mat-option [value]="t.value">{{ t.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Group</mat-label>
+            <input matInput formControlName="elementGroup" placeholder="e.g. employee-detail-actions" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Order Index</mat-label>
+            <input matInput type="number" formControlName="orderIndex" min="0" />
+          </mat-form-field>
+        </div>
+
+        @if (saveError()) {
+          <div class="error-banner">
+            <mat-icon class="error-icon">error</mat-icon>
+            <span>{{ saveError() }}</span>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button mat-flat-button class="save-btn" (click)="save()" [disabled]="form.invalid || !form.dirty || isSaving()">
+            @if (isSaving()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <span>Save Changes</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Linked to Policy -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Linked to Policy</h2>
+      </div>
+
+      <div class="policy-link-container">
+        <div class="field-readonly">
+          <span class="field-label">Resource</span>
+          <span class="immutable-chip">{{ element()!.resourceName }}</span>
+        </div>
+        <div class="field-readonly">
+          <span class="field-label">Action</span>
+          <span class="immutable-chip">{{ element()!.actionName }}</span>
+        </div>
+      </div>
+
+      <p class="policy-link-hint">
+        This element is evaluated against <strong>{{ element()!.resourceName }}:{{ element()!.actionName }}</strong>.
+        To change the resource or action, delete and recreate the element.
+      </p>
+    </div>
+
+  }
+
+</div>

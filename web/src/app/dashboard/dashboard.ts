@@ -7,6 +7,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserAvatarComponent } from '../core/components/user-avatar/user-avatar';
+import { AbacService, ADMIN_ROUTE_ELEMENT_IDS } from '../core/services/abac.service';
 import { AuthService } from '../core/services/auth.service';
 import { UserSelfService } from '../core/services/user-self.service';
 
@@ -29,8 +30,9 @@ import { UserSelfService } from '../core/services/user-self.service';
   styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
-  private authService    = inject(AuthService);
+  private authService     = inject(AuthService);
   private userSelfService = inject(UserSelfService);
+  readonly abacService    = inject(AbacService);
 
   username = signal<string | null>(null);
   fullName = signal<string | null>(null);
@@ -42,9 +44,11 @@ export class DashboardComponent implements OnInit {
         this.fullName.set(profile.fullName);
       }
     });
+    this.abacService.loadVisibility([...ADMIN_ROUTE_ELEMENT_IDS]).subscribe();
   }
 
   logout(): void {
+    this.abacService.clearVisibility();
     this.authService.logout();
   }
 }

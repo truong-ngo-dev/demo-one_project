@@ -1,0 +1,99 @@
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Resources & Actions</h1>
+      <p class="page-subtitle">Define resources and their allowed actions for ABAC policy management.</p>
+    </div>
+    <div class="header-right">
+      <button mat-flat-button class="create-resource-btn" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        <span>New Resource</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="page-toolbar">
+    <mat-form-field appearance="outline" class="search-form-field">
+      <mat-label>Search resources</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [ngModel]="keyword()"
+        (ngModelChange)="onKeywordChange($event)"
+        placeholder="Search by name or service" />
+    </mat-form-field>
+  </div>
+
+  <!-- Content -->
+  <div class="page-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="resources()" class="resources-table">
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="resource-name-badge">{{ r.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Service Column -->
+          <ng-container matColumnDef="serviceName">
+            <th mat-header-cell *matHeaderCellDef>Service</th>
+            <td mat-cell *matCellDef="let r">{{ r.serviceName }}</td>
+          </ng-container>
+
+          <!-- Action Count Column -->
+          <ng-container matColumnDef="actionCount">
+            <th mat-header-cell *matHeaderCellDef>TOTAL ACTION</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="action-count-badge">{{ r.actionCount }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Row Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let r" class="actions-cell">
+              <button mat-icon-button (click)="goToDetail(r)" matTooltip="View & edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteResource(r)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"
+              class="table-row clickable-row"
+              (click)="goToDetail(row)"></tr>
+
+          <tr class="mat-mdc-no-data-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+              <div class="empty-state-container">
+                <mat-icon class="empty-state-icon">policy</mat-icon>
+                <p class="empty-state-title">No Resources Found</p>
+                <p class="empty-state-subtitle">Get started by creating a new resource definition.</p>
+                <button mat-flat-button class="create-resource-btn" (click)="openCreateDialog()">
+                  <mat-icon>add</mat-icon>
+                  <span>New Resource</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    }
+  </div>
+
+</div>

@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AbacService } from '../../../core/services/abac.service';
 import { UserService, UserDetail, RoleRef } from '../../../core/services/user.service';
 import { AdminSessionService, AdminDeviceSessionView } from '../../../core/services/admin-session.service';
 import { AdminActivityService, UserLoginActivityView, UserLoginActivityPage } from '../../../core/services/admin-activity.service';
@@ -46,6 +47,7 @@ export class UserDetailComponent implements OnInit {
   private adminActivityService = inject(AdminActivityService);
   private dialog             = inject(MatDialog);
   private snackBar           = inject(MatSnackBar);
+  readonly abacService       = inject(AbacService);
 
   // ── Profile ──
   user       = signal<UserDetail | null>(null);
