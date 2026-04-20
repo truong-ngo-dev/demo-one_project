@@ -20,7 +20,12 @@ public enum UserErrorCode implements ErrorCode {
     PHONE_ALREADY_EXISTS("10013", "Phone number already exists", "error.user.phone_exists", 409),
     CURRENT_PASSWORD_REQUIRED("10014", "Current password is required", "error.user.current_password_required", 422),
     ROLE_CONTEXT_ALREADY_EXISTS("10015", "Role context already exists for this scope and org", "error.user.role_context_exists", 409),
-    ROLE_CONTEXT_NOT_FOUND("10016", "Role context not found", "error.user.role_context_not_found", 404);
+    ROLE_CONTEXT_NOT_FOUND("10016", "Role context not found", "error.user.role_context_not_found", 404),
+    PARTY_ID_REQUIRED("10017", "Party ID is required for this operation", "error.user.party_id_required", 422),
+    ROLE_CONTEXT_ALREADY_REVOKED("10018", "Role context is already revoked", "error.user.role_context_already_revoked", 422),
+    PARTY_ID_ALREADY_SET("10019", "Party ID is already set for this user", "error.user.party_id_already_set", 409),
+    BUILDING_NOT_FOUND("10020", "Building not found in reference cache", "error.user.building_not_found", 404),
+    ROLE_SCOPE_MISMATCH("10021", "Role scope does not match the target context scope", "error.user.role_scope_mismatch", 422);
 
     private final String code;
     private final String defaultMessage;

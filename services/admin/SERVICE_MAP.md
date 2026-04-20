@@ -9,10 +9,10 @@
 
 Chi tiết từng domain xem tại docs riêng:
 
-| Domain | File |
-|--------|------|
-| **user** | [docs/domains/user.md](docs/domains/user.md) |
-| **role** | [docs/domains/role.md](docs/domains/role.md) |
+| Domain                                                    | File                                         |
+|-----------------------------------------------------------|----------------------------------------------|
+| **user**                                                  | [docs/domains/user.md](docs/domains/user.md) |
+| **role**                                                  | [docs/domains/role.md](docs/domains/role.md) |
 | **abac** (resource, policy_set, policy, uielement, audit) | [docs/domains/abac.md](docs/domains/abac.md) |
 
 ---
@@ -286,11 +286,11 @@ Params list: `resourceId`, `type`, `group`, `page`, `size`
 
 ### `abac/AbacSimulateController` — `/api/v1/abac/simulate` *(UC-024, UC-031, UC-034)*
 
-| Method | Path         | Use Case              | Auth |
-|--------|--------------|-----------------------|------|
-| `POST` | `/`          | SimulatePolicy        | JWT  |
-| `POST` | `/navigation`| SimulateNavigation    | JWT  |
-| `GET`  | `/reverse`   | GetReverseLookup      | JWT  |
+| Method | Path          | Use Case           | Auth |
+|--------|---------------|--------------------|------|
+| `POST` | `/`           | SimulatePolicy     | JWT  |
+| `POST` | `/navigation` | SimulateNavigation | JWT  |
+| `GET`  | `/reverse`    | GetReverseLookup   | JWT  |
 
 ### `abac/AuditLogController` — `/api/v1/abac/audit-log` *(UC-035)*
 

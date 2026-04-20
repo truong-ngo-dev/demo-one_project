@@ -64,6 +64,36 @@
 
 ---
 
+---
+
+## IAM Context Management
+
+### Tenant Sub-Role Assignment
+
+| ID     | Tên                           | Mô tả ngắn                                                                            | Trạng thái  |
+|--------|-------------------------------|---------------------------------------------------------------------------------------|-------------|
+| UC-037 | Assign Tenant Sub-Role        | TENANT_ADMIN gán sub-role (MANAGER/FINANCE/HR) cho member trong cùng org              | Implemented |
+| UC-038 | Revoke Tenant Sub-Role        | Gỡ sub-role của user trong org                                                        | Implemented |
+| UC-039 | Xem sub-roles theo org        | Query danh sách TenantSubRoleAssignment của 1 orgId                                   | Implemented |
+
+### Auth Context Query
+
+| ID     | Tên                           | Mô tả ngắn                                                                            | Trạng thái  |
+|--------|-------------------------------|---------------------------------------------------------------------------------------|-------------|
+| UC-040 | Get User Auth Contexts        | Trả về list RoleContext ACTIVE của user, kèm displayName từ building/org reference    | Implemented |
+
+### Operator Portal
+
+| ID     | Tên                               | Mô tả ngắn                                                                        | Trạng thái  |
+|--------|-----------------------------------|------------------------------------------------------------------------------------|-------------|
+| UC-041 | Link Party ID to User             | Gắn partyId vào User — cần trước khi assign OPERATOR context                      | Implemented |
+| UC-042 | Assign Operator Context           | SUPER_ADMIN/BQL_MANAGER gán OPERATOR context cho user tại 1 building               | Implemented |
+| UC-043 | Revoke Operator Context           | Thu hồi OPERATOR context của user tại 1 building                                  | Implemented |
+| UC-044 | Find Operators by Building        | Query danh sách user có OPERATOR context tại 1 building                            | Implemented |
+| UC-045 | Assign Roles to Operator Context  | Cập nhật roleIds trong OPERATOR context của user tại building — B6 (scope check)   | Implemented |
+
+---
+
 ## [PLANNED]
 
 | ID     | Tên                      | Mô tả ngắn                     |

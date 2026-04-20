@@ -3,8 +3,10 @@ package vn.truongngo.apartcom.one.service.admin.domain.user;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.truongngo.apartcom.one.lib.common.domain.service.Repository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends Repository<User, UserId> {
@@ -22,5 +24,9 @@ public interface UserRepository extends Repository<User, UserId> {
     Page<User> findAll(String keyword, UserStatus status, RoleId roleId, Pageable pageable);
 
     long countByRoleName(String roleName);
+
+    Optional<User> findByPartyId(String partyId);
+
+    List<User> findAllByActiveRoleContext(Scope scope, String orgId);
 
 }

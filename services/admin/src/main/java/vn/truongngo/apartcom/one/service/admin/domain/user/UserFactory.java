@@ -22,7 +22,7 @@ public class UserFactory {
 
         User user = new User(UserId.generate(), username, email, phoneNumber, fullName, password);
         if (!roleIds.isEmpty()) {
-            user.addRoleContext(Scope.ADMIN, null, roleIds);
+            user.addRoleContext(Scope.ADMIN, null, null, roleIds);
         }
         user.registerEvent(new UserCreatedEvent(
                 user.getId().getValue(),
@@ -44,7 +44,7 @@ public class UserFactory {
 
         User user = new User(UserId.generate(), username, email, null, fullName, password);
         if (!roleIds.isEmpty()) {
-            user.addRoleContext(Scope.ADMIN, null, roleIds);
+            user.addRoleContext(Scope.ADMIN, null, null, roleIds);
         }
         user.registerEvent(new UserCreatedEvent(
                 user.getId().getValue(),

@@ -33,7 +33,7 @@ public class RoleController {
     @ResourceMapping(resource = "role", action = "CREATE")
     @PreEnforce
     public ResponseEntity<ApiResponse<CreateRole.Result>> createRole(@RequestBody CreateRoleRequest request) {
-        CreateRole.Result result = createRoleHandler.handle(new CreateRole.Command(request.name(), request.description()));
+        CreateRole.Result result = createRoleHandler.handle(new CreateRole.Command(request.name(), request.description(), request.scope()));
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.of(result));
     }
 

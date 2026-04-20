@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContext;
+import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContextStatus;
 import vn.truongngo.apartcom.one.service.admin.domain.user.SocialConnection;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserId;
@@ -39,7 +40,11 @@ public class UserMapper {
                             .collect(Collectors.toSet());
                     // '' sentinel → null domain orgId
                     String orgId = ctx.getOrgId().isEmpty() ? null : ctx.getOrgId();
-                    return RoleContext.reconstitute(ctx.getId(), ctx.getScope(), orgId, ctxRoleIds);
+                    RoleContextStatus status = ctx.getStatus() != null
+                            ? ctx.getStatus()
+                            : RoleContextStatus.ACTIVE;
+                    return RoleContext.reconstitute(ctx.getId(), ctx.getScope(), orgId,
+                            ctx.getOrgType(), ctxRoleIds, status);
                 })
                 .collect(Collectors.toSet());
 
@@ -56,7 +61,8 @@ public class UserMapper {
                 entity.isUsernameChanged(),
                 entity.getLockedAt(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getUpdatedAt(),
+                entity.getPartyId()
         );
     }
 
@@ -96,6 +102,7 @@ public class UserMapper {
         entity.setLockedAt(user.getLockedAt());
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
+        entity.setPartyId(user.getPartyId());
 
         Set<SocialConnectionJpaEntity> socialEntities = user.getSocialConnections()
                 .stream()
@@ -125,6 +132,8 @@ public class UserMapper {
         ctxEntity.setScope(ctx.getScope());
         // null domain orgId → '' sentinel in DB (for UNIQUE constraint compatibility)
         ctxEntity.setOrgId(ctx.getOrgId() != null ? ctx.getOrgId() : "");
+        ctxEntity.setOrgType(ctx.getOrgType());
+        ctxEntity.setStatus(ctx.getStatus());
         Set<String> ctxRoleIds = ctx.getRoleIds().stream()
                 .map(RoleId::getValue)
                 .collect(Collectors.toSet());

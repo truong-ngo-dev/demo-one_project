@@ -5,15 +5,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import vn.truongngo.apartcom.one.lib.common.application.CommandHandler;
 import vn.truongngo.apartcom.one.lib.common.utils.lang.Assert;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleException;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleRepository;
 
 public class CreateRole {
 
-    public record Command(String name, String description) {
+    public record Command(String name, String description, Scope scope) {
         public Command {
             Assert.hasText(name, "name is required");
+            Assert.notNull(scope, "scope is required");
         }
     }
 
@@ -38,7 +40,7 @@ public class CreateRole {
                 throw RoleException.alreadyExists();
             }
 
-            Role role = Role.register(command.name(), command.description());
+            Role role = Role.register(command.name(), command.description(), command.scope());
             roleRepository.save(role);
 
             return Mapper.toResult(role);

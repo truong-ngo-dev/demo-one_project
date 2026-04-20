@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
+import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContextStatus;
 import vn.truongngo.apartcom.one.service.admin.domain.user.User;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserId;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserRepository;
@@ -14,6 +16,7 @@ import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.user.U
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.user.UserJpaRepository;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.user.UserMapper;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -120,5 +123,18 @@ public class UserPersistenceAdapter implements UserRepository {
     @Override
     public long countByRoleName(String roleName) {
         return jpaRepository.countByRoleName(roleName);
+    }
+
+    @Override
+    public Optional<User> findByPartyId(String partyId) {
+        return jpaRepository.findByPartyId(partyId).map(userMapper::toDomain);
+    }
+
+    @Override
+    public List<User> findAllByActiveRoleContext(Scope scope, String orgId) {
+        return jpaRepository.findAllByActiveRoleContext(scope, orgId, RoleContextStatus.ACTIVE)
+                .stream()
+                .map(userMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

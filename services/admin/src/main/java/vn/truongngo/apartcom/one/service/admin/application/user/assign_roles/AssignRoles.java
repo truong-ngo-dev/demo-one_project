@@ -51,7 +51,7 @@ public class AssignRoles {
             boolean hasAdminContext = user.getRoleContexts().stream()
                     .anyMatch(ctx -> ctx.matchesScope(Scope.ADMIN, null));
             if (!hasAdminContext) {
-                user.addRoleContext(Scope.ADMIN, null, roleIds);
+                user.addRoleContext(Scope.ADMIN, null, null, roleIds);
             } else {
                 for (RoleId roleId : roleIds) {
                     user.assignRoleToContext(Scope.ADMIN, null, roleId);

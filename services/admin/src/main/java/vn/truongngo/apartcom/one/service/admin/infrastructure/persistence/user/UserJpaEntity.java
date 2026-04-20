@@ -59,4 +59,7 @@ public class UserJpaEntity {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column(name = "party_id", length = 36)
+    private String partyId;
 }

@@ -27,6 +27,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
     private Instant lockedAt;
     private final Instant createdAt;
     private Instant updatedAt;
+    private String partyId;               // nullable; set once via linkPartyId()
 
     User(UserId id,
          String username,
@@ -46,6 +47,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
         this.usernameChanged   = false;
         this.createdAt         = Instant.now();
         this.updatedAt         = this.createdAt;
+        this.partyId           = null;
     }
 
     private User(UserId id,
@@ -60,7 +62,8 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                  boolean usernameChanged,
                  Instant lockedAt,
                  Instant createdAt,
-                 Instant updatedAt) {
+                 Instant updatedAt,
+                 String partyId) {
         super(id);
         this.username          = username;
         this.email             = email;
@@ -74,6 +77,7 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
         this.lockedAt          = lockedAt;
         this.createdAt         = createdAt;
         this.updatedAt         = updatedAt;
+        this.partyId           = partyId;
     }
 
     public static User reconstitute(UserId id,
@@ -88,10 +92,11 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                                     boolean usernameChanged,
                                     Instant lockedAt,
                                     Instant createdAt,
-                                    Instant updatedAt) {
+                                    Instant updatedAt,
+                                    String partyId) {
         return new User(id, username, email, phoneNumber, fullName, password,
                 socialConnections, status, roleContexts,
-                usernameChanged, lockedAt, createdAt, updatedAt);
+                usernameChanged, lockedAt, createdAt, updatedAt, partyId);
     }
 
     // ───────────── Profile ─────────────
@@ -159,10 +164,10 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
 
     // ───────────── RoleContext ─────────────
 
-    public void addRoleContext(Scope scope, String orgId, Set<RoleId> roleIdsForContext) {
+    public void addRoleContext(Scope scope, String orgId, OrgType orgType, Set<RoleId> roleIdsForContext) {
         boolean exists = roleContexts.stream().anyMatch(ctx -> ctx.matchesScope(scope, orgId));
         if (exists) throw new DomainException(UserErrorCode.ROLE_CONTEXT_ALREADY_EXISTS);
-        roleContexts.add(RoleContext.create(scope, orgId, roleIdsForContext));
+        roleContexts.add(RoleContext.create(scope, orgId, orgType, roleIdsForContext));
         this.updatedAt = Instant.now();
     }
 
@@ -178,6 +183,15 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                 .findFirst()
                 .orElseThrow(() -> new DomainException(UserErrorCode.ROLE_CONTEXT_NOT_FOUND));
         ctx.addRole(roleId);
+        this.updatedAt = Instant.now();
+    }
+
+    public void revokeRoleContext(Scope scope, String orgId) {
+        RoleContext ctx = roleContexts.stream()
+                .filter(c -> c.matchesScope(scope, orgId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(UserErrorCode.ROLE_CONTEXT_NOT_FOUND));
+        ctx.revoke();
         this.updatedAt = Instant.now();
     }
 
@@ -198,6 +212,15 @@ public class User extends AbstractAggregateRoot<UserId> implements AggregateRoot
                 .map(RoleContext::getRoleIds)
                 .map(Set::copyOf)
                 .orElse(Set.of());
+    }
+
+    public void linkPartyId(String partyId) {
+        Assert.hasText(partyId, "partyId is required");
+        if (this.partyId != null) {
+            throw new DomainException(UserErrorCode.PARTY_ID_ALREADY_SET);
+        }
+        this.partyId   = partyId;
+        this.updatedAt = Instant.now();
     }
 
     // ───────────── Guards ─────────────

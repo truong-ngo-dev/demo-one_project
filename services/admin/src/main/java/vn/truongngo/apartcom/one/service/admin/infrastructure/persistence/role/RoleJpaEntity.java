@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 
 @Entity
 @Table(name = "roles")
@@ -16,8 +17,12 @@ public class RoleJpaEntity {
     @Column(name = "id", nullable = false, length = 36)
     private String id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "scope", nullable = false)
+    private Scope scope;
 
     @Column(name = "description")
     private String description;

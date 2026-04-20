@@ -1,6 +1,7 @@
 package vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.role;
 
 import vn.truongngo.apartcom.one.lib.common.domain.model.Auditable;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
 import vn.truongngo.apartcom.one.service.admin.domain.role.Role;
 import vn.truongngo.apartcom.one.service.admin.domain.role.RoleId;
 
@@ -13,7 +14,9 @@ public class RoleMapper {
                 entity.getCreatedBy(),
                 entity.getUpdatedBy()
         );
-        return Role.reconstitute(RoleId.of(entity.getId()), entity.getName(), entity.getDescription(), auditable);
+        Scope scope = entity.getScope() != null ? entity.getScope() : Scope.ADMIN;
+        return Role.reconstitute(RoleId.of(entity.getId()), entity.getName(), entity.getDescription(),
+                scope, auditable);
     }
 
     public static RoleJpaEntity toEntity(Role role) {
@@ -21,6 +24,7 @@ public class RoleMapper {
         entity.setId(role.getId().getValue());
         entity.setName(role.getName());
         entity.setDescription(role.getDescription());
+        entity.setScope(role.getScope());
         if (role.getAuditable() != null) {
             entity.setCreatedAt(role.getAuditable().getCreatedAt());
             entity.setUpdatedAt(role.getAuditable().getUpdatedAt());

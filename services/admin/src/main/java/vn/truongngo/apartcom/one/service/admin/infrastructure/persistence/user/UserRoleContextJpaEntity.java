@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.user.OrgType;
+import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContextStatus;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.role.RoleJpaEntity;
 
 import java.util.HashSet;
@@ -41,6 +43,14 @@ public class UserRoleContextJpaEntity {
      */
     @Column(name = "org_id", nullable = false, length = 100)
     private String orgId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private RoleContextStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "org_type")
+    private OrgType orgType;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -6,8 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.truongngo.apartcom.one.service.admin.domain.abac.policy_set.Scope;
+import vn.truongngo.apartcom.one.service.admin.domain.user.RoleContextStatus;
 import vn.truongngo.apartcom.one.service.admin.domain.user.UserStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -86,5 +89,18 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, String> 
             @Param("status") UserStatus status,
             @Param("roleId") String roleId,
             Pageable pageable
+    );
+
+    Optional<UserJpaEntity> findByPartyId(String partyId);
+
+    @Query("""
+        SELECT DISTINCT u FROM UserJpaEntity u
+        JOIN u.roleContexts rc
+        WHERE rc.scope = :scope AND rc.orgId = :orgId AND rc.status = :status
+    """)
+    List<UserJpaEntity> findAllByActiveRoleContext(
+            @Param("scope") Scope scope,
+            @Param("orgId") String orgId,
+            @Param("status") RoleContextStatus status
     );
 }
