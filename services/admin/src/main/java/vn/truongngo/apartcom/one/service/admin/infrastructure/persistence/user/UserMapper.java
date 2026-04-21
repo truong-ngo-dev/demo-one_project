@@ -77,6 +77,7 @@ public class UserMapper {
         existing.setUsernameChanged(user.isUsernameChanged());
         existing.setLockedAt(user.getLockedAt());
         existing.setUpdatedAt(user.getUpdatedAt());
+        existing.setPartyId(user.getPartyId());
 
         existing.getRoleContexts().clear();
         for (RoleContext ctx : user.getRoleContexts()) {

@@ -7,6 +7,6 @@ public record CreateAssetRequest(
         String parentId,
         String name,
         String code,
-        int sequenceNo,
+        Integer sequenceNo,
         String managingOrgId
 ) {}

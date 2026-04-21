@@ -7,6 +7,7 @@ import vn.truongngo.apartcom.one.service.admin.domain.reference.BuildingReferenc
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.reference.BuildingReferenceJpaRepository;
 import vn.truongngo.apartcom.one.service.admin.infrastructure.persistence.reference.BuildingReferenceMapper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,5 +29,12 @@ public class BuildingReferencePersistenceAdapter implements BuildingReferenceRep
     @Override
     public Optional<BuildingReference> findById(String buildingId) {
         return jpaRepository.findById(buildingId).map(BuildingReferenceMapper::toDomain);
+    }
+
+    @Override
+    public List<BuildingReference> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(BuildingReferenceMapper::toDomain)
+                .toList();
     }
 }

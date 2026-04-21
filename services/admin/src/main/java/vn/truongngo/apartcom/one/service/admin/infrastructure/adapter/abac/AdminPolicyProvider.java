@@ -1,7 +1,9 @@
 package vn.truongngo.apartcom.one.service.admin.infrastructure.adapter.abac;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import vn.truongngo.apartcom.one.lib.abac.domain.AbstractPolicy;
 import vn.truongngo.apartcom.one.lib.abac.domain.Expression;
 import vn.truongngo.apartcom.one.lib.abac.domain.Policy;
@@ -31,23 +33,46 @@ public class AdminPolicyProvider implements PolicyProvider {
     private final PolicySetRepository policySetRepository;
     private final PolicyRepository policyRepository;
     private final ExpressionTreeService expressionTreeService;
+    private final HttpServletRequest request;
 
     @Override
     public AbstractPolicy getPolicy(String serviceName) {
-        List<PolicySetDefinition> roots = policySetRepository.findAllRoot();
-        if (roots.isEmpty()) {
-            // No root policy set — return permissive empty policy set
-            PolicySet empty = new PolicySet();
-            empty.setId("system-root");
-            empty.setDescription("No root policy set configured");
-            empty.setCombineAlgorithmName(vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName.DENY_OVERRIDES);
-            empty.setIsRoot(true);
-            empty.setPolicies(List.of());
-            return empty;
+        String scopeHeader = request.getHeader("X-Portal-Scope");
+        Scope scope = null;
+
+        if (StringUtils.hasText(scopeHeader)) {
+            try {
+                scope = Scope.valueOf(scopeHeader);
+            } catch (IllegalArgumentException ignored) {
+            }
         }
-        // Use the first root policy set
-        PolicySetDefinition rootPs = roots.stream().filter(pd -> pd.getScope().equals(Scope.ADMIN)).findFirst().orElseThrow(() -> new RuntimeException("No root policy set configured"));
+
+        if (scope == null) {
+            return emptyPolicySet("No X-Portal-Scope header or unknown scope");
+        }
+
+        List<PolicySetDefinition> roots = policySetRepository.findAllRoot();
+        final Scope finalScope = scope;
+        PolicySetDefinition rootPs = roots.stream()
+                .filter(pd -> pd.getScope().equals(finalScope))
+                .findFirst()
+                .orElse(null);
+
+        if (rootPs == null) {
+            return emptyPolicySet("No root policy set configured for scope: " + scope);
+        }
+
         return mapPolicySet(rootPs);
+    }
+
+    private PolicySet emptyPolicySet(String description) {
+        PolicySet empty = new PolicySet();
+        empty.setId("system-root");
+        empty.setDescription(description);
+        empty.setCombineAlgorithmName(vn.truongngo.apartcom.one.lib.abac.algorithm.CombineAlgorithmName.DENY_OVERRIDES);
+        empty.setIsRoot(true);
+        empty.setPolicies(List.of());
+        return empty;
     }
 
     private PolicySet mapPolicySet(PolicySetDefinition ps) {

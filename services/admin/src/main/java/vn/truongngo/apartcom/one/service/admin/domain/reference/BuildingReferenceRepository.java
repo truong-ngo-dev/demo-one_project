@@ -9,4 +9,6 @@ public interface BuildingReferenceRepository {
     boolean existsById(String buildingId);
 
     Optional<BuildingReference> findById(String buildingId);
+
+    java.util.List<BuildingReference> findAll();
 }

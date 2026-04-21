@@ -14,6 +14,7 @@ Chi tiết từng domain xem tại docs riêng:
 | **user**                                                  | [docs/domains/user.md](docs/domains/user.md) |
 | **role**                                                  | [docs/domains/role.md](docs/domains/role.md) |
 | **abac** (resource, policy_set, policy, uielement, audit) | [docs/domains/abac.md](docs/domains/abac.md) |
+| **reference** (building)                                  | (External reference data from property-service) |
 
 ---
 
@@ -53,6 +54,10 @@ Chi tiết từng domain xem tại docs riêng:
 
 - `find_by_id/FindRoleById`: UC-009 — Tìm role theo ID. **Query**
 - `find_all/FindAllRoles`: UC-010 — Danh sách roles có phân trang + filter keyword. **Query**
+
+### reference — Queries
+
+- `get_all_buildings/GetAllBuildings`: Lấy danh sách tất cả các tòa nhà từ `building_reference`. Phục vụ dropdown gán Operator và quản lý tòa nhà. **Query**
 
 ### abac/resource — Commands *(UC-019)*
 
@@ -132,6 +137,42 @@ Chi tiết từng domain xem tại docs riêng:
 
 - `list_audit_log/ListAuditLog`: Trả `Page<AuditLogEntry>` filter by entityType/entityId/performedBy. **Query**
 
+### tenant — Commands *(UC-037, UC-038)*
+
+- `assign_sub_role/AssignSubRole`: UC-037 — Gán TenantSubRole cho user trong org. B7: assignedBy phải là TENANT_ADMIN của org. B8: userId phải có TENANT context tại org. **Command**
+- `revoke_sub_role/RevokeSubRole`: UC-038 — Gỡ TenantSubRole của user trong org. **Command**
+
+### tenant — Queries *(UC-039)*
+
+- `find_sub_roles_by_org/FindSubRolesByOrg`: UC-039 — Danh sách TenantSubRoleAssignment theo orgId. **Query**
+
+### auth — Queries *(UC-040)*
+
+- `get_contexts/GetUserContexts`: UC-040 — Load User → filter RoleContext ACTIVE → resolve displayName từ BuildingReference (OPERATOR/RESIDENT) hoặc OrgReference (TENANT) → trả `List<ContextView>`. **Query**
+
+### operator — Commands *(UC-041, UC-042, UC-043, UC-045)*
+
+- `link_party_id/LinkPartyId`: UC-041 — Gắn partyId vào User (một lần, không overwrite). **Command**
+- `assign_operator_context/AssignOperatorContext`: UC-042 — Gán OPERATOR context cho user tại building. B2: partyId required. B3: building phải có trong building_reference. B6: role scope phải là OPERATOR. **Command**
+- `revoke_operator_context/RevokeOperatorContext`: UC-043 — Thu hồi OPERATOR context. **Command**
+- `assign_roles_to_operator/AssignRolesToOperatorContext`: UC-045 — Replace toàn bộ roleIds trong OPERATOR context. B6: scope check. **Command**
+
+### operator — Queries *(UC-044)*
+
+- `find_operators_by_building/FindOperatorsByBuilding`: UC-044 — Danh sách user có OPERATOR context ACTIVE tại building. Trả `List<OperatorView>`. **Query**
+
+### reference — Queries *(Phase 3.5)*
+
+- `get_all_buildings/GetAllBuildings`: Trả `List<BuildingView>` từ `building_reference` cache. **Query**
+
+### event — Consumers *(Phase 4)*
+
+- `event/BuildingCreatedEventHandler`: Consume `BuildingCreatedEvent` → upsert `BuildingReference`.
+- `event/OrganizationCreatedEventHandler`: Consume `OrganizationCreatedEvent` → upsert `OrgReference` nếu `orgType == BQL`.
+- `event/OccupancyAgreementActivatedEventHandler`: Consume `OccupancyAgreementActivatedEvent` → tạo RoleContext (RESIDENT/TENANT) theo agreementType + partyType.
+- `event/OccupancyAgreementTerminatedEventHandler`: Consume `OccupancyAgreementTerminatedEvent` → revoke RoleContext RESIDENT/TENANT; xóa TenantSubRoleAssignment nếu LEASE+ORGANIZATION.
+- `event/EmploymentTerminatedEventHandler`: Consume `EmploymentTerminatedEvent` → revoke OPERATOR RoleContext liên quan.
+
 ---
 
 ## 🛠️ 3. Infrastructure Layer (`infrastructure/`)
@@ -150,9 +191,11 @@ Chi tiết từng domain xem tại docs riêng:
     - `RuleDefinition` ↔ `RuleJpaEntity` → bảng `rule`
     - `ExpressionVO` ↔ `AbacExpressionJpaEntity` → bảng `abac_expression` (LITERAL only Phase 1)
     - `UIElement` ↔ `UIElementJpaEntity` → bảng `ui_element`
+    - `BuildingReference` ↔ `BuildingReferenceJpaEntity` → bảng `building_reference`
 
 - **`persistence/user/`**: `UserJpaEntity`, `UserJpaRepository`, `UserMapper`, `SocialConnectionJpaEntity`
 - **`persistence/role/`**: `RoleJpaEntity`, `RoleJpaRepository`, `RoleMapper`
+- **`persistence/reference/`**: `BuildingReferenceJpaEntity`, `BuildingReferenceJpaRepository`, `BuildingReferenceMapper`
 - **`persistence/abac/resource/`**: `ResourceDefinitionJpaEntity`, `ActionDefinitionJpaEntity`, `ResourceDefinitionJpaRepository`, `ResourceDefinitionMapper`
 - **`persistence/abac/expression/`**: `AbacExpressionJpaEntity`, `AbacExpressionJpaRepository`
 - **`persistence/abac/policy_set/`**: `PolicySetJpaEntity`, `PolicySetJpaRepository`, `PolicySetMapper`
@@ -160,17 +203,23 @@ Chi tiết từng domain xem tại docs riêng:
 - **`persistence/abac/rule/`**: `RuleJpaEntity`, `RuleJpaRepository`
 - **`persistence/abac/uielement/`**: `UIElementJpaEntity`, `UIElementJpaRepository`, `UIElementMapper`
 - **`persistence/abac/audit/`**: `AbacAuditLogJpaEntity`, `AbacAuditLogJpaRepository` (JPA entity tách khỏi domain; domain `AbacAuditLog` là plain POJO)
+- **`persistence/tenant/`**: `TenantSubRoleAssignmentJpaEntity`, `TenantSubRoleAssignmentJpaRepository`, `TenantSubRoleAssignmentMapper`
+- **`persistence/reference/`**: `BuildingReferenceJpaEntity`, `BuildingReferenceJpaRepository`, `BuildingReferenceMapper`, `OrgReferenceJpaEntity`, `OrgReferenceJpaRepository`, `OrgReferenceMapper`
 
 ### 🔌 Adapters (`adapter/`)
 
 - **`adapter/repository/user/UserPersistenceAdapter`**: implement `UserRepository` — CRUD + findBySocialConnection + existsBy* + searchUsers (delegate tới JPA `@Query`)
 - **`adapter/repository/role/RolePersistenceAdapter`**: implement `RoleRepository` — CRUD + findAllByIds + existsByName
+- **`adapter/repository/reference/BuildingReferencePersistenceAdapter`**: implement `BuildingReferenceRepository` — upsert + existsById + findById + findAll
 - **`adapter/repository/abac/ResourceDefinitionPersistenceAdapter`**: implement `ResourceDefinitionRepository` — CRUD + search + existsByName + existsByIdWith*Ref
 - **`adapter/repository/abac/PolicySetPersistenceAdapter`**: implement `PolicySetRepository` — CRUD + search + findAllRoot
 - **`adapter/repository/abac/PolicyPersistenceAdapter`**: implement `PolicyRepository` — CRUD + findByPolicySetId; handles expression upsert (abac_expression) + rule upsert
 - **`adapter/repository/abac/UIElementPersistenceAdapter`**: implement `UIElementRepository` — CRUD + batch findByElementIds + existsBy*
 - **`adapter/repository/abac/AbacAuditLogPersistenceAdapter`**: implement `AbacAuditLogRepository` domain interface — maps between `AbacAuditLog` (domain POJO) và `AbacAuditLogJpaEntity` (infrastructure)
-- **`adapter/abac/AdminPolicyProvider`**: implement `PolicyProvider` (libs/abac) — tải root PolicySet từ DB → map sang libs/abac domain để PdpEngine evaluate
+- **`adapter/repository/tenant/TenantSubRoleAssignmentPersistenceAdapter`**: implement `TenantSubRoleAssignmentRepository` — CRUD + findByOrgId + existsByUserIdAndOrgIdAndSubRole + deleteAllByOrgId
+- **`adapter/repository/reference/BuildingReferencePersistenceAdapter`**: implement `BuildingReferenceRepository` — upsert + existsById + findById + findAll
+- **`adapter/repository/reference/OrgReferencePersistenceAdapter`**: implement `OrgReferenceRepository` — upsert + existsById + findById
+- **`adapter/abac/AdminPolicyProvider`**: implement `PolicyProvider` (libs/abac) — tải root PolicySet từ DB → map sang libs/abac domain để PdpEngine evaluate. Đọc header `X-Portal-Scope` (`ADMIN` | `OPERATOR` | ...) từ request để resolve đúng policy set. Header này bắt buộc có mặt trên mọi request qua `@PreEnforce`.
 - **`adapter/abac/AdminSubjectProvider`**: implement `SubjectProvider` (libs/abac) — build `Subject` từ `Principal.getName()` (userId) → load user + role names từ DB
 
 ### 🔐 Security (`security/`)
@@ -218,6 +267,12 @@ DTOs: `user/model/` — `CreateUserRequest`, `RegisterUserRequest`, `AssignRoles
 | `DELETE` | `/{id}` | UC-012 DeleteRole   | JWT  |
 
 DTOs: `role/model/` — `CreateRoleRequest`, `UpdateRoleRequest`
+
+### `reference/BuildingReferenceController` — `/api/v1/buildings`
+
+| Method | Path | Use Case               | Auth |
+|--------|------|------------------------|------|
+| `GET`  | `/`  | GetAllBuildings        | JWT  |
 
 ### `internal/InternalUserController` — `/api/v1/internal/users`
 
@@ -300,6 +355,38 @@ Params list: `resourceId`, `type`, `group`, `page`, `size`
 
 Params: `entityType`, `entityId`, `performedBy`, `page`, `size`
 
+### `tenant/TenantSubRoleController` — `/api/v1/tenants/{orgId}/sub-roles`
+
+| Method   | Path                    | Use Case        | Auth |
+|----------|-------------------------|-----------------|------|
+| `POST`   | `/`                     | AssignSubRole   | JWT  |
+| `DELETE` | `/{userId}/{subRole}`   | RevokeSubRole   | JWT  |
+| `GET`    | `/`                     | FindSubRolesByOrg | JWT |
+
+### `auth/AuthContextController` — `/api/v1/auth`
+
+| Method | Path          | Use Case          | Auth |
+|--------|---------------|-------------------|------|
+| `GET`  | `/contexts`   | GetUserContexts   | JWT  |
+
+Params: `userId`
+
+### `operator/OperatorContextController` — `/api/v1/operators`
+
+| Method   | Path                            | Use Case                     | Auth |
+|----------|---------------------------------|------------------------------|------|
+| `POST`   | `/link-party`                   | LinkPartyId                  | JWT  |
+| `POST`   | `/{buildingId}/assign`          | AssignOperatorContext         | JWT  |
+| `DELETE` | `/{buildingId}/revoke/{userId}` | RevokeOperatorContext         | JWT  |
+| `GET`    | `/{buildingId}`                 | FindOperatorsByBuilding       | JWT  |
+| `PUT`    | `/{buildingId}/roles/{userId}`  | AssignRolesToOperatorContext  | JWT  |
+
+### `reference/BuildingReferenceController` — `/api/v1/buildings`
+
+| Method | Path | Use Case          | Auth |
+|--------|------|-------------------|------|
+| `GET`  | `/`  | GetAllBuildings   | JWT  |
+
 ### `base/`
 
 - `ApiResponse<T>`, `PagedApiResponse<T>` — wrapper response chuẩn
@@ -319,3 +406,8 @@ Params: `entityType`, `entityId`, `performedBy`, `page`, `size`
     - `V5__abac_scope_expansion.sql` — mở rộng scope enum
     - `V6__user_role_context.sql` — bảng `user_role_context`, `user_role_context_roles`
     - `V7__migrate_user_roles_to_context.sql` — migrate flat `user_roles` → context model, drop `user_roles`
+    - `V8__named_expression_and_tree_ref.sql` — named expression, tree reference
+    - `V9__iam_extension.sql` — thêm `scope` vào `roles`; thêm `status`, `org_type` vào `user_role_context`; thêm `party_id` vào `users`
+    - `V10__tenant_sub_role.sql` — bảng `tenant_sub_role_assignment`
+    - `V11__reference_cache.sql` — bảng `building_reference`, `org_reference`
+- `db/seed/operator_portal_seed.sql` — seed resource/action/UIElement cho Operator Portal và Building Management (chạy thủ công)

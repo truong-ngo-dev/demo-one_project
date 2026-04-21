@@ -15,6 +15,12 @@ public class RouteConfiguration {
     @Value("${webgateway.routes.oauth2-service.uri}")
     private String oauth2ServiceUri;
 
+    @Value("${webgateway.routes.property-service.uri}")
+    private String propertyServiceUri;
+
+    @Value("${webgateway.routes.party-service.uri}")
+    private String partyServiceUri;
+
     @Bean
     public RouteLocator gateway(RouteLocatorBuilder builder) {
         return builder.routes()
@@ -34,6 +40,22 @@ public class RouteConfiguration {
                                 .saveSession()
                                 .rewritePath("/api/oauth2/(?<segment>.*)", "/api/${segment}"))
                         .uri(oauth2ServiceUri))
+                // /api/property/** → property-service /api/**
+                .route("property-service", rs -> rs
+                        .path("/api/property/**")
+                        .filters(f -> f
+                                .tokenRelay()
+                                .saveSession()
+                                .rewritePath("/api/property/(?<segment>.*)", "/api/${segment}"))
+                        .uri(propertyServiceUri))
+                // /api/party/** → party-service /api/**
+                .route("party-service", rs -> rs
+                        .path("/api/party/**")
+                        .filters(f -> f
+                                .tokenRelay()
+                                .saveSession()
+                                .rewritePath("/api/party/(?<segment>.*)", "/api/${segment}"))
+                        .uri(partyServiceUri))
                 .build();
     }
 }

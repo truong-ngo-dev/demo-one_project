@@ -264,9 +264,10 @@ Phase 1 và 2 có thể song song. Phase 3 và 4 phụ thuộc Phase 1+2.
 
 ## Status
 
-| Phase                                      | Status        |
-|--------------------------------------------|---------------|
-| Phase 1 — Core Infrastructure              | `[ ] Planned` |
-| Phase 2 — Web Gateway Proxy                | `[ ] Planned` |
-| Phase 3 — Admin Panel Extensions           | `[ ] Planned` |
-| Phase 4 — Operator Portal Shell + Features | `[ ] Planned` |
+| Phase                                                   | Status          |
+|---------------------------------------------------------|-----------------|
+| Phase 1 — Core Infrastructure                           | `[x] Completed` |
+| Phase 2 — Web Gateway Proxy                             | `[x] Completed` |
+| Phase 3 — Admin Panel Extensions                        | `[x] Completed` |
+| Phase 3.5 — Building Management (admin + property CRUD) | `[x] Completed` |
+| Phase 4 — Operator Portal Shell + Features              | `[x] Completed` |

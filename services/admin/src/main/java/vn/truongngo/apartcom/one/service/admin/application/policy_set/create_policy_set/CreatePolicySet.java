@@ -48,11 +48,6 @@ public class CreatePolicySet {
             if (repository.existsByName(command.name())) {
                 throw PolicyException.policySetNameDuplicate();
             }
-            if (command.isRoot()) {
-                repository.findAllRoot().forEach(existing ->
-                        repository.save(existing.update(existing.getScope(),
-                                existing.getCombineAlgorithm(), false, existing.getTenantId())));
-            }
             PolicySetDefinition policySet = PolicySetDefinition.create(
                     command.name(), command.scope(), command.combineAlgorithm(),
                     command.isRoot(), command.tenantId());

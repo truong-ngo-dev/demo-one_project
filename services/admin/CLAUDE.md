@@ -37,6 +37,7 @@
 
 1. **[PLANNED] = Không implement** — Verify email, Delete user, MFA. Đọc UC-000_index.md trước khi implement bất kỳ use case nào.
 2. **ABAC đã fully implemented** (UC-019 → UC-036) — Resource/Action, PolicySet/Policy/Rule, UIElement, Simulator, Audit Log, Coverage. Xem [docs/domains/abac.md](docs/domains/abac.md).
-3. **Jackson 3.x** — dùng `tools.jackson.databind.ObjectMapper`, KHÔNG dùng `com.fasterxml.jackson.databind` (Spring Boot 4.x break).
-4. **Internal endpoints** — không expose ra public, cần auth riêng hoặc network policy.
-5. **Out of scope** — không xác thực credentials, không quản lý session.
+3. **Building Management (Phase 3.5)** — Quản lý tòa nhà và cấu trúc asset. Tích hợp với `property-service` và dùng `building_reference` làm cache trong admin-service.
+4. **Jackson 3.x** — dùng `tools.jackson.databind.ObjectMapper`, KHÔNG dùng `com.fasterxml.jackson.databind` (Spring Boot 4.x break).
+5. **Internal endpoints** — không expose ra public, cần auth riêng hoặc network policy.
+6. **Out of scope** — không xác thực credentials, không quản lý session.
